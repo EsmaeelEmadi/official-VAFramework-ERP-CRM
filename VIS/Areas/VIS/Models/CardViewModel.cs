@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web;
 using VAdvantage.DataBase;
 using VAdvantage.Model;
 using VAdvantage.Utility;
@@ -22,8 +19,9 @@ namespace VIS.Models
 
             //   string sqlQuery = " SELECT * FROM AD_CardView c WHERE c.AD_Window_id=" + ad_Window_ID + " and c.AD_Tab_id=" + ad_Tab_ID + " AND c.AD_Client_ID  =" + ctx.GetAD_Client_ID();
 
-            string sqlQuery = @"SELECT AD_CardView.*,AD_DefaultCardView.AD_DefaultCardView_ID,AD_DefaultCardView.AD_User_ID as userID
+            string sqlQuery = @"SELECT AD_CardView.*,AD_DefaultCardView.AD_DefaultCardView_ID,AD_DefaultCardView.AD_User_ID as userID,AD_User.Name AS CreatedName
                             FROM AD_CardView
+                            INNER JOIN AD_User ON AD_CardView.createdBy=AD_User.AD_User_ID
                             LEFT OUTER JOIN AD_DefaultCardView
                             ON AD_CardView.AD_CardView_ID=AD_DefaultCardView.AD_CardView_ID
                             WHERE AD_CardView.IsActive='Y' AND  AD_CardView.AD_Window_id=" + ad_Window_ID + " and AD_CardView.AD_Tab_id=" + ad_Tab_ID + " AND (AD_CardView.AD_User_ID IS NULL OR AD_CardView.AD_User_ID  =" + ctx.GetAD_User_ID() + @" 
@@ -36,9 +34,9 @@ namespace VIS.Models
                 lstCardView = new List<CardViewPropeties>();
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                    bool isDefault=false;
-                    if(ds.Tables[0].Rows[i]["AD_DefaultCardView_ID"] != null && ds.Tables[0].Rows[i]["AD_DefaultCardView_ID"] != DBNull.Value
-                       && ds.Tables[0].Rows[i]["userID"] != null && ds.Tables[0].Rows[i]["userID"] != DBNull.Value 
+                    bool isDefault = false;
+                    if (ds.Tables[0].Rows[i]["AD_DefaultCardView_ID"] != null && ds.Tables[0].Rows[i]["AD_DefaultCardView_ID"] != DBNull.Value
+                       && ds.Tables[0].Rows[i]["userID"] != null && ds.Tables[0].Rows[i]["userID"] != DBNull.Value
                        && ctx.GetAD_User_ID() == Util.GetValueOfInt(ds.Tables[0].Rows[i]["userID"]))
                     {
                         isDefault = true;
@@ -52,13 +50,16 @@ namespace VIS.Models
                         UserID = VAdvantage.Utility.Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_USER_ID"]),
                         AD_GroupField_ID = VAdvantage.Utility.Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_FIELD_ID"]),
                         CreatedBy = Convert.ToInt32(ds.Tables[0].Rows[i]["CREATEDBY"]),
+                        CreatedName = Convert.ToString(ds.Tables[0].Rows[i]["CreatedName"]),
                         AD_HeaderLayout_ID = VAdvantage.Utility.Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HEADERLAYOUT_ID"]),
-                        groupSequence=Convert.ToString(ds.Tables[0].Rows[i]["GROUPSEQUENCE"]),
+                        groupSequence = Convert.ToString(ds.Tables[0].Rows[i]["GROUPSEQUENCE"]),
                         excludedGroup = Convert.ToString(ds.Tables[0].Rows[i]["EXCLUDEDGROUP"]),
                         OrderByClause = Convert.ToString(ds.Tables[0].Rows[i]["ORDERBYCLAUSE"]),
-                        disableWindowPageSize = Convert.ToString(ds.Tables[0].Rows[i]["DISABLEWINDOWPAGESIZE"])=="Y",
+                        disableWindowPageSize = Convert.ToString(ds.Tables[0].Rows[i]["DISABLEWINDOWPAGESIZE"]) == "Y",
                         //IsDefault = VAdvantage.Utility.Util.GetValueOfString(ds.Tables[0].Rows[i]["ISDEFAULT"])=="Y"?true:false,
-                        DefaultID = isDefault
+                        DefaultID = isDefault,
+                        Updated = Convert.ToDateTime(ds.Tables[0].Rows[i]["UPDATED"])
+
                     };
                     lstCardView.Add(objCardView);
                 }
@@ -88,7 +89,6 @@ namespace VIS.Models
             }
             return lstCardViewRole;
         }
-
         public List<CardViewConditionPropeties> GetCardViewCondition(int ad_CardView_ID, Ctx ctx)
         {
             List<CardViewConditionPropeties> lstCardViewRole = null;
@@ -134,7 +134,6 @@ namespace VIS.Models
             }
             return lstUser;
         }
-
         public List<RolePropeties> GetAllRoles(Ctx ctx)
         {
             List<RolePropeties> lstRole = null;
@@ -188,8 +187,9 @@ namespace VIS.Models
                         AD_Field_ID = Convert.ToInt32(ds.Tables[0].Rows[i]["AD_FIELD_ID"]),
                         AD_GroupField_ID = fid,
                         sort = Util.GetValueOfInt(ds.Tables[0].Rows[i]["SORTNO"]),
+                        SeqNo = Util.GetValueOfInt(ds.Tables[0].Rows[i]["SeqNo"]),
                         UserID = uid,
-                        OrderByClause= sortOrder
+                        OrderByClause = sortOrder
 
                     };
                     lstCardViewColumns.Add(objCardView);
@@ -209,7 +209,7 @@ namespace VIS.Models
             }
             return lstCardViewColumns;
         }
-        public int SaveCardViewRecord(string cardViewName, int ad_Window_ID, int ad_Tab_ID, int ad_User_ID, int ad_Field_ID, Ctx ctx, int cardViewID/*, List<RolePropeties> lstRoleId*/, List<CardViewConditionPropeties> lstCVCondition, int AD_HeaderLayout_ID,bool isPublic,string groupSequence,string excludeGrp,string orderByClause)
+        public int SaveCardViewRecord(string cardViewName, int ad_Window_ID, int ad_Tab_ID, int ad_User_ID, int ad_Field_ID, Ctx ctx, int cardViewID/*, List<RolePropeties> lstRoleId*/, List<CardViewConditionPropeties> lstCVCondition, int AD_HeaderLayout_ID, bool isPublic, string groupSequence, string excludeGrp, string orderByClause)
         {
             string conditionValue = string.Empty;
             string conditionText = string.Empty;
@@ -231,7 +231,8 @@ namespace VIS.Models
             {
                 objCardView.SetAD_User_ID(0);
             }
-            else {
+            else
+            {
                 objCardView.SetAD_User_ID(ad_User_ID);
             }
             objCardView.SetAD_Field_ID(ad_Field_ID);
@@ -289,7 +290,6 @@ namespace VIS.Models
             }
             return objCardView.Get_ID();
         }
-
         public void SetDefaultCardView(Ctx ctx, int cardViewID, int AD_Tab_ID)
         {
             string sql = "SELECT AD_DefaultCardView_ID FROM AD_DefaultCardView WHERE AD_Tab_ID=" + AD_Tab_ID + " AND AD_User_ID=" + ctx.GetAD_User_ID();
@@ -308,7 +308,6 @@ namespace VIS.Models
             cardView.Save();
         }
 
-
         public void SaveCardViewColumns(int ad_cardview_id, int ad_Field_ID, int sqNo, Ctx ctx, int sort)
         {
 
@@ -321,6 +320,7 @@ namespace VIS.Models
             {
             }
         }
+
         public void DeleteCardView(int ad_CardView_ID, Ctx ctx)
         {
             string sqlQuery = "DELETE FROM AD_CARDVIEW WHERE AD_CARDVIEW_ID=" + ad_CardView_ID + " AND AD_Client_ID=" + ctx.GetAD_Client_ID();
@@ -457,7 +457,7 @@ namespace VIS.Models
         /// <param name="columnName"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public string UpdateCardByDragDrop(Ctx ctx, string grpValue, int recordID, string columnName, string tableName,int dataType)
+        public string UpdateCardByDragDrop(Ctx ctx, string grpValue, int recordID, string columnName, string tableName, int dataType)
         {
             string result = "1";
             try
@@ -541,6 +541,115 @@ namespace VIS.Models
 
             return columnID + "," + windowID;
         }
+
+        public string getTemplateDesign(Ctx ctx)
+        {
+            string design = "";
+            string sqlQuery = "SELECT * FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N'";
+            DataSet ds = DB.ExecuteDataset(sqlQuery);
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    design += "<div createdBy='"+Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) +"' class='vis-template-single mb-2 d-flex align-items-center justify-content-center'>";                  
+
+                    design += "<div class='mainTemplate' name='"+ Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
+                    sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
+                    DataSet dsSec = DB.ExecuteDataset(sqlQuery);
+                    if (dsSec != null && dsSec.Tables.Count > 0 && dsSec.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < dsSec.Tables[0].Rows.Count; j++)
+                        {
+
+                            string gridStyle = Util.GetValueOfString(dsSec.Tables[0].Rows[j]["BackgroundColor"]);
+                            int totalRow = Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["TotalRows"]);
+                            int totalCol = Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["TotalColumns"]);
+                            if (gridStyle.IndexOf("grid-template-rows") == -1 || gridStyle.IndexOf("grid-template-columns") == -1)
+                            {
+                                gridStyle += ";grid-template-rows:repeat(" + totalRow + ",1fr)";
+                                gridStyle += ";grid-template-columns:repeat(" +totalCol + ",1fr)";
+                            }
+
+                            design += "<div row='"+ totalRow + "' col='"+ totalCol + "' sectionID='" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]) + "' sectionCount='" + (j + 1) + "' class='section" + (j + 1) + " vis-wizard-section' style='" + gridStyle + "'>";
+                            sqlQuery = "SELECT * FROM AD_GRIDLAYOUTITEMS WHERE ISACTIVE='Y' AND AD_GRIDLAYOUT_ID=" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]);
+                            DataSet dsItem = DB.ExecuteDataset(sqlQuery);
+                            if (dsItem != null && dsItem.Tables.Count > 0 && dsItem.Tables[0].Rows.Count > 0)
+                            {
+                                for (int k = 0; k < dsItem.Tables[0].Rows.Count; k++)
+                                {
+                                    string style = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["BackgroundColor"]);
+                                    if (style.IndexOf("grid-area") == -1)
+                                    {
+                                        style += ";grid-area:" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartRow"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartColumn"]);
+                                        style += "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["Rowspan"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["ColumnSpan"]);
+                                    }
+                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"])+ "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "'>";
+                                    //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
+                                    //design += "<fieldValue style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "'>:Value</fieldValue>";
+                                    design += "</div>";
+                                }
+                            }
+                            design += "</div>";
+                        }
+                    }
+                    design += "</div></div>";
+                }
+            }
+
+            return design;
+        }
+        public string saveCardTemplate(Ctx ctx,int CardViewID, int templateID, string templateName, string style, List<CardSection> cardSection, List<CardTempField> cardTempField)
+        {
+            MHeaderLayout mhl = new MHeaderLayout(ctx, templateID, null);
+            if (templateID > 0)
+            {
+                string sql = "DELETE FROM AD_GridLayoutItems WHERE AD_GridLayout_ID IN (SELECT AD_GridLayout_ID FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + mhl.GetAD_HeaderLayout_ID() + ")";
+                DB.ExecuteQuery(sql);
+                DB.ExecuteQuery("DELETE FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + mhl.GetAD_HeaderLayout_ID());
+            }
+            mhl.SetName(templateName);
+            mhl.SetBackgroundColor(style);
+            if (mhl.Save())
+            {
+
+                for (int i = 0; i < cardSection.Count; i++)
+                {
+                    MGridLayout mgl = new MGridLayout(ctx, 0, null);
+                    mgl.SetAD_HeaderLayout_ID(mhl.GetAD_HeaderLayout_ID());
+                    mgl.SetName(cardSection[i].sectionName.Trim());
+                    mgl.SetBackgroundColor(cardSection[i].style.Trim());
+                    mgl.SetTotalRows(cardSection[i].totalRow);
+                    mgl.SetTotalColumns(cardSection[i].totalCol);
+                    if (mgl.Save())
+                    {
+
+                        for (int j = 0; j < cardTempField.Count; j++)
+                        {
+                            if (cardSection[i].sectionNo == cardTempField[j].sectionNo)
+                            {
+                                MGridLayoutItems mli = new MGridLayoutItems(ctx, 0, null);
+                                mli.SetAD_GridLayout_ID(mgl.GetAD_GridLayout_ID());
+                                mli.SetSeqNo(cardTempField[j].seq);
+                                mli.SetStartRow(cardTempField[j].rowStart);
+                                mli.SetRowspan(cardTempField[j].rowEnd);
+                                mli.SetStartColumn(cardTempField[j].colStart);
+                                mli.SetColumnSpan(cardTempField[j].colEnd);
+                                mli.SetBackgroundColor(cardTempField[j].style);
+                                mli.SetJustifyItems(null);
+                                mli.SetAlignItems(null);
+                                mli.Set_Value("IsHeaderView", "N");
+                                mli.SetFieldValueStyle(cardTempField[j].valueStyle);
+                                if (mli.Save())
+                                {
+                                    SaveCardViewColumns(CardViewID, cardTempField[j].fieldID, cardTempField[j].seq,  ctx, 0);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return "";
+        }
     }
 
     public class CardViewPropeties
@@ -561,12 +670,14 @@ namespace VIS.Models
         public bool isNewRecord { get; set; }
         public bool IsDefault { get; set; }
         public int CreatedBy { get; set; }
+        public string CreatedName { get; set; }
         public bool DefaultID { get; set; }
         public bool isPublic { get; set; }
         public int AD_HeaderLayout_ID { get; set; }
         public int sort { get; set; }
         public string OrderByClause { get; set; }
         public bool disableWindowPageSize { get; set; }
+        public DateTime Updated { get; set; }
     }
 
     public class UserPropeties
@@ -596,5 +707,31 @@ namespace VIS.Models
         public List<CardViewPropeties> lstCardViewData { get; set; }
         public List<List<RolePropeties>> lstCardViewRoleData { get; set; }
         public List<CardViewConditionPropeties> lstCardViewConditonData { get; set; }
-    } 
+    }
+
+    public class CardSection
+    {
+        public int sectionID { get; set; }
+        public string sectionName { get; set; }
+        public string style { get; set; }
+        public int sectionNo { get; set; }
+        public int totalRow { get; set; }
+        public int totalCol { get; set; }
+        public int rowGap { get; set; }
+        public int colGap { get; set; }
+    }
+    public class CardTempField
+    {
+        public int cardFieldID { get; set; }
+        public string fieldStyle { get; set; }
+        public string valueStyle { get; set; }
+        public string style { get; set; }
+        public int sectionNo { get; set; }
+        public int fieldID { get; set; }
+        public int rowStart { get; set; }
+        public int rowEnd { get; set; }
+        public int colStart { get; set; }
+        public int colEnd { get; set; }
+        public int seq { get; set; }
+    }
 }

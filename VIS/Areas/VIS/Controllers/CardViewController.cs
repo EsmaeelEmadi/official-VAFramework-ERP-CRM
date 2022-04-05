@@ -150,5 +150,22 @@ namespace VIS.Controllers
             CardViewModel objCardViewModel = new CardViewModel();
             return Json(JsonConvert.SerializeObject(objCardViewModel.GetColumnIDWindowID(tableName, columnName)), JsonRequestBehavior.AllowGet);
         }
+
+        public JsonResult getTemplateDesign()
+        {
+            Ctx ctx = Session["ctx"] as Ctx;
+            CardViewModel objCardViewModel = new CardViewModel();
+            return Json(JsonConvert.SerializeObject(objCardViewModel.getTemplateDesign(ctx)));
+        }
+        public JsonResult saveCardTemplate(int CardViewID, int templateID, string templateName,string style, List<CardSection> cardSection,List<CardTempField> cardTempField)
+        {
+            Ctx ctx = Session["ctx"] as Ctx;
+            CardViewModel objCardViewModel = new CardViewModel();
+            if (CardViewID > 0)
+            {
+                objCardViewModel.DeleteAllCardViewColumns(CardViewID, ctx);
+            }
+            return Json(JsonConvert.SerializeObject(objCardViewModel.saveCardTemplate(ctx, CardViewID, templateID, templateName, style, cardSection, cardTempField)));
+        }
     }
 }
