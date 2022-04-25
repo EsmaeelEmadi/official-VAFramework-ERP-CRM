@@ -1316,7 +1316,7 @@ center {
 
 .vis-main-container {
     display: grid;
-    grid-template-columns: 30% 70%;
+    grid-template-columns: 25% 75%;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.2);
     background-color: #f7f7f7;
 }
@@ -1360,11 +1360,11 @@ center {
 
 .vis-sec-2 {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .vis-sec-2-sub {
-    height: 170px;
+    height: 500px;
     border-radius: 4px;
     overflow:auto;
 }
@@ -1509,7 +1509,7 @@ center {
 /* Section width of card 1 Ends */
 .vis-card-tw-disply {
     width: 100%;
-    height: 400px;
+    height: 465px;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.2);
 }
 
@@ -2422,11 +2422,11 @@ center {
 }
 
 .vis-succes-clr {
-    color: #0d9012;
+    color: rgba(var(--v-c-primary), 1) !important;
 }
 
     .vis-succes-clr:hover {
-        color: #0d9012;
+        color: rgba(var(--v-c-primary), 1) !important;
     }
 
 .vis-lt-radius {
@@ -2453,7 +2453,7 @@ center {
 }
 
 .vis-change-clr-red {
-    color: #cc0000;
+    color: #cc0000 !important;
 }
 
     .vis-change-clr-red:hover {
@@ -2733,7 +2733,7 @@ center {
 
 .vis-sec3-table tbody {
     display: block;
-    height: 85px;
+    height: 310px;
     overflow-y: scroll;
 }
 
@@ -2773,7 +2773,7 @@ center {
 
 .grdDiv {
     border: 1px dotted grey;
-    position: relative;
+    /*position: relative;*/
     padding: 10px
 }
 
@@ -2823,8 +2823,115 @@ center {
     width:100%;
 }
 .vis-sec-three {
-    height: 530px;
+    height: 590px;
     overflow: auto;
+}
+
+.vis-topNavigator {
+    position:absolute;
+    min-width: 100px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    z-index:999;
+}
+
+.vis-topNavigatorIcon {
+    background-color: #3E8CE4;
+    height: 20px;
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: #fff !important;
+    padding: 0 3px;
+    display: inline-block;
+    line-height: 18px;
+    margin-right: -5px
+}
+
+
+    .vis-topNavigatorIcon i {
+        width: 1em;
+        height: 1em;
+        text-transform: none;
+        text-rendering: optimizeLegibility;
+    }
+
+    .vis-topNavigatorIcon:hover {
+        background-color: #387ecd;
+    }
+.vis-color-textbox {
+    min-height: 20px !important;
+    height: 20px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.vis-zero-BTopLeftBLeft {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.vis-borderRadius-status {
+    position:relative;
+    width: 15px;
+    height: 15px;
+    border-radius: 2px;
+    background-color: #fff;
+    border: 1px solid rgba(var(--v-c-on-secondary), 1);
+}
+
+.vis-borderRadius-status:before {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border: 0 solid transparent;
+}
+
+.vis-border-top-left:before {
+    top: -2px;
+    left: -2px;
+    border-top-width: 2px !important;
+    border-left-width: 2px !important;
+    border-top-color: rgba(var(--v-c-primary), 1) !important;
+    border-left-color: rgba(var(--v-c-primary), 1) !important;
+    border-top-left-radius: 3px;
+}
+.vis-border-top-right:before {
+    top: -2px;
+    right: -2px;
+    border-top-width: 2px !important;
+    border-right-width: 2px !important;
+    border-top-color: rgba(var(--v-c-primary), 1) !important;
+    border-right-color: rgba(var(--v-c-primary), 1) !important;
+    border-top-right-radius: 3px;
+}
+.vis-border-bottom-right:before {
+    bottom: -2px;
+    right: -2px;
+    border-bottom-width: 2px !important;
+    border-right-width: 2px !important;
+    border-bottom-color:rgba(var(--v-c-primary), 1) !important;
+    border-right-color: rgba(var(--v-c-primary), 1) !important;
+    border-bottom-right-radius: 3px;
+}
+.vis-border-bottom-left:before {
+    bottom: -2px;
+    left: -2px;
+    border-bottom-width: 2px !important;
+    border-left-width: 2px !important;
+    border-bottom-color: rgba(var(--v-c-primary), 1) !important;
+    border-left-color: rgba(var(--v-c-primary), 1) !important;
+    border-bottom-left-radius: 3px;
+}
+.vis-border-all:before {
+    bottom: -2px;
+    left: -2px;
+    top: -2px;
+    right: -2px;
+    border-width: 2px !important;
+    border-left-width: 2px !important;
+    border-color: rgba(var(--v-c-primary), 1) !important;    
+    border-radius: 3px;
 }
 
 /* -----------End CSS By Mandeep--------------------- */

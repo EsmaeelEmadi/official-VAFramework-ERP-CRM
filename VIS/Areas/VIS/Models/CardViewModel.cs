@@ -4,6 +4,7 @@ using System.Data;
 using VAdvantage.DataBase;
 using VAdvantage.Model;
 using VAdvantage.Utility;
+using VIS.Classes;
 
 namespace VIS.Models
 {
@@ -545,15 +546,15 @@ namespace VIS.Models
         public string getTemplateDesign(Ctx ctx)
         {
             string design = "";
-            string sqlQuery = "SELECT * FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N'";
+            string sqlQuery = "SELECT * FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N' AND (IsSystemTemplate='Y' OR AD_client_ID=" + ctx.GetAD_Client_ID() + ")";
             DataSet ds = DB.ExecuteDataset(sqlQuery);
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                    design += "<div createdBy='"+Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) +"' class='vis-template-single mb-2 d-flex align-items-center justify-content-center'>";                  
+                    design += "<div createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-template-single mb-2 d-flex align-items-center justify-content-center'>";
 
-                    design += "<div class='mainTemplate' name='"+ Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
+                    design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
                     sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
                     DataSet dsSec = DB.ExecuteDataset(sqlQuery);
                     if (dsSec != null && dsSec.Tables.Count > 0 && dsSec.Tables[0].Rows.Count > 0)
@@ -567,10 +568,10 @@ namespace VIS.Models
                             if (gridStyle.IndexOf("grid-template-rows") == -1 || gridStyle.IndexOf("grid-template-columns") == -1)
                             {
                                 gridStyle += ";grid-template-rows:repeat(" + totalRow + ",1fr)";
-                                gridStyle += ";grid-template-columns:repeat(" +totalCol + ",1fr)";
+                                gridStyle += ";grid-template-columns:repeat(" + totalCol + ",1fr)";
                             }
 
-                            design += "<div row='"+ totalRow + "' col='"+ totalCol + "' sectionID='" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]) + "' sectionCount='" + (j + 1) + "' class='section" + (j + 1) + " vis-wizard-section' style='" + gridStyle + "'>";
+                            design += "<div row='" + totalRow + "' col='" + totalCol + "' sectionID='" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]) + "' sectionCount='" + (j + 1) + "' class='section" + (j + 1) + " vis-wizard-section' style='" + gridStyle + "'>";
                             sqlQuery = "SELECT * FROM AD_GRIDLAYOUTITEMS WHERE ISACTIVE='Y' AND AD_GRIDLAYOUT_ID=" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]);
                             DataSet dsItem = DB.ExecuteDataset(sqlQuery);
                             if (dsItem != null && dsItem.Tables.Count > 0 && dsItem.Tables[0].Rows.Count > 0)
@@ -583,7 +584,7 @@ namespace VIS.Models
                                         style += ";grid-area:" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartRow"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartColumn"]);
                                         style += "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["Rowspan"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["ColumnSpan"]);
                                     }
-                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"])+ "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "'>";
+                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "'>";
                                     //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
                                     //design += "<fieldValue style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "'>:Value</fieldValue>";
                                     design += "</div>";
@@ -598,7 +599,7 @@ namespace VIS.Models
 
             return design;
         }
-        public string saveCardTemplate(Ctx ctx,int CardViewID, int templateID, string templateName, string style, List<CardSection> cardSection, List<CardTempField> cardTempField)
+        public int saveCardTemplate(Ctx ctx, int CardViewID, int templateID, string templateName, string style, List<CardSection> cardSection, List<CardTempField> cardTempField)
         {
             MHeaderLayout mhl = new MHeaderLayout(ctx, templateID, null);
             if (templateID > 0)
@@ -607,10 +608,16 @@ namespace VIS.Models
                 DB.ExecuteQuery(sql);
                 DB.ExecuteQuery("DELETE FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + mhl.GetAD_HeaderLayout_ID());
             }
+            else
+            {
+                mhl.Set_Value("IsSystemTemplate", "N");
+            }
             mhl.SetName(templateName);
+            mhl.SetIsHeaderView(false);
             mhl.SetBackgroundColor(style);
             if (mhl.Save())
             {
+                templateID = mhl.GetAD_HeaderLayout_ID();
 
                 for (int i = 0; i < cardSection.Count; i++)
                 {
@@ -627,6 +634,11 @@ namespace VIS.Models
                         {
                             if (cardSection[i].sectionNo == cardTempField[j].sectionNo)
                             {
+                                string columnSQL = null;
+                                if (!string.IsNullOrEmpty(cardTempField[j].columnSQL))
+                                {
+                                    columnSQL = SecureEngineBridge.DecryptByClientKey(cardTempField[j].columnSQL, ctx.GetSecureKey());
+                                }
                                 MGridLayoutItems mli = new MGridLayoutItems(ctx, 0, null);
                                 mli.SetAD_GridLayout_ID(mgl.GetAD_GridLayout_ID());
                                 mli.SetSeqNo(cardTempField[j].seq);
@@ -637,18 +649,20 @@ namespace VIS.Models
                                 mli.SetBackgroundColor(cardTempField[j].style);
                                 mli.SetJustifyItems(null);
                                 mli.SetAlignItems(null);
-                                mli.Set_Value("IsHeaderView", "N");
                                 mli.SetFieldValueStyle(cardTempField[j].valueStyle);
+                                mli.SetHideFieldIcon(cardTempField[j].hideFieldIcon);
+                                mli.SetHideFieldText(cardTempField[j].hideFieldText);
+                                mli.SetColumnSQL(columnSQL);
                                 if (mli.Save())
                                 {
-                                    SaveCardViewColumns(CardViewID, cardTempField[j].fieldID, cardTempField[j].seq,  ctx, 0);
+                                    //SaveCardViewColumns(CardViewID, cardTempField[j].fieldID, cardTempField[j].seq,  ctx, 0);
                                 }
                             }
                         }
                     }
                 }
             }
-            return "";
+            return templateID;
         }
     }
 
@@ -726,6 +740,9 @@ namespace VIS.Models
         public string fieldStyle { get; set; }
         public string valueStyle { get; set; }
         public string style { get; set; }
+        public string columnSQL { get; set; }
+        public bool hideFieldIcon { get; set; }
+        public bool hideFieldText { get; set; }
         public int sectionNo { get; set; }
         public int fieldID { get; set; }
         public int rowStart { get; set; }
