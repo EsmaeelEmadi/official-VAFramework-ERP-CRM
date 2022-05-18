@@ -30,13 +30,13 @@
 
         var root, ch;
         var btnCardCustomization = null;
-        var btnBackCardCustomization = null;
+        var btnChangeTemplate = null;
         var btnSaveClose = null;
         var DivCradStep1 = null;
         var DivCradStep2 = null;
-        var btnNext = null;
         var btnLayoutSetting = null;
         var btnFinesh = null;
+        var btnOnlySave = null;
         var count = 1;
         var LstCardViewCondition = null;
         var dbResult = null;
@@ -97,10 +97,16 @@
         var hideShowGridSec = null;
         var txtZoomInOut = null;
         var divTopNavigator = null;
+        var btn_BlockCancel = null;
+        var btnTemplateBack = null;
+        var spnLastSaved = null;
+        var isChange = false;
+        var isOnlySave = false;
+        var isSystemTemplate = 'Y';
         var gridObj = {
         };
         function init() {
-            root = $('<div style="width:1148px"></div>');
+            root = $('<div style="height:100%"></div>');
             isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
             root.append(isBusyRoot);
             CardViewUI();
@@ -121,30 +127,36 @@
             /*Step 1 Events*/
             btnCardCustomization.click(function (e) {
                 closeDialog = false; 
-
                 divTopNavigator.hide();
                 count=1;
                 DivTemplate.show();
-                DivViewBlock.find('fields').hide();
-                DivViewBlock.find('fieldvalue').hide();
-                DivCardFieldSec.hide();
-                hideShowGridSec.hide();
-                btnLayoutSetting.show();
-                btnBack.show();
-                btnBackCardCustomization.hide();
-                btnFinesh.hide();
-                hideShowGridSec.next().find('a').click();
-                //btnCancle.trigger("click");
+                DivCardFieldSec.hide();               
                 DivCradStep1.hide();
-                DivCradStep2.show();
-                //SaveChanges(e);                
-                DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().click();                
+                DivCradStep2.show();              
+                DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().click();
+                DivStyleSec1.hide();
+                DivCradStep2.find('.vis-two-sec-two').hide();
+                if (!isNewRecord) {
+                    btnLayoutSetting.click();
+                }
             });
 
             btnSaveClose.click(function (e) {
                 closeDialog = true;
                 cardViewColArray = [];
                 SaveChanges(e);
+            });
+
+            btnTemplateBack.click(function (e) {
+                if (AD_CardView_ID == "undefined") {
+                    btnBack.click();
+                } else {
+                    count++;
+                    DivTemplate.hide();
+                    DivCardFieldSec.show();
+                    DivCradStep2.find('.vis-two-sec-two').show();
+                    DivStyleSec1.show();
+                }
             });
 
             btnNewCard.click(function () {
@@ -163,27 +175,29 @@
 
                 cardsList.prepend($(template));
                 AD_HeaderLayout_ID = 0;
-                AD_CardView_ID = "undefined";
+                AD_CardView_ID = "undefined"; 
+                btnTemplateBack.text(VIS.Msg.getMsg("Back"));
+                btnLayoutSetting.text(VIS.Msg.getMsg("Next"));
                 btnCardCustomization.click();
             });
 
-            btnEdit.click(function () {
-                isEdit = true;
-                isNewRecord = false;
-                enableDisable(true);
-                chkDefault.parent().hide();
-            });
+            //btnEdit.click(function () {
+            //    isEdit = true;
+            //    isNewRecord = false;
+            //    enableDisable(true);
+            //    chkDefault.parent().hide();
+            //});
 
-            btnCopy.click(function () {
-                isEdit = true;
-                isNewRecord = false;
-                enableDisable(true);
-                chkDefault.parent().hide();
-            });
+            //btnCopy.click(function () {
+            //    isEdit = true;
+            //    isNewRecord = false;
+            //    enableDisable(true);
+            //    chkDefault.parent().hide();
+            //});
 
             btnCancle.click(function () {
                 isNewRecord = false;
-                isEdit = false;
+                isEdit = true;
                 enableDisable(false);
                 if (lastSelectedID) {
                     cardsList.find('.crd-active').remove();
@@ -193,43 +207,50 @@
                 cardsList.find('.crd-active').trigger('click');
             });
 
-            btnLayoutSetting.click(function () {    
+            btnLayoutSetting.click(function () {   
+                addSelectedTemplate();
                 count++;
                 fillcardLayoutfromTemplate(); 
-                DivTemplate.hide();
-                DivViewBlock.find('fields').show();
-                DivViewBlock.find('fieldvalue').show();
+                DivTemplate.hide();               
                 DivCardFieldSec.show();
-                hideShowGridSec.show();
-                btnLayoutSetting.hide();
-                btnBack.hide();
-                btnBackCardCustomization.show();
-                btnFinesh.show();
+                DivCradStep2.find('.vis-two-sec-two').show();
+                DivStyleSec1.show();
+                if (AD_HeaderLayout_ID == 0 && DivGridSec.find('.rowBox').length==1) {
+                    DivGridSec.find('.addGridCol').click();
+                    DivGridSec.find('.addGridRow').click();
+                }
+                //FillFields(true, false);
             });
 
-            btnBackCardCustomization.click(function () {
+            btnChangeTemplate.click(function () {
+                btnTemplateBack.text(VIS.Msg.getMsg("Cancle"));
+                btnLayoutSetting.text(VIS.Msg.getMsg("Ok"));
                 divTopNavigator.hide();
                 count--;
-                DivTemplate.show();
-                DivViewBlock.find('fields').hide();
-                DivViewBlock.find('fieldvalue').hide();
+                DivTemplate.show();                
                 DivCardFieldSec.hide();
-                hideShowGridSec.hide();
-                btnLayoutSetting.show();
-                btnBack.show();
-                btnBackCardCustomization.hide();
-                btnFinesh.hide();
-                hideShowGridSec.next().find('a').click();
+                DivStyleSec1.hide();
+                DivCradStep2.find('.vis-two-sec-two').hide();
             });
+            
 
-
-            btnFinesh.click(function (e) {               
+            btnFinesh.click(function (e) {    
+                isOnlySave = false;
                 saveTemplate(e);
             });
 
+            btnOnlySave.click(function (e) {
+                isOnlySave = true;
+                saveTemplate(e);
+                var tme = new Date().toLocaleTimeString().replace("/.*(\d{2}:\d{2}:\d{2}).*/", "$1");
+                spnLastSaved.text(VIS.Msg.getMsg("LastSaved")+" "+tme);
+            });
+
             btnBack.click(function () {
+                resetAll();
                 DivCradStep1.show();
                 DivCradStep2.hide();
+                btnCancle.click();
             });
 
             btnDelete.click(function () {
@@ -555,20 +576,20 @@
                 var selectedItem = DivViewBlock.find('.vis-active-block');
                 if ($(this).val() == null || $(this).val() == "") {
                     selectedItem.find('sql').remove();
+                    selectedItem.attr("query", "");
                 } else {
                     var qry = VIS.secureEngine.encrypt($(this).val());
+                    selectedItem.attr("query", qry);
                     if (selectedItem.find('sql').length == 0) {
 
-                        selectedItem.append('<sql query="' + qry + '">SQL</sql>');
-                    } else {
-                        selectedItem.find('sql').attr('query', qry);
-                    }
+                        selectedItem.append('<sql>SQL</sql>');
+                    } 
                 }
                 
             });
 
             txtZoomInOut.on('input', function () {
-                DivViewBlock.find('.vis-viewBlock').css('zoom', $(this).val());
+                DivViewBlock.find('.canvas').css('zoom', $(this).val());
             })
 
             /* End Step 1*/
@@ -584,10 +605,12 @@
                 btnCardCustomization = root.find('#btnCardCustomization_' + WindowNo);
                 btnSaveClose = root.find('#btnSaveCloseStep1_' + WindowNo);
                 btnLayoutSetting = root.find('#BtnLayoutSetting_' + WindowNo);
-                btnBackCardCustomization = root.find('#BtnBackCardCustomization_' + WindowNo);
+                btnChangeTemplate = root.find('#BtnChangeTemplate_' + WindowNo);
+                btnTemplateBack = root.find('#BtnTemplateBack_' + WindowNo);
 
                 btnBack = root.find('#BtnBack_' + WindowNo);
                 btnFinesh = root.find('#BtnFinesh_' + WindowNo);
+                btnOnlySave = root.find('#btnOnlySave_' + WindowNo);
                 cardsList = root.find('#DivCardList_' + WindowNo);
                 txtCardName = root.find('#txtCardName_' + WindowNo);
                 cmbGroupField = root.find('#cmbGroupField_' + WindowNo);
@@ -603,8 +626,8 @@
                 chkDefault = root.find('#chkDefault_' + WindowNo);
                 chkPublic = root.find('#chkPublic_' + WindowNo);
                 btnNewCard = root.find('#btnNewCard_' + WindowNo);
-                btnCopy = root.find('#btnCopy_' + WindowNo);
-                btnEdit = root.find('#btnEdit_' + WindowNo);
+                //btnCopy = root.find('#btnCopy_' + WindowNo);
+                //btnEdit = root.find('#btnEdit_' + WindowNo);
                 btnDelete = root.find('#btnDelete_' + WindowNo);
                 btnCancle = root.find('#btnCancle_' + WindowNo);
                 chkGradient = root.find('#chkGradient_' + WindowNo);
@@ -617,6 +640,7 @@
                 btnCardAsc = root.find('#btnCardAsc_' + WindowNo);
                 btnCardDesc = root.find('#btnCardDesc_' + WindowNo);
                 btnAddOrder = root.find('#btnAddOrder_' + WindowNo);
+                spnLastSaved = root.find('#spnLastSaved_' + WindowNo);
                 /*END Step 1*/
 
                 /* Step 2*/
@@ -628,7 +652,7 @@
                 chkAllMargin = root.find('#chkAllMargin_' + WindowNo);
                 chkAllBorder = root.find('#chkAllBorder_' + WindowNo);
                 DivGridSec = root.find('#DivGridSec_' + WindowNo);
-                hideShowGridSec = root.find('.DivGridSec');
+                //hideShowGridSec = root.find('.DivGridSec');
                 DivTemplate = root.find('#DivTemplate_' + WindowNo);
                 DivCardField = root.find('#DivCardField_' + WindowNo);
                 //txtTemplateName = root.find('#txtTemplateName_' + WindowNo);
@@ -636,6 +660,8 @@
                 txtCustomStyle = root.find('#txtCustomStyle_' + WindowNo);
                 txtSQLQuery = root.find('#txtSQLQuery_' + WindowNo);
                 txtZoomInOut = root.find('#txtZoomInOut_' + WindowNo);
+                btn_BlockCancel = root.find('#Btn_BlockCancel_' + WindowNo);
+               
                 divTopNavigator = DivCradStep2.find('.vis-topNavigator');
                 txtRowGap = DivGridSec.find('.rowGap');
                 txtColGap = DivGridSec.find('.colGap');
@@ -686,7 +712,13 @@
                     btnNewCard.click();
                     btnCancle.addClass('vis-disable-event');
                 }
+
+                isEdit = true;
+                isNewRecord = false;
+                chkDefault.parent().hide();
             });
+
+
         }
 
         // #region Step 1 functions
@@ -840,6 +872,7 @@
             });
 
             DivGridSec.find('.section-active .vis-grey-disp-el').click();
+            DivGridSec.find('.vis-grey-disp-el-xross').eq(1).hide();
 
             DivCardField.find('fields[seqNo]').each(function (i) {
                 var fID = $(this).attr('fieldid');
@@ -884,12 +917,16 @@
                                 fidItm.append($('<i class="fa fa-star">&nbsp;</i>'));
                             }
                         }
-                        var vlue = hideTxt ? "&nbsp;" : vlu;
+                        var cls = hideTxt ? "displayNone" : "";
                         if (mTab.getFieldById(Number(fID)).getDisplayType() == VIS.DisplayType.Image) {
                             var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
-                            fidItm.append($('<fields draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlue + '</fields><fieldvalue style="' + vlstyle + '"><img style="' + imgStyle + '" src="' + src + '"/></fieldvalue>'));
+                            fidItm.append($('<fields class="' + cls+'" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</fields><fieldvalue style="' + vlstyle + '"><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/></fieldvalue>'));
                         } else {
-                            fidItm.append($('<fields draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlue + '</fields><fieldvalue style="' + vlstyle + '">:Value</fieldvalue>'));
+                            fidItm.append($('<fields class="' + cls +'" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</fields><fieldvalue style="' + vlstyle + '">:Value</fieldvalue>'));
+                        }
+
+                        if (fidItm.attr("query") != null && fidItm.attr("query") != "") {
+                            fidItm.append('<sql>SQL</sql>');
                         }
                         //$(this).remove();
                     }
@@ -1026,7 +1063,7 @@
 
                                 //iClone.find('.vis-change-clr-red').addClass('linked').removeClass('vis-change-clr-red');
                                 //iClone.find('.fa-chain-broken').addClass('fa-link vis-succes-clr').removeClass('fa-chain-broken');
-                                if (DivViewBlock.find('[seqNo="' + CVColumns[i].SeqNo + '"]')) {
+                                if (DivViewBlock.find('.canvas [seqNo="' + CVColumns[i].SeqNo + '"]')) {
                                     iClone.find('.fa-circle').addClass('linked vis-succes-clr');
                                     iClone.prop("draggable", false);
                                 }
@@ -1045,6 +1082,8 @@
                                 DivCardField.append(iClone);
                                 iClone = DivCardField.find('fields:first').clone(true);
                                 iClone.removeClass('displayNone');
+
+
 
                                 // ulRoot.append("<li seqno=" + 0 + " index=" + i + " CardViewColumnID=" + 0 + " FieldID=" + CVColumns[i].AD_Field_ID + "> <span>" + CVColumns[i].FieldName + "</span></li>");
 
@@ -1080,37 +1119,29 @@
                         }
 
                         cardViewColArray.push({ AD_Field_ID: includedFields[i].getAD_Field_ID(), CardViewID: AD_CardView_ID, SeqNo: 0, FieldName: includedFields[i].getHeader() });
-                        //IncldfeildClone.find('.vis-sub-itm-title').text(includedFields[i].getHeader());
-                        //IncldfeildClone.attr("fieldid", includedFields[i].AD_Field_ID);
-                        //includedFeilds.append(IncldfeildClone);
-                        //IncldfeildClone = includedFeilds.find('.vis-sec-2-sub-itm:last').clone(true);        
+                               
                         
                         iClone.prepend(includedFields[i].getHeader()).attr("title", includedFields[i].getHeader());
                         if (DivViewBlock.find('[seqNo="' + includedFields[i].SeqNo + '"]')) {
                             iClone.find('.fa-circle').addClass('linked vis-succes-clr');
                         }
                        
-                        //iClone.find('.fa-chain-broken').addClass('fa-link vis-succes-clr').removeClass('fa-chain-broken');
 
-                        if (mTab.getFieldById(includedFields[i].AD_Field_ID).getShowIcon()) {
+                        if (mTab.getFieldById(includedFields[i].getAD_Field_ID()).getShowIcon()) {
                             iClone.attr("showfieldicon", false);
                         }
 
-                        if (mTab.getFieldById(includedFields[i].AD_Field_ID).getDisplayType() == VIS.DisplayType.Image) {
-                            iClone.attr("fieldid", includedFields[i].AD_Field_ID).attr("seqNo", includedFields[i].SeqNo).attr("displayType", "img");
+                        if (mTab.getFieldById(includedFields[i].getAD_Field_ID()).getDisplayType() == VIS.DisplayType.Image) {
+                            iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo).attr("displayType", "img");
                         } else {
-                            iClone.attr("fieldid", includedFields[i].AD_Field_ID).attr("seqNo", includedFields[i].SeqNo);
+                            iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo);
                         }
 
-
-
-                        iClone.attr("fieldid", includedFields[i].AD_Field_ID).attr("seqNo", includedFields[i].SeqNo);
-                        iClone.attr("id", WindowNo + "_" + includedFields[i].AD_Field_ID);
+                        iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo);
+                        iClone.attr("id", WindowNo + "_" + includedFields[i].getAD_Field_ID());
                         DivCardField.append(iClone);
                         iClone = DivCardField.find('fields:first').clone(true);
                         iClone.removeClass('displayNone');
-
-                        //ulRoot.append("<li seqno=" + 0 + " index=" + i + " CardViewColumnID=" + 0 + " FieldID=" + includedFields[i].getAD_Field_ID() + "> " + includedFields[i].getHeader() + "</li>");
                     }
                 }
             }
@@ -1184,10 +1215,11 @@
                         item.insertBefore(before);
                     }
                 }
-
+                groupSequenceFeilds.closest('.vis-sec-2-wrapper').css('height', '100%');
             } else {
                 //ulGroupSeqColumns.parent().css("background-color", "rgba(var(--v-c-on-secondary), 0.04)");
-                groupSequenceFeilds.append('<div class="onlyLOV" style="padding-top:40%;text-align:center" key="">' + VIS.Msg.getMsg("OnlyForLOV") + '</div>');
+                groupSequenceFeilds.closest('.vis-sec-2-wrapper').css('height', '100%');
+                groupSequenceFeilds.append('<div class="onlyLOV"  key=""><span>' + VIS.Msg.getMsg("OnlyForLOV") + '</span></div>');
             }
             groupSequenceFeilds.sortable({
                 disabled: false
@@ -1371,13 +1403,13 @@
         var ControlMgmt = function (indx) {
             if (indx && cardViewInfo && cardViewInfo[indx] && cardViewInfo[indx].CreatedBy == VIS.context.getAD_User_ID()) {
                 isSameUser = true;
-                btnCopy.addClass('vis-disable-event');
-                btnEdit.removeClass('vis-disable-event');
+                //btnCopy.addClass('vis-disable-event');
+                //btnEdit.removeClass('vis-disable-event');
                 btnDelete.removeClass('vis-disable-event');
             } else {
                 isSameUser = false;
-                btnCopy.removeClass('vis-disable-event');
-                btnEdit.addClass('vis-disable-event');
+                //btnCopy.removeClass('vis-disable-event');
+                //btnEdit.addClass('vis-disable-event');
                 btnDelete.addClass('vis-disable-event');
             }
             if (VIS.MRole.isAdministrator) {
@@ -1385,45 +1417,45 @@
             } else {
                 chkPublic.hide();
             }
-            DivCradStep1.find('.vis-cr-right *:not(.vis-submit-win-btn *)').attr('disabled', 'disabled').css("pointer-events", "none");
-            DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
-            DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
-            txtCardName.attr("disabled", "disabled");
+            //DivCradStep1.find('.vis-cr-right *:not(.vis-submit-win-btn *)').attr('disabled', 'disabled').css("pointer-events", "none");
+            //DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
+            //DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
+            //txtCardName.attr("disabled", "disabled");
         }
 
         var enableDisable = function (isEnable) {
-            if (isEnable) {
-                DivCradStep1.find('.vis-cr-right *').removeAttr('disabled').css("pointer-events", "auto");;
-                //availableFeilds.sortable('enable');
-                //includedFeilds.sortable('enable');
-                groupSequenceFeilds.sortable('enable');
-                cardsList.find('div').css("pointer-events", "none");
-                btnCancle.removeClass('vis-disable-event');
-                btnEdit.addClass('vis-disable-event');
-                btnNewCard.addClass('vis-disable-event');
-                btnCopy.addClass('vis-disable-event');
-                txtCardName.removeAttr('disabled');
-            } else {
-                DivCradStep1.find('.vis-cr-right *:not(.vis-submit-win-btn *)').attr('disabled', 'disabled').css("pointer-events", "none");;
-                //availableFeilds.sortable('disable');
-                //includedFeilds.sortable('disable');
-                groupSequenceFeilds.sortable('disable');
-                btnCancle.addClass('vis-disable-event');
+            //if (isEnable) {
+            //    DivCradStep1.find('.vis-cr-right *').removeAttr('disabled').css("pointer-events", "auto");;
+            //    //availableFeilds.sortable('enable');
+            //    //includedFeilds.sortable('enable');
+            //    groupSequenceFeilds.sortable('enable');
+            //    cardsList.find('div').css("pointer-events", "none");
+            //    btnCancle.removeClass('vis-disable-event');
+            //    btnEdit.addClass('vis-disable-event');
+            //    btnNewCard.addClass('vis-disable-event');
+            //    btnCopy.addClass('vis-disable-event');
+            //    txtCardName.removeAttr('disabled');
+            //} else {
+            //    DivCradStep1.find('.vis-cr-right *:not(.vis-submit-win-btn *)').attr('disabled', 'disabled').css("pointer-events", "none");;
+            //    //availableFeilds.sortable('disable');
+            //    //includedFeilds.sortable('disable');
+            //    groupSequenceFeilds.sortable('disable');
+            //    btnCancle.addClass('vis-disable-event');
 
-                isSameUser ? btnEdit.removeClass('vis-disable-event') : btnCopy.removeClass('vis-disable-event');
-                btnNewCard.removeClass('vis-disable-event');
-                cardsList.find('div').css("pointer-events", "auto");
+            //    isSameUser ? btnEdit.removeClass('vis-disable-event') : btnCopy.removeClass('vis-disable-event');
+            //    btnNewCard.removeClass('vis-disable-event');
+            //    cardsList.find('div').css("pointer-events", "auto");
 
-                DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
-                DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
-                txtCardName.attr("disabled", "disabled");
-            }
+            //    DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
+            //    DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
+            //    txtCardName.attr("disabled", "disabled");
+            //}
 
             if (isNewRecord || isEdit) {
-                btnNewCard.addClass('vis-disable-event');
-                btnEdit.addClass('vis-disable-event');
+                //btnNewCard.addClass('vis-disable-event');
+               // btnEdit.addClass('vis-disable-event');
 
-                btnCopy.addClass('vis-disable-event');
+               // btnCopy.addClass('vis-disable-event');
 
                 isNewRecord ? btnDelete.addClass('vis-disable-event') : btnDelete.removeClass('vis-disable-event');
 
@@ -1532,8 +1564,10 @@
                 else {
                     isEdit = true;
                     isNewRecord = false;
-                    DivCradStep1.show();
-                    DivCradStep2.hide();
+                    if (!isOnlySave) {
+                        DivCradStep1.show();
+                        DivCradStep2.hide();
+                    }
                 }
             }
         };
@@ -1659,8 +1693,10 @@
                         }
                         isEdit = true;
                         isNewRecord = false;
-                        DivCradStep1.show();
-                        DivCradStep2.hide();
+                        if (!isOnlySave) {
+                            DivCradStep1.show();
+                            DivCradStep2.hide();
+                        }
                     }
                     IsBusy(false);
 
@@ -1680,7 +1716,7 @@
             sortOrderArray = [];
             lastSortOrderArray = [];
             LastCVCondition = [];
-            FillFields(false, false);
+            //FillFields(false, false);
             //includedFeilds.find('.vis-sec-2-sub-itm:not(.displayNone)').remove();
             cardviewCondition = [];
             AddRow(cardviewCondition);
@@ -1732,7 +1768,7 @@
                 }
 
                 if (VIS.DisplayType.IsNumeric(crtlObj.getDisplayType())) {
-                    return 0;
+                   // return 0;
                 }
                 // return control's value
                 if (crtlObj.getValue() == '') {
@@ -1899,7 +1935,9 @@
                         //crt.getControl().css("width", "60%");
                         btn.css("max-width", "35px");
                     }
-                    divValue1.append('<label for="txtQueryValue">' + VIS.Msg.getMsg("QueryValue") + '</label>');
+                    if (VIS.DisplayType.YesNo != field.getDisplayType()) {
+                        divValue1.append('<label for="txtQueryValue">' + VIS.Msg.getMsg("QueryValue") + '</label>');
+                    }
                 }
             }
         };
@@ -1941,7 +1979,49 @@
             sortList.append(item);
         };
 
+        function addSelectedTemplate() {
+            var $this = DivTemplate.find('.vis-active-template').clone(true);
+            $this.find('fieldvalue').remove();
+            CardCreatedby = $this.attr("createdBy");
+            isSystemTemplate = $this.attr("isSystemTemplate");
+            AD_HeaderLayout_ID = $this.find('.mainTemplate').attr('templateid');
+            templateName = $this.find('.mainTemplate').attr('name');
+            if (AD_HeaderLayout_ID == "0") {
 
+                $this.find('.mainTemplate').html($('<div sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>'));
+            }
+            //txtTemplateName.val($(this).find('.mainTemplate').attr('name')).attr("templateid", $(this).find('.mainTemplate').attr('templateid'));
+
+            if ($this.html() != "" || $this.html() != null) {
+                $this.find('.vis-wizard-section').each(function () {
+                    var row = $(this).attr('row');
+                    var col = $(this).attr('col');
+                    var arr = [];
+                    for (var i = 0; i < (row * col); i++) {
+                        arr.push('<div class="grdDiv" style="display:none"></div>');
+                    }
+
+                    $(this).find('.grdDiv').each(function () {
+                        var areagrid = $(this).css('grid-area').split('/');
+                        var idx = col * ($.trim(areagrid[0]) - 1) + ($.trim(areagrid[1]) - 1);
+                        if ($.trim(areagrid[0]) != ($.trim(areagrid[2]) - 1) || $.trim(areagrid[1]) != ($.trim(areagrid[3]) - 1)) {
+                            $(this).append('<span class="vis-split-cell"></span>');
+                        }
+                        arr[idx] = $(this)[0].outerHTML;
+                    });
+                    $(this).html(arr.join(" "));
+                });
+                DivViewBlock.find('.grdDiv').unbind('mouseover');
+                DivViewBlock.find('.vis-viewBlock').attr("style", $this.find('.mainTemplate').attr('style') || '');
+                DivViewBlock.find('.vis-viewBlock').html($this.find('.mainTemplate').html());
+                DivViewBlock.find('.grdDiv').mouseover(function (e) {
+                    if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                        selectTo($(this));
+                    }
+                });
+            }
+           
+        }
 
         // #endregion
 
@@ -2302,13 +2382,21 @@
             divTopNavigator.find("i").click(function () {
                 var blok = DivViewBlock.find('.vis-active-block');
                 var cmd = $(this).attr('command');
+                isChange = true;
                 if (cmd == 'Show') {
                     if (blok.prop('tagName') == 'I') {
                         blok.attr("class", "fa fa-star");
                         blok.next().attr('showFieldIcon', false);
                     } else {
-                        blok.attr('showFieldText', false);
-                        blok.text(blok.attr('title'));
+                        if (blok.prop("tagName") == 'IMG') {
+                            blok.parent().prev().attr('showFieldText', false);
+                            blok.parent().prev().removeClass("displayNone");
+                        } else {
+                            blok.prev().attr('showFieldText', false);
+                            blok.prev().removeClass("displayNone");
+                        }
+                        
+                        //blok.text(blok.attr('title'));
                     }
 
                     divTopNavigator.find('[command="Hide"]').parent().show();
@@ -2319,11 +2407,13 @@
                         blok.next().attr('showFieldIcon', true);
                     } else {
                         blok.attr('showFieldText', true);
-                        blok.html('&nbsp;');
+                        blok.addClass("displayNone");
+                        //blok.html('&nbsp;');
                     }
                     divTopNavigator.find('[command="Hide"]').parent().hide();
                     divTopNavigator.find('[command="Show"]').parent().show();
                 } else if (cmd == 'SelectParent') {
+                    isChange = false;
                     if (blok.prop("tagName") == 'IMG') {
                         blok.parent().parent().mousedown().mouseup();
                     } else {
@@ -2340,14 +2430,20 @@
                 } else if (cmd == 'Unlink') {
                     unlinkField(blok.attr('title'), blok);
                 }
+
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
+               // divTopNavigator.hide();
             });
 
-            var viewBlock = DivViewBlock.find('*');
+            var viewBlock = DivViewBlock.find('.canvas *');
 
             viewBlock.mousedown(function (e) {
                 if (e.target.tagName == 'SQL') {
                     return;
                 }
+                
                 divTopNavigator.find('[command="Merge"]').parent().hide();
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 if (count == 1) {
@@ -2390,9 +2486,20 @@
                             divTopNavigator.find('[command="Show"]').parent().hide();
                             divTopNavigator.find('[command="Hide"]').parent().show();
                         }
-                    } else {                       
+                    } else {
+                        if (e.target.tagName == 'IMG') {
+                            var isTrue = $(e.target).parent().prev().attr('showFieldText') == 'true' ? true : false;
+                            divTopNavigator.find('[command="fieldName"]').text($(e.target).parent().prev().attr('title')).show();
+                        } else if (e.target.tagName == 'FIELDVALUE') {
+                            var isTrue = $(e.target).prev().attr('showFieldText') == 'true' ? true : false;
+                            divTopNavigator.find('[command="fieldName"]').text($(e.target).prev().attr('title')).show();
+                        }
                         divTopNavigator.find('[command="Show"]').parent().hide();
                         divTopNavigator.find('[command="Hide"]').parent().hide();
+                        if (isTrue) {
+                            divTopNavigator.find('[command="Show"]').parent().show();
+                        }
+                       
                     }
 
                     if ($(e.target).find('.vis-split-cell').length == 0) {
@@ -2426,8 +2533,11 @@
                 var mvalue = styleValue.replace(styleValue.replace(/\d+/g, ""), "");
                 if (editorProp[commend] && editorProp[commend].measurment && styleValue != "" && $(this).attr('type') != 'color') {
                     if (measurment.indexOf(mtext) < 0) {
-                        $(this).addClass('vis-editor-validate');
-                        return;
+                        if (isNaN(Number(mvalue))) {
+                            $(this).addClass('vis-editor-validate');
+                            return;
+                        }
+                        $(this).val(mvalue + "px");
                     } else if (isNaN(Number(mvalue))) {
                         $(this).addClass('vis-editor-validate');
                         return;
@@ -2466,6 +2576,11 @@
                     applyCommend(commend, editorProp[commend].value);
                 }
 
+                if ($(this).parent().hasClass('vis-hr-elm-inn-active')) {
+                    $(this).parent().removeClass('vis-hr-elm-inn-active');
+                } else {
+                    $(this).parent().addClass('vis-hr-elm-inn-active');
+                }
             });
 
             DivGridSec.find('.addGridRow').click(function () {
@@ -2473,6 +2588,10 @@
                 rClone.show();
                 DivGridSec.find('.DivRowBox').append(rClone);
                 createGrid();
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
             });
 
             DivGridSec.find('.addGridCol').click(function () {
@@ -2480,6 +2599,10 @@
                 cClone.show();
                 DivGridSec.find('.DivColBox').append(cClone);
                 createGrid();
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
             });
 
             DivGridSec.find('.addGridSection').click(function () {
@@ -2498,6 +2621,7 @@
                 DivGridSec.find('.colBox:not(:first)').remove();
                 DivGridSec.find('.addGridRow').click();
                 DivGridSec.find('.addGridCol').click();
+
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el-xross').click(function () {
@@ -2510,7 +2634,10 @@
                 DivViewBlock.find('.vis-viewBlock .section' + secNo).remove();
                 secNo = DivGridSec.find('.section-active').attr('sectionCount');
                 activeSection = DivViewBlock.find('.vis-viewBlock .section' + secNo);
-
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el').click(function () {
@@ -2535,6 +2662,10 @@
                 activeSection.find('.del').remove();
                 $(this).closest('.rowBox').remove();
                 gridCss();
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
             });
 
             DivGridSec.find('.grdColDel').click(function () {
@@ -2546,8 +2677,12 @@
                     activeSection.find('.grdDiv').eq(dNo).addClass('del');
                 }
                 activeSection.find('.del').remove();
-                $(this).closest('.colBox').remove();
+                $(this).closest('.colBox').remove();               
                 gridCss();
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
             });
 
             DivGridSec.find('.mergeCell').click(function () {
@@ -2555,18 +2690,34 @@
             });
 
             txtColGap.change(function () {
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
                 gridCss();
             });
 
             txtRowGap.change(function () {
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
                 gridCss();
             });
 
             DivGridSec.find('.rowBox input,select').change(function () {
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
                 gridCss();
             });
 
             DivGridSec.find('.colBox input,select').change(function () {
+                isChange = true;
+                if (isChange) {
+                    btn_BlockCancel.show();
+                }
                 gridCss();
             });
 
@@ -2582,6 +2733,15 @@
                     linkField($(this).closest('fields'));
                 }
             });
+
+            btn_BlockCancel.click(function () {
+                DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().click();  
+                if (count > 1) {
+                    fillcardLayoutfromTemplate();
+                }
+
+                btn_BlockCancel.hide();
+            });
         }      
         // #endregion
         // #region Step 2 functions    
@@ -2592,6 +2752,9 @@
             }
             var rowCss = "";            
             DivGridSec.find('.rowBox:not(:first)').each(function (i) {
+                if (i == 0) {
+                    $(this).find('.grdRowDel').hide();
+                }
                 if ($(this).find('select :selected').val() == 'auto') {
                     rowCss += $(this).find('select :selected').val() + ' ';
                 } else {
@@ -2605,6 +2768,10 @@
             });
             var colCss = "";
             DivGridSec.find('.colBox:not(:first)').each(function (i) {
+                if (i == 0) {
+                    $(this).find('.grdColDel').hide();
+                }
+
                 if ($(this).find('select :selected').val() == 'auto') {
                     colCss += $(this).find('select :selected').val() + ' ';
                 } else {
@@ -2626,6 +2793,9 @@
 
             gridObj["section" + secNo] = Obj;
             var grSec = activeSection;
+            grSec.attr("row", totalRow);
+            grSec.attr("col", totalCol);
+
             grSec.css({
                 'grid-template-columns': colCss,
                 'grid-template-rows': rowCss,
@@ -2654,11 +2824,26 @@
             //    'grid-template-rows': 'repeat(' + totalRow + ',1fr)',
             //    'gap': txtRowGap.val() + 'px ' + txtColGap.val() + 'px'
             //});
+
             if (totalCol > 0 && totalRow > 0) {
+                var oldrow = grSec.attr('row');
+                var oldcol = grSec.attr('col');
+                if (oldcol != totalCol) {
+                    for (var r = 0; r < oldrow; r++) {
+                        var pos = oldcol * r + (r + 1);
+                        grSec.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:10px;'></div>");
+                    }
+
+                }
+
                 var totalDiv = totalRow * totalCol - grSec.find('.grdDiv').length;
                 for (var i = 0; i < totalDiv; i++) {
-                    grSec.append("<div class='grdDiv'></div>");
+                    grSec.append("<div class='grdDiv' style='padding:10px;'></div>");
                 }
+
+                //grSec.attr('row', totalRow);
+               // grSec.attr('col', totalCol);
+
                 grSec.find('.grdDiv').unbind('mouseover');
                 grSec.find('.grdDiv').mouseover(function (e) {
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
@@ -2666,12 +2851,11 @@
                     }
 
                 });
-
             }
 
             gridCss();
-           
-            
+
+
         }
 
         function createGridRowCol() {
@@ -2700,6 +2884,8 @@
                 }
                 txtRowGap.val(section.rowGap);
                 txtColGap.val(section.colGap);
+                DivGridSec.find('.rowBox .grdRowDel').eq(1).hide();
+                DivGridSec.find('.colBox .grdColDel').eq(1).hide();
             }
 
         }
@@ -2829,7 +3015,11 @@
             return value;
         }
 
-        function applyCommend(commend,styleValue) {
+        function applyCommend(commend, styleValue) {
+            isChange = true;
+            if (isChange) {
+                btn_BlockCancel.show();
+            }
             var tag = DivViewBlock.find('.vis-active-block');
             if (commend != 'gradient' && (styleValue == "" || styleValue == null)) {
                 tag[0].style.removeProperty(editorProp[commend].proprty);
@@ -2867,56 +3057,28 @@
 
         function getTemplateDesign() {
             var url = VIS.Application.contextUrl + "CardView/getTemplateDesign";
+            var obj = {
+                ad_Window_ID: mTab.getAD_Window_ID(),
+                ad_Tab_ID: mTab.getAD_Tab_ID()
+            }
             $.ajax({
                 type: "POST",
                 url: url,
                 dataType: "json",
-                contentType: 'application/json; charset=utf-8',                
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(obj),
                 success: function (data) {
                     var result = JSON.parse(data);
-                    DivTemplate.find('.vis-template-zone').append(result);
+                    DivTemplate.find('.vis-cardTemplateContainer').append(result);
                     IsBusy(false);
 
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
                     IsBusy(false);
                 }, complete: function () {
-                    DivTemplate.find('.vis-template-single').click(function () {                        
-                        CardCreatedby = $(this).attr("createdBy");
-                        AD_HeaderLayout_ID = $(this).find('.mainTemplate').attr('templateid');                       
-                        templateName = $(this).find('.mainTemplate').attr('name');
-                        //txtTemplateName.val($(this).find('.mainTemplate').attr('name')).attr("templateid", $(this).find('.mainTemplate').attr('templateid'));
-
-                        if ($(this).html() != "" || $(this).html() != null) {
-                            $(this).find('.vis-wizard-section').each(function () {
-                                var row = $(this).attr('row');
-                                var col = $(this).attr('col');
-                                var arr = [];
-                                for (var i = 0; i < (row * col); i++) {
-                                    arr.push('<div class="grdDiv" style="display:none"></div>');
-                                }
-                                
-                                $(this).find('.grdDiv').each(function () {
-                                    var areagrid = $(this).css('grid-area').split('/');
-                                    var idx = col * ($.trim(areagrid[0]) - 1) + ($.trim(areagrid[1]) - 1);
-                                    if ($.trim(areagrid[0]) != ($.trim(areagrid[2]) - 1) || $.trim(areagrid[1]) != ($.trim(areagrid[3]) - 1)) {
-                                        $(this).append('<span class="vis-split-cell"></span>');
-                                    }
-                                    arr[idx] = $(this)[0].outerHTML;
-                                });
-                                $(this).html(arr.join(" "));
-                            });
-                            DivViewBlock.find('.grdDiv').unbind('mouseover');
-                            DivViewBlock.find('.vis-viewBlock').attr("style", $(this).find('.mainTemplate').attr('style')||'');
-                            DivViewBlock.find('.vis-viewBlock').html($(this).find('.mainTemplate').html());                            
-                            DivViewBlock.find('.grdDiv').mouseover(function (e) {
-                                if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
-                                    selectTo($(this));
-                                }
-                            });
-                        }
-
-                        FillFields(true, false);
+                    DivTemplate.find('.vis-cardSingleViewTemplate').click(function () {
+                        DivTemplate.find('.vis-cardSingleViewTemplate').removeClass('vis-active-template');
+                        $(this).addClass('vis-active-template');                        
                     });
                 }
             });
@@ -2960,13 +3122,20 @@
 
                 
                 var columnSQL = null;
-                if ($(this).find('sql').length>0) {
-                    columnSQL = $(this).find('sql').attr('query');
+                if ($(this).find('sql').length > 0) {
+                    columnSQL = $(this).attr('query') || null;
+                }
+                var hideFieldIcon = true;
+                if ($(this).find('fields').attr('showfieldicon')) {                   
+                    hideFieldIcon = $(this).find('fields').attr('showfieldicon') == 'true' ? true : false;
+                }
+                if ($(this).find('.fa-star').length == 0) {
+                    hideFieldIcon = true;
                 }
 
                 obj1 = {
                     cardFieldID: $(this).attr('cardfieldid'),
-                    sectionNo: secNo,
+                    sectionNo: secNo*10,
                     rowStart: $.trim(gridArea[0]),
                     rowEnd: $.trim(gridArea[2]),
                     colStart: $.trim(gridArea[1]),
@@ -2976,10 +3145,11 @@
                     fieldID: $(this).find('fields').attr('fieldid'),
                     valueStyle: valueStyle,
                     fieldStyle: $(this).find('fields').attr('style') || '',
-                    hideFieldIcon: $(this).find('fields').attr('showfieldicon')=='true'?true:false,
+                    hideFieldIcon: hideFieldIcon,
                     hideFieldText: $(this).find('fields').attr('showfieldtext') == 'true' ? true : false,
                     columnSQL: columnSQL
                 }
+
                 var f = {}
                 f.AD_Field_ID = obj1.fieldID;
                 f.CardViewID = AD_CardView_ID;
@@ -2993,7 +3163,7 @@
                 var fobj = {
                     sectionName: 'section ' + gridObj[key].sectionNo,
                     sectionID: gridObj[key].sectionID,
-                    sectionNo: gridObj[key].sectionNo,
+                    sectionNo: gridObj[key].sectionNo * 10,
                     style: gridObj[key].style,
                     totalRow: gridObj[key].totalRow,
                     totalCol: gridObj[key].totalCol,
@@ -3003,8 +3173,9 @@
                 cardSection.push(fobj);
             });
 
-            if (VIS.context.getAD_User_ID() !== CardCreatedby) {
+            if (isSystemTemplate=="Y") {
                 templateName = (templateName || txtCardName.val()) + "_" + Math.floor(Math.random() * 10000);
+                AD_HeaderLayout_ID = 0;
             };
 
             var cardID = AD_CardView_ID;
@@ -3030,6 +3201,7 @@
                 success: function (data) {
                     var result = JSON.parse(data);
                     AD_HeaderLayout_ID = result;
+                    isSystemTemplate = 'N';
                     if (!isNewRecord) {
                         isEdit = true;
                     }
@@ -3046,9 +3218,11 @@
         }
 
         function fill(htm) {
-            DivStyleSec1.find('#master001 input').val('');
+            DivStyleSec1.find('#master001_' + WindowNo + ' input').val('');
+            DivStyleSec1.find('#master001_' + WindowNo + ' select').val('');
             DivStyleSec1.find('.gradient1').val('#833ab4');
             DivStyleSec1.find('.gradient2').val('#fcb045');
+            DivStyleSec1.find("[data-command1]").parent().removeClass('vis-hr-elm-inn-active');
             var styles = htm.attr('style');
             if (htm.find('sql').length > 0) {
                 txtSQLQuery.val(VIS.secureEngine.decrypt(htm.find('sql').attr("query")));
@@ -3062,26 +3236,20 @@
             styles && styles.split(";").forEach(function (e) {
                 var style = e.split(":");
                 for (const a in editorProp) {
-                    if ($.trim(style[0]) == $.trim(editorProp[a].proprty) && editorProp[a].value == '') {
+                    if ($.trim(style[0]) == $.trim(editorProp[a].proprty)) {
                         var v = $.trim(style[1]);
-                        //if (DivStyleSec1.find("[data-command='" + a + "']").attr('type') == 'color') {
-                        //    //v = rgb2hex(v);
-                        //    //DivStyleSec1.find("[data-command='" + a + "']").val(v);
-                        //    //DivStyleSec1.find("[data-command='" + a + "']").change();
-                        //} else {
-                        //}
-
-                        
-
-                        DivStyleSec1.find("[data-command='" + a + "']").val(v);  
-                        if (a == 'backgroundColor') {
-                            DivStyleSec1.find('.vis-zero-BTopLeftBLeft:first').css('background-color', v);
-                            DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
-                        } else if (a == 'color') {
-                            DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
-                            DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
+                        if (editorProp[a].value == '') {
+                            DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            if (a == 'backgroundColor') {
+                                DivStyleSec1.find('.vis-zero-BTopLeftBLeft:first').css('background-color', v);
+                                DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
+                            } else if (a == 'color') {
+                                DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
+                                DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
+                            }
+                        } else {
+                            DivStyleSec1.find("[data-command1='" + a + "']").parent().addClass('vis-hr-elm-inn-active');
                         }
-
                         break;
                     }
                 }
@@ -3162,7 +3330,7 @@
                 blok.append(itm);
                 if (mTab.getFieldById(Number(fID)).getDisplayType() == VIS.DisplayType.Image) {
                     var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
-                    blok.append($('<fieldvalue><img src="' + src + '"/></fieldvalue>'));
+                    blok.append($('<fieldvalue><img class="vis-colorInvert" src="' + src + '"/></fieldvalue>'));
                 } else {
                     blok.append($('<fieldvalue>:Value</fieldvalue>'));
                 }
@@ -3175,6 +3343,10 @@
                 newitm.attr('seqNo', blok.attr('seqNo') || (linkedLength*10));
                 DivCardField.find('fields').eq(linkedLength).after(newitm);
             }
+            isChange = true;
+            if (isChange) {
+                btn_BlockCancel.show();
+            }
         }
         // #endregion
         init();
@@ -3184,14 +3356,15 @@
         };
 
         this.show = function () {
+            var w = $(window).width() - 150;
+            var h = $(window).height() - 10;
             ch = new VIS.ChildDialog();
             ch.setTitle(VIS.Msg.getMsg("Card"));
-            //ch.setWidth("90%");
-            //ch.setHeight("90%");
+            ch.setWidth(w);
+            ch.setHeight(h);
             ch.setContent(root);
             ch.onOkClick = function (e) {
-            }          
-
+            }    
             ch.show();
             ch.hideButtons();
         }
@@ -3210,7 +3383,9 @@
         }
         return html;
     }
-
+    cvd.prototype.sizeChanged = function (height, width) {
+        console.log(height, width);
+    }
     VIS.CVDialog = cvd;
 
     function cardCopyDialog() {

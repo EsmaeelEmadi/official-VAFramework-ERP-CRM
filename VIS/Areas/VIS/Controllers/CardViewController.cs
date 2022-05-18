@@ -154,12 +154,28 @@ namespace VIS.Controllers
             return Json(JsonConvert.SerializeObject(objCardViewModel.GetColumnIDWindowID(tableName, columnName)), JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult getTemplateDesign()
+        /// <summary>
+        /// Get Template 
+        /// </summary>
+        /// <param name="ad_Window_ID"></param>
+        /// <param name="ad_Tab_ID"></param>
+        /// <returns></returns>
+        public JsonResult getTemplateDesign(int ad_Window_ID, int ad_Tab_ID)
         {
             Ctx ctx = Session["ctx"] as Ctx;
             CardViewModel objCardViewModel = new CardViewModel();
-            return Json(JsonConvert.SerializeObject(objCardViewModel.getTemplateDesign(ctx)));
+            return Json(JsonConvert.SerializeObject(objCardViewModel.getTemplateDesign(ctx, ad_Window_ID, ad_Tab_ID)));
         }
+        /// <summary>
+        /// Save Card template
+        /// </summary>
+        /// <param name="CardViewID"></param>
+        /// <param name="templateID"></param>
+        /// <param name="templateName"></param>
+        /// <param name="style"></param>
+        /// <param name="cardSection"></param>
+        /// <param name="cardTempField"></param>
+        /// <returns></returns>
         public JsonResult saveCardTemplate(int CardViewID, int templateID, string templateName,string style, List<CardSection> cardSection,List<CardTempField> cardTempField)
         {
             Ctx ctx = Session["ctx"] as Ctx;

@@ -224,7 +224,7 @@ namespace VIS.Models
             else
             {
                 objCardView = new MCardView(ctx, cardViewID, null);
-                isupdate = true;
+                isupdate = true;                
             }
             objCardView.SetAD_Window_ID(ad_Window_ID);
             objCardView.SetAD_Tab_ID(ad_Tab_ID);
@@ -543,16 +543,31 @@ namespace VIS.Models
             return columnID + "," + windowID;
         }
 
-        public string getTemplateDesign(Ctx ctx)
+        /// <summary>
+        /// Get card Template
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="ad_Window_ID"></param>
+        /// <param name="ad_Tab_ID"></param>
+        /// <returns></returns>
+        public string getTemplateDesign(Ctx ctx,int ad_Window_ID, int ad_Tab_ID)
         {
             string design = "";
-            string sqlQuery = "SELECT * FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N' AND (IsSystemTemplate='Y' OR AD_client_ID=" + ctx.GetAD_Client_ID() + ")";
+            string sqlQuery = "SELECT * FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N' AND (IsSystemTemplate='Y' OR AD_HeaderLayout_ID IN (SELECT AD_HeaderLayout_ID  FROM AD_CardView WHERE AD_CardView.AD_Window_id=" + ad_Window_ID + " and AD_CardView.AD_Tab_id=" + ad_Tab_ID + " AND (AD_CardView.AD_User_ID IS NULL OR AD_CardView.AD_User_ID  =" + ctx.GetAD_User_ID()+")))";
             DataSet ds = DB.ExecuteDataset(sqlQuery);
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                    design += "<div createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-template-single mb-2 d-flex align-items-center justify-content-center'>";
+                    
+                    if (Util.GetValueOfString(ds.Tables[0].Rows[i]["IsSystemTemplate"]) == "Y")
+                    {
+                        design += "<div isSystemTemplate='Y' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center'>";
+                    }
+                    else
+                    {
+                        design += "<div isSystemTemplate='N' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center displayNone'>";
+                    }
 
                     design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
                     sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
@@ -584,9 +599,57 @@ namespace VIS.Models
                                         style += ";grid-area:" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartRow"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartColumn"]);
                                         style += "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["Rowspan"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["ColumnSpan"]);
                                     }
-                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "'>";
+                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='"+ SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
                                     //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
-                                    //design += "<fieldValue style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "'>:Value</fieldValue>";
+                                   string msg= Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["content"]));
+                                    if (msg.IndexOf("[") > -1)
+                                    {
+                                        msg = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["content"]);
+                                    }
+                                    string valueStyle = "";
+                                    string imgStyle = "";
+                                    string htmlStyle = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]);
+
+                                    if (htmlStyle != null && htmlStyle.Length > 0 && htmlStyle.IndexOf("@") > -1)
+                                    {
+                                        string[] stylearr = htmlStyle.Split('|');
+
+                                        if (stylearr != null && stylearr.Length > 0)
+                                        {
+                                            for (int m = 0; m < stylearr.Length; m++)
+                                            {
+                                                if (stylearr[m].IndexOf("@img::") > -1)
+                                                {
+                                                    imgStyle = stylearr[m].Replace("@img::", "");
+                                                }
+                                                else if (stylearr[m].IndexOf("@value::") > -1)
+                                                {
+                                                    valueStyle=stylearr[m].Replace("@value::", "");
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        valueStyle=htmlStyle;
+                                    }
+
+                                    if (valueStyle.ToUpper().Trim() == "UNDEFINED")
+                                    {
+                                        valueStyle = "";
+                                    }
+                                    if (imgStyle.ToUpper().Trim() == "UNDEFINED")
+                                    {
+                                        imgStyle = "";
+                                    }
+
+                                    if(msg.IndexOf("<img")>-1 || msg.IndexOf("<svg") > -1)
+                                    {
+                                        msg= msg.Replace("<img", "<img style='" + imgStyle + "' ");
+                                    }
+
+                                    design += "<fieldValue style='" + valueStyle + "'>"+ msg + "</fieldValue>";
                                     design += "</div>";
                                 }
                             }
@@ -599,6 +662,18 @@ namespace VIS.Models
 
             return design;
         }
+
+        /// <summary>
+        /// Save template
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="CardViewID"></param>
+        /// <param name="templateID"></param>
+        /// <param name="templateName"></param>
+        /// <param name="style"></param>
+        /// <param name="cardSection"></param>
+        /// <param name="cardTempField"></param>
+        /// <returns></returns>
         public int saveCardTemplate(Ctx ctx, int CardViewID, int templateID, string templateName, string style, List<CardSection> cardSection, List<CardTempField> cardTempField)
         {
             MHeaderLayout mhl = new MHeaderLayout(ctx, templateID, null);
@@ -627,6 +702,7 @@ namespace VIS.Models
                     mgl.SetBackgroundColor(cardSection[i].style.Trim());
                     mgl.SetTotalRows(cardSection[i].totalRow);
                     mgl.SetTotalColumns(cardSection[i].totalCol);
+                    mgl.SetSeqNo(cardSection[i].sectionNo);
                     if (mgl.Save())
                     {
 
@@ -664,6 +740,8 @@ namespace VIS.Models
             }
             return templateID;
         }
+
+        
     }
 
     public class CardViewPropeties
