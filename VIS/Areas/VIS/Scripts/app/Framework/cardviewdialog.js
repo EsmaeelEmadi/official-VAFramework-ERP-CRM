@@ -166,7 +166,7 @@
                 enableDisable(true);
                 lastSelectedID = cardsList.find('.crd-active').attr('idx');
                 cardsList.find('.crd-active').removeClass('crd-active');
-                template = '<div class="vis-lft-sgl p-2 d-flex flex-column my-2 crd-active">';
+                template = '<div class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
 
                 template += '<span class="vis-lft-sgl-title">--</span>'
                     + '    <span class="vis-lft-sgl-sub-title">Created By: ' + VIS.context.getAD_User_Name() + '</span>'
@@ -177,7 +177,7 @@
                 AD_HeaderLayout_ID = 0;
                 AD_CardView_ID = "undefined"; 
                 btnTemplateBack.text(VIS.Msg.getMsg("Back"));
-                btnLayoutSetting.text(VIS.Msg.getMsg("Next"));
+                btnLayoutSetting.text(VIS.Msg.getMsg("NextLayout"));
                 btnCardCustomization.click();
             });
 
@@ -564,6 +564,9 @@
                             }
                         }
                     }
+                    if (cardviewCondition.length == 0) {
+                        AddRow("");
+                    }
                 });
             }
 
@@ -782,9 +785,9 @@
                             var template = "";
                             if (cardViewInfo[i].DefaultID) {
                                 isDefaultcard = true;
-                                template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column my-2 crd-active">';
+                                template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
                             } else {
-                                template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column my-2">';
+                                template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2">';
                             }
 
                             template += '<span class="vis-lft-sgl-title">' + w2utils.encodeTags(cardViewInfo[i].CardViewName) + '</span>'
@@ -1216,14 +1219,20 @@
                     }
                 }
                 groupSequenceFeilds.closest('.vis-sec-2-wrapper').css('height', '100%');
+                var h = $(window).height() - 248;
+                groupSequenceFeilds.css('height', h + 'px');
+                groupSequenceFeilds.sortable({
+                    disabled: false
+                });
             } else {
                 //ulGroupSeqColumns.parent().css("background-color", "rgba(var(--v-c-on-secondary), 0.04)");
                 groupSequenceFeilds.closest('.vis-sec-2-wrapper').css('height', '100%');
                 groupSequenceFeilds.append('<div class="onlyLOV"  key=""><span>' + VIS.Msg.getMsg("OnlyForLOV") + '</span></div>');
+                groupSequenceFeilds.sortable({
+                    disabled: true
+                });
             }
-            groupSequenceFeilds.sortable({
-                disabled: false
-            });
+            
         }
 
         var FillCVConditionCmbColumn = function () {
@@ -1350,7 +1359,7 @@
             var rowClone = cvTable.find('tr:first').clone(true);
             rowClone.removeAttr('style');
             cvTable.find('tr:not(:first)').remove();
-            if (data != null) {
+            if (data.length>0) {
                 for (var i = 0; i < data.length; i++) {
                     for (var j = 0; j < data[i].Condition.length; j++) {
                         rowClone.find('.td_bgColor i').css({ 'background': data[i].Color, 'color': 'transparent' });
@@ -1362,6 +1371,8 @@
                         rowClone = cvTable.find('tr:last').clone(true);
                     }
                 }
+            } else {
+                cvTable.append("<tr style='height:100%'><td colspan='5' style='background-color: #f1f1f173;'><div class='align-items-center d-flex justify-content-center'><i class='fa fa-database mr-1 fa-2x' aria-hidden='true'></i>" + VIS.Msg.getMsg("NoResult") + "</div></td></tr>");
             }
         };
 
@@ -1669,7 +1680,7 @@
 
                             lastSelectedID = null;
                             cardsList.find('.crd-active').remove();
-                            var template = '<div idx="' + idx + '" class="vis-lft-sgl p-2 d-flex flex-column my-2 crd-active">';
+                            var template = '<div idx="' + idx + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
                             template += '<span class="vis-lft-sgl-title">' + w2utils.encodeTags(cardViewInfo[idx].CardViewName) + '</span>'
                                 + '    <span class="vis-lft-sgl-sub-title">Created By: ' + cardViewInfo[idx].CreatedName + '</span>'
                                 + '    <span class="vis-lft-sgl-sub-title">Last Modified: ' + cardViewInfo[idx].Updated + '</span>'

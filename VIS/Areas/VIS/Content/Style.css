@@ -1401,7 +1401,7 @@ center {
     padding-left: 10px;
 }
 .vis-sec-2-sub{
-    height:calc(100% - 100px);
+    height:calc(100% - 125px);
     margin-bottom:10px;
 }
 /*
@@ -1409,8 +1409,14 @@ center {
     height: 50px;
 }
 */
-.vis-border-none{
-    border:none !important;
+.vis-grad-sec{
+    width:20%;
+}
+.vis-splt-main-con{
+    width:70%
+}
+.vis-border-none {
+    border: none !important;
 }
 .vis-sec-3 {
     width: 100%;
@@ -1419,7 +1425,7 @@ center {
 }
 
 .vis-des-rgt-fld {
-    width: 115px;
+    width: 32%;
 }
 
 .vis-title-1 {
@@ -1794,7 +1800,6 @@ center {
     border-bottom-right-radius: 0px !important;
     border-right-color: #fff;
     height: 32px;
-    border: 1px solid rgba(var(--v-c-secondary), 1) !important;
 }
 
 .vis-split-grid-sec-value {
@@ -2391,6 +2396,10 @@ center {
 .vis-removeBorder{
     border:none;
 }
+/**Custom Margin*/
+.vis-custommt{
+    margin-top:8px;
+}
 /* --------------------Utility---------------------- */
 /* Adding new Class */
 .vis-primary-btn-one {
@@ -2473,12 +2482,12 @@ center {
 }
 
 .vis-bg-light-level-four {
-    background-color: #f7f7f7;
+    background-color: #efefef;
     border-radius: 3px;
 }
 
 .vis-bg-light-level-five {
-    background-color: #eee;
+    background-color: #f7f7f7;
     border-radius: 3px;
 }
 
@@ -3169,6 +3178,7 @@ field, fieldvalue{
     width: 323px;
     height: 200px;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.3);
+    padding:10px;
 }
 
 .vis-cardTemplateContainer {
@@ -3203,7 +3213,9 @@ field, fieldvalue{
     color: rgba(var(--v-c-on-secondary), .3) !important;
 }
 
-
+.vis-two-sec-content fields[draggable="true"]{
+    cursor:all-scroll;
+}
 /* modify Ends */
 /*Media query*/
 @media (max-width: 1024px) {

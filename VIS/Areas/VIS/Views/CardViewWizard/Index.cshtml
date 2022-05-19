@@ -9,7 +9,7 @@
 
 
 <div class="vis-main-container " id="@("DivCardStep1_" + ViewBag.WindowNumber)">
-    <div class="vis-cr-left py-2 pl-2">
+    <div class="vis-cr-left pb-2 pt-1 pl-2">
         <div class="vis-cr-left-header d-flex align-items-center justify-content-between mb-2">
             <div class="vis-nw-card d-flex align-items-center mb-2">
                 <a href="#" class="vis-clickable-link" id="@("btnNewCard_" + ViewBag.WindowNumber)">
@@ -53,9 +53,12 @@
     </div>
     <div class="vis-cr-right px-2">
         <div class="vis-sec-2">
-            <div class="vis-sec-2-wrapper mr-2 pr-2">
+            <div class="vis-sec-2-wrapper mr-2 pr-1">
                 <span class="vis-title-1 d-block  vis-font-weight-600 mb-2 vis-font-size-lg">@GetText("GroupSeq")</span>
-                <div class="input-group vis-input-wrap vis-custMarginInputWrap">
+                 <div>
+
+                 </div>
+                <div class="input-group vis-input-wrap vis-custMarginInputWrap vis-custommt">
                     <div class="vis-control-wrap">
                         <select name="cmbGroupField"
                                 class="bg-white"
@@ -97,7 +100,7 @@
             </div>
             <div class="vis-sec-2-wrapper vis-sec-2-leftBorder mr-2">
                 <div class="vis-sec-4 mb-2">
-                    <span class="vis-font-size-sm d-block mb-1 vis-font-size-lg vis-font-weight-600">Feild Sorting</span>
+                    <span class="vis-font-size-sm d-block vis-font-size-lg vis-font-weight-600">@GetText("FieldSorting")</span>
                     <div class="vis-sortOrderContainer vis-sec-sort pt-3 vis-sortTableHight vis-border-none p-0">
                         <div class="vis-sortOrderData">
                             <div class="input-group vis-input-wrap">
@@ -120,7 +123,7 @@
                                 </span>
                             </div>
 
-                            <button class="btn VIS_Pref_btn-2 vis-font-size-md vis-font-weight-600" id="@("btnAddOrder_"+ViewBag.WindowNumber)">@GetText("Add")</button>
+                            <button class="vis-primary-btn-one mt-0" id="@("btnAddOrder_"+ViewBag.WindowNumber)">@GetText("Add")</button>
                         </div>
 
                         <div class="vis-sortingList mt-1" id="@("sortList_"+ViewBag.WindowNumber)">
@@ -209,7 +212,7 @@
                             </div>
                         </div>
                         <div class="vis-des-rgt-btn">
-                            <button class="vis-primary-btn-one mt-3" id="@("btnAddCondition_"+ ViewBag.WindowNumber)">
+                            <button class="vis-primary-btn-one mt-4" id="@("btnAddCondition_"+ ViewBag.WindowNumber)">
                                 @GetText("Add")
                             </button>
                         </div>
@@ -316,7 +319,7 @@
             </div>
         </div>
         <div class="vis-cardTemplateContainer py-1 px-2 mb-2">
-            <div class="vis-cardSingleViewTemplate d-flex align-items-center justify-content-center blankTemp" isSystemTemplate="Y">
+            <div class="vis-cardSingleViewTemplate d-flex align-items-center justify-content-center blankTemp" isSystemTemplate="Y" style=" background-color: #f1f1f1">
                 <div class="mainTemplate" name="" templateID="0">
                     @*<div sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>*@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 141">
@@ -338,7 +341,7 @@
                         <span> @GetText("Back")</span>
                     </button>
                     <button class="vis-blue-theme-btn vis-button-width-one vis-font-size-md" id="@("BtnLayoutSetting_" + ViewBag.WindowNumber)">
-                        <span> @GetText("Next")</span>
+                        <span> @GetText("NextLayout")</span>
                         @*<i class="fa fa-chevron-right ml-1 mt-1" aria-hidden="true"></i>*@
                     </button>
                 </div>
@@ -372,7 +375,7 @@
                 <a href="javascript:;" title="@GetText("Merge")" class="vis-topNavigatorIcon" style="display:none"><i command="Merge" class="fa fa-compress" aria-hidden="true"></i></a>
             </div>
 
-            <div class="vis-card-tw-disply d-flex align-items-center justify-content-center mb-2 vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">
+            <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">
                 @*<button class="vis-cancel-btn vis-cancelButtonPosition" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)" style="display:none">
                         @GetText("Cancel")  <i class="fa fa-times-circle" aria-hidden="true"></i>
                     </button>*@
@@ -386,7 +389,7 @@
                     </div>
                 </div>
             </div>
-            <div class="vis-footr-sec-two d-flex align-items-center justify-content-between mt-3 mb-2">
+            <div class="vis-footr-sec-two d-flex align-items-center justify-content-between mt-3 mb-1">
                 <div class="vis-footr-sec-left">
                     <div class="vis-slider-action d-flex align-items-center justify-content-center">
                         <div class="mr-2 mt-2">
@@ -469,7 +472,7 @@
                                         </div>
 
                                     </div>
-                                    <div class="vis-grid-prop-one d-flex align-items-center justify-content-between mb-2 vis-borderBottomH pb-2">
+                                    <div class="vis-grid-prop-one d-flex align-items-center justify-content-between mb-2 vis-borderBottomH mt-3 pb-2">
                                         <span class="vis-font-size-md d-block vis-font-weight-600">@GetText("GridRow")</span>
                                         <a href="#" class="vis-blue-theme-btn-sm addGridRow">@GetText("ADD") </a>
                                     </div>
@@ -493,7 +496,7 @@
                                         </div>
                                     </div>
                                     <div class="vis-grid-zone-elmOne mb-2">
-                                        <div class="vis-grid-prop-one d-flex align-items-center justify-content-between mb-2 vis-borderBottomH pb-2">
+                                        <div class="vis-grid-prop-one d-flex align-items-center justify-content-between mb-2 vis-borderBottomH mt-3 pb-2">
                                             <span class="vis-font-size-md vis-font-weight-600 d-block">@GetText("GridColumn") </span>
                                             <a href="#" class="vis-blue-theme-btn-sm addGridCol">@GetText("ADD")</a>
                                         </div>
@@ -578,7 +581,7 @@
                                                     <input type="text" data-command="minHeight" class="vis-check-textal-select vis-selectFeild vis-input-under-line" style="width:50px !important" placeholder="0px" />
                                                 </div>
                                                 <div class="vis-prop-pan-border mb-1 vis-font-size-sm">
-                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH justify-content-between mb-1">
+                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH justify-content-between mt-3 mb-1">
                                                         <div class="vis-head-til ">
                                                             <span class="d-block vis-font-weight-600 vis-font-size-sm pb-1">@GetText("Padding") </span>
                                                         </div>
@@ -623,7 +626,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="vis-prop-pan-border mb-1 vis-font-size-sm">
-                                                    <div class="vis-prop-pan-header d-block vis-borderBottomH d-flex align-items-center justify-content-between mb-1">
+                                                    <div class="vis-prop-pan-header d-block vis-borderBottomH d-flex align-items-center justify-content-between mt-3 mb-1">
                                                         <div class="vis-head-til ">
                                                             <span class="d-block vis-font-size-sm vis-font-weight-600 vis-font-size-sm pb-1">@GetText("Margin")</span>
                                                         </div>
@@ -812,7 +815,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="vis-prop-pan-border-ra mb-2">
-                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH pb-1 justify-content-between vis-font-size-sm">
+                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH pb-1 justify-content-between mt-3 vis-font-size-sm">
                                                         <div class="vis-head-til mb-1">
                                                             <span class="vis-font-weight-600 vis-font-size-sm d-block">@GetText("BorderRadius")</span>
                                                         </div>
@@ -882,7 +885,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="vis-prop-pan-box-shadow mb-2">
-                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH pb-1 justify-content-between vis-font-size-sm">
+                                                    <div class="vis-prop-pan-header mt-3 d-flex align-items-center vis-borderBottomH pb-1 justify-content-between vis-font-size-sm">
                                                         <div class="vis-head-til"><span class="vis-prop-heading mb-1 vis-font-weight-600">@GetText("BoxShadow") </span></div>
                                                     </div>
                                                     <div class="vis-prop-pan-cont d-flex align-items-center justify-content-between my-1 flex-columm">
@@ -907,7 +910,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="vis-prop-pan-gradient mb-2">
-                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH mb-2 justify-content-between vis-font-size-sm">
+                                                    <div class="vis-prop-pan-header d-flex align-items-center vis-borderBottomH mb-2 mt-3 justify-content-between vis-font-size-sm">
                                                         <div class="vis-head-til">
                                                             <span class="vis-prop-heading d-block mb-1 vis-font-weight-600">@GetText("Background")</span>
                                                         </div>
@@ -922,7 +925,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="vis-prop-pan-opacity mb-2">
+                                                <div class="vis-prop-pan-opacity mt-3 mb-2">
                                                     <div class="vis-prop-pan-header vis-borderBottomH pb-1 d-flex align-items-center justify-content-between vis-font-size-sm">
                                                         <div class="vis-head-til"><span class="vis-prop-heading vis-font-weight-600">@GetText("Opacity")</span></div>
                                                     </div>
@@ -957,7 +960,7 @@
                                                 </div>
                                                 <div class="vis-txt-syl-cont-p3 d-flex mb-1">
                                                     <div class="vis-tx-clr-1 w-100">
-                                                        <span class="vis-font-size-sm d-block pb-1 vis-borderBottomH vis-font-weight-600 mb-2" for="FZ">@GetText("TextColor") </span>
+                                                        <span class="vis-font-size-sm d-block pb-1 vis-borderBottomH vis-font-weight-600 mb-2 mt-2" for="FZ">@GetText("TextColor") </span>
 
                                                         <div class="vis-prop-pan-cont d-flex align-items-center my-1 flex-columm">
                                                             <input type="text" data-command="color" placeholder="Text-Color..." class="vis-color-textbox d-block p-2">
@@ -979,7 +982,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="vis-txt-stl-cont-p4 mb-1">
-                                                    <span for="" class="vis-font-size-sm mb-2 vis-font-weight-600 vis-borderBottomH pb-1 mb-2 d-block">Text Formats</span>
+                                                    <span for="" class="vis-font-size-sm mb-2 vis-font-weight-600 vis-borderBottomH pb-1 mb-2 d-block mt-2">Text Formats</span>
                                                     <div class="vis-text-format-wrp d-flex align-items-center justify-content-between mb-2">
                                                         <div class="vis-font-weight-sectf d-flex mb-1 d-block">
                                                             <div class="vis-font-weight-sectf-emt vis-font-weight-sectf-emt-fst">
@@ -1064,7 +1067,7 @@
                                                 </div>
                                                 <div class="vis-hor-align-sectf mb-1">
                                                     <div class="vis-hor-align-sy-p2">
-                                                        <span class="vis-cll-sy-p2-title vis-font-size-sm d-block pb-1 vis-font-weight-600 vis-borderBottomH mb-2">@GetText("JustifyContent")</span>
+                                                        <span class="vis-cll-sy-p2-title vis-font-size-sm d-block pb-1 mt-3 vis-font-weight-600 vis-borderBottomH mb-2">@GetText("JustifyContent")</span>
                                                         <div class="vis-horz-align-d d-flex">
                                                             <div class="vis-hr-elm vis-hr-elm-fst" data-command1="flexJustifyStart">
                                                                 <div class="vis-cllsty2-single-el">
@@ -1115,7 +1118,7 @@
                                                 </div>
                                                 <div class="vis-ver-align-sect mb-1">
                                                     <div class="vis-vertical-slide mr-3">
-                                                        <span class="vis-cll-sy-p2-title mb-2 vis-font-size-sm vis-borderBottomH pb-1 vis-font-weight-600 d-block">@GetText("AlignItems") </span>
+                                                        <span class="vis-cll-sy-p2-title mb-2 mt-3 vis-font-size-sm vis-borderBottomH pb-1 vis-font-weight-600 d-block">@GetText("AlignItems") </span>
                                                         <div class="vis-horz-align-d d-flex mb-2">
                                                             <div class="vis-vl-elm vis-vl-elm-fst" data-command1="flexAlignStart">
                                                                 <div class="vis-cllsty2-single-elTwo">
@@ -1157,7 +1160,7 @@
                                 <textarea name="" id="@("txtCustomStyle_" + ViewBag.WindowNumber)" cols="30" rows="15 " class="w-100 form-control vis-customWidthControl" placeholder="@GetText("EnterYourCustomProperty")"></textarea>
                             </div>
                         </div>
-                        <div class="tab-pane fade p-2" id="@("master003_" + ViewBag.WindowNumber)" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="tab-pane fade" id="@("master003_" + ViewBag.WindowNumber)" role="tabpanel" aria-labelledby="home-tab">
                             <textarea name="" id="@("txtSQLQuery_" + ViewBag.WindowNumber)" cols="30" rows="15 " class="w-100 form-control vis-customWidthControl" placeholder="@GetText("WriteyourQueryHere") "></textarea>
                         </div>
 
