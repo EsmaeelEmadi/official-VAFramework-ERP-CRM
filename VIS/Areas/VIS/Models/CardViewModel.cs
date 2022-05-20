@@ -20,13 +20,13 @@ namespace VIS.Models
 
             //   string sqlQuery = " SELECT * FROM AD_CardView c WHERE c.AD_Window_id=" + ad_Window_ID + " and c.AD_Tab_id=" + ad_Tab_ID + " AND c.AD_Client_ID  =" + ctx.GetAD_Client_ID();
 
-            string sqlQuery = @"SELECT AD_CardView.*,AD_DefaultCardView.AD_DefaultCardView_ID,AD_DefaultCardView.AD_User_ID as userID,AD_User.Name AS CreatedName
-                            FROM AD_CardView
-                            INNER JOIN AD_User ON AD_CardView.createdBy=AD_User.AD_User_ID
-                            LEFT OUTER JOIN AD_DefaultCardView
-                            ON AD_CardView.AD_CardView_ID=AD_DefaultCardView.AD_CardView_ID
-                            WHERE AD_CardView.IsActive='Y' AND  AD_CardView.AD_Window_id=" + ad_Window_ID + " and AD_CardView.AD_Tab_id=" + ad_Tab_ID + " AND (AD_CardView.AD_User_ID IS NULL OR AD_CardView.AD_User_ID  =" + ctx.GetAD_User_ID() + @" 
-                            ) ORDER BY AD_CardView.Name Asc";
+            string sqlQuery = @"SELECT CV.*,DCV.AD_DefaultCardView_ID,DCV.AD_User_ID AS userID,AU.Name AS CreatedName
+                            FROM AD_CardView CV
+                            INNER JOIN AD_User AU ON CV.createdBy=AU.AD_User_ID
+                            LEFT OUTER JOIN AD_DefaultCardView DCV
+                            ON CV.AD_CardView_ID=DCV.AD_CardView_ID
+                            WHERE CV.IsActive='Y' AND  CV.AD_Window_id=" + ad_Window_ID + " AND CV.AD_Tab_id=" + ad_Tab_ID + " AND (CV.AD_User_ID IS NULL OR CV.AD_User_ID  =" + ctx.GetAD_User_ID() + @" 
+                            ) ORDER BY CV.Name ASC";
 
             sqlQuery = MRole.GetDefault(ctx).AddAccessSQL(sqlQuery, "AD_CardView", true, false);
             DataSet ds = DB.ExecuteDataset(sqlQuery);
