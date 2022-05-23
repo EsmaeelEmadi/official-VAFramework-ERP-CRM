@@ -1425,7 +1425,7 @@ center {
 }
 
 .vis-des-rgt-fld {
-    width: 32%;
+    width: 39%;
 }
 
 .vis-title-1 {
@@ -3215,6 +3215,12 @@ field, fieldvalue{
 
 .vis-two-sec-content fields[draggable="true"]{
     cursor:all-scroll;
+}
+.td_Action i {
+    cursor:pointer;
+}
+.vis-cardViewTemplateHead .vis-input-wrap label{
+    left:10px !important;
 }
 /* modify Ends */
 /*Media query*/

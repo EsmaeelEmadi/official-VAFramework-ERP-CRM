@@ -100,7 +100,10 @@
             </div>
             <div class="vis-sec-2-wrapper vis-sec-2-leftBorder mr-2">
                 <div class="vis-sec-4 mb-2">
-                    <span class="vis-font-size-sm d-block vis-font-size-lg vis-font-weight-600">@GetText("FieldSorting")</span>
+                    <div class="d-flex align-items-baseline">
+                        <span class="vis-font-size-sm d-block vis-font-size-lg vis-font-weight-600">@GetText("FieldSorting")</span>
+                        <span class="ml-1"> @GetText("addMaximum3field")</span>
+                    </div>
                     <div class="vis-sortOrderContainer vis-sec-sort pt-3 vis-sortTableHight vis-border-none p-0">
                         <div class="vis-sortOrderData">
                             <div class="input-group vis-input-wrap">
@@ -136,7 +139,7 @@
                 </div>
                 <span class="vis-font-size-sm d-block mb-1 vis-font-weight-600 vis-font-size-lg">@GetText("ConditionalFormatting") </span>
                 <div class="vis-sec-3">
-                    <div class="vis-grad-des-rht d-flex align-items-center justify-content-between pt-1">
+                    <div class="vis-grad-des-rht d-flex  justify-content-between pt-1">
                         <div class="vis-grad-sec mr-2">
                             <div class="vis-grad-color">
                                 <div for="" class="vis-font-size-sm m-0 d-flex">
@@ -191,7 +194,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="vis-des-rgt-fld">
+                            <div class="vis-des-rgt-fld" style="width:20%">
                                 <div class="input-group vis-input-wrap m-0">
                                     <div class="vis-control-wrap mt-3">
                                         <select id="@("ddlOperator_" + ViewBag.WindowNumber)" name="ddlOperator"
@@ -206,7 +209,8 @@
                             <div class="vis-des-rgt-fld">
                                 <div class="input-group vis-input-wrap m-0">
                                     <div class="vis-control-wrap mt-3 d-flex" id="@("valcontainer_"+ ViewBag.WindowNumber)">
-
+                                        <input type="text" disabled/>
+                                        <label for="QueryValue">@GetText("QueryValue")</label>
                                     </div>
                                 </div>
                             </div>
@@ -250,7 +254,7 @@
                     <!--Right-->
                     <div class="vis-submit-win-btn d-flex align-items-center justify-content-end">
                         <button class="vis-save-cont mr-2" id="@("btnSaveCloseStep1_" + ViewBag.WindowNumber)">
-                            @GetText("Save")
+                            @GetText("VIS_SaveChanges")
                         </button>
                         <button class="vis-save-cont" id="@("btnCardCustomization_" + ViewBag.WindowNumber)">
                             @GetText("cardCustomization")
@@ -359,7 +363,7 @@
                                class="bg-white border-none vis-removeBorder"
                                placeholder=" "
                                data-placeholder="" />
-                        <label class="m-0" for="Rating">@GetText("CardViewName")</label>
+                        <label class="m-0" for="Rating" style="left:10px">@GetText("CardViewName")</label>
                     </div>
                 </div>
                 <span id="@("spnLastSaved_" + ViewBag.WindowNumber)"></span>
@@ -373,6 +377,7 @@
                 <a href="javascript:;" title="@GetText("Separate")" class="vis-topNavigatorIcon" style="display:none"><i command="Separate" class="fa fa-code-fork" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Unlink")" class="vis-topNavigatorIcon" style="display:none"><i command="Unlink" class="fa fa-chain-broken" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Merge")" class="vis-topNavigatorIcon" style="display:none"><i command="Merge" class="fa fa-compress" aria-hidden="true"></i></a>
+               
             </div>
 
             <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">

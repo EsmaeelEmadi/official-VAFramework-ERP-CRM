@@ -242,8 +242,22 @@
             btnOnlySave.click(function (e) {
                 isOnlySave = true;
                 saveTemplate(e);
-                var tme = new Date().toLocaleTimeString().replace("/.*(\d{2}:\d{2}:\d{2}).*/", "$1");
-                spnLastSaved.text(VIS.Msg.getMsg("LastSaved")+" "+tme);
+                var tme = new Date();
+                var dateString = '';
+                var h = tme.getHours();
+                var m = tme.getMinutes();
+                var s = tme.getSeconds();
+                var ampm = h >= 12 ? 'PM' : 'AM';
+                h %= 12;
+                h = h || 12;  
+                if (h < 10) h = '0' + h;
+                if (m < 10) m = '0' + m;
+                if (s < 10) s = '0' + s;
+
+                dateString = h + ':' + m + ':' + s + ' ' + ampm;
+
+                spnLastSaved.text(VIS.Msg.getMsg("LastSaved") + " " + dateString);
+                DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().attr('lastupdated', dateString);
             });
 
             btnBack.click(function () {
@@ -719,6 +733,8 @@
                 isEdit = true;
                 isNewRecord = false;
                 chkDefault.parent().hide();
+
+                cardsList.scrollTop(cardsList.find('.crd-active').offset().top - cardsList.find('.crd-active').height() - 100);
             });
 
 
@@ -1211,6 +1227,7 @@
                     for (var j = 0; j < seq.length; j++) {
                         var item = groupSequenceFeilds.find("[key='" + seq[j] + "']");
                         if (excGrp.lastIndexOf(seq[j]) != -1) {
+                            item.find('.fa-check-square-o').removeClass('fa-check-square-o').addClass('fa-square-o');
                             //item.find('input').prop('checked', false);
                         }
 
@@ -1240,6 +1257,11 @@
             for (var c = 0; c < findFields.length; c++) {
                 // get field
                 var field = findFields[c];
+
+                if (field.getDisplayType() == VIS.DisplayType.Image) {
+                    continue;
+                }
+
                 if (field.getIsEncrypted())
                     continue;
                 // get field's column name
@@ -1253,6 +1275,9 @@
                         field.setDisplayType(VIS.DisplayType.List);
                     //field.loadLookUp();
                 }
+
+               
+
                 // get text to be displayed
                 var header = field.getHeader();
                 if (header == null || header.length == 0) {
@@ -1992,6 +2017,7 @@
 
         function addSelectedTemplate() {
             var $this = DivTemplate.find('.vis-active-template').clone(true);
+            spnLastSaved.text(VIS.Msg.getMsg("LastSaved") + " " +$this.attr("lastupdated"));
             $this.find('fieldvalue').remove();
             CardCreatedby = $this.attr("createdBy");
             isSystemTemplate = $this.attr("isSystemTemplate");
@@ -2498,6 +2524,7 @@
                             divTopNavigator.find('[command="Hide"]').parent().show();
                         }
                     } else {
+                        
                         if (e.target.tagName == 'IMG') {
                             var isTrue = $(e.target).parent().prev().attr('showFieldText') == 'true' ? true : false;
                             divTopNavigator.find('[command="fieldName"]').text($(e.target).parent().prev().attr('title')).show();

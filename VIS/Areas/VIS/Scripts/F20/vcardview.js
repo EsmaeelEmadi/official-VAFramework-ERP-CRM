@@ -1541,7 +1541,10 @@
                     }
                     else if (VIS.DisplayType.Image == dt) {
                         setValue(value, iControl, field);
-                        root.append($label.getControl()).append(iControl.getControl());
+                        if ($label) {
+                            root.append($label.getControl());
+                        }
+                        root.append(iControl.getControl());
                         continue;
                     }
                     else if (VIS.DisplayType.Button == dt) {
