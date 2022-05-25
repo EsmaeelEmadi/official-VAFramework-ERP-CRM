@@ -893,12 +893,13 @@
             DivGridSec.find('.section-active .vis-grey-disp-el').click();
             DivGridSec.find('.vis-grey-disp-el-xross').eq(1).hide();
 
-            DivCardField.find('fields[seqNo]').each(function (i) {
+            DivCardField.find('.fieldLbl[seqNo]').each(function (i) {
                 var fID = $(this).attr('fieldid');
                 if (DivViewBlock.find('[fieldid="' + fID + '"]').length == 0) {
                
                 var vlu = $(this).text();
-                var fidItm = DivViewBlock.find('[seqNo="' + $(this).attr('seqNo') + '"]');
+                    var fidItm = DivViewBlock.find('[seqNo="' + $(this).attr('seqNo') + '"]');
+                    fidItm.html('');
                     if (fidItm.length == 0) {
                         $(this).find('.linked').removeClass('linked vis-succes-clr');
                     } else {
@@ -927,26 +928,35 @@
                     }
 
                     if (fidItm.length > 0) {
+                        var fieldHtml = $('<div class="fieldGroup">'
+                            + '</div>');
                         var hideIcon = fidItm.attr("showfieldicon") == 'Y' ? true : false;
                         var hideTxt = fidItm.attr("showfieldtext") == 'Y' ? true : false;
                         if (mTab.getFieldById(Number(fID)).getShowIcon()) {
                             if (hideIcon) {
-                                fidItm.append($('<i class="">&nbsp;</i>'));
+                                fieldHtml.append($('<i class="">&nbsp;</i>'));
                             } else {
-                                fidItm.append($('<i class="fa fa-star">&nbsp;</i>'));
+                                fieldHtml.append($('<i class="fa fa-star">&nbsp;</i>'));
                             }
                         }
-                        var cls = hideTxt ? "displayNone" : "";
-                        if (mTab.getFieldById(Number(fID)).getDisplayType() == VIS.DisplayType.Image) {
-                            var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
-                            fidItm.append($('<fields class="' + cls+'" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</fields><fieldvalue style="' + vlstyle + '"><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/></fieldvalue>'));
-                        } else {
-                            fidItm.append($('<fields class="' + cls +'" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</fields><fieldvalue style="' + vlstyle + '">:Value</fieldvalue>'));
+                        var cls = hideTxt ? "displayNone" : "";                       
+                        var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
+                        var displayType = mTab.getFieldById(Number(fID)).getDisplayType();
+                        if (displayType == VIS.DisplayType.Image) {
+                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
+                        } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
+                            var iconClass = hideIcon ? "displayNone" : ""; 
+                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="' + iconClass+' vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/><span class="fieldValue" style="' + vlstyle + '">Value</span>'));
+                        }
+                        else {
+
+                            fieldHtml.append($('<span class="fieldLbl ' + cls +'" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><span class="fieldValue" style="' + vlstyle + '">:Value</span>'));
                         }
 
                         if (fidItm.attr("query") != null && fidItm.attr("query") != "") {
-                            fidItm.append('<sql>SQL</sql>');
+                            fieldHtml.append('<sql>SQL</sql>');
                         }
+                        fidItm.append(fieldHtml);
                         //$(this).remove();
                     }
                 }
@@ -970,7 +980,7 @@
             FillIncluded(isReload);
             if (mTab != null && mTab.getFields().length > 0) {
 
-                var iClone = DivCardField.find('fields:first').clone(true);
+                var iClone = DivCardField.find('.fieldLbl:first').clone(true);
                 iClone.removeClass('displayNone');
 
                 for (var i = 0; i < tabField.length; i++) {
@@ -1014,7 +1024,7 @@
                     }
                     iClone.attr("id", WindowNo + "_" + tabField[i].getAD_Field_ID());
                     DivCardField.append(iClone);
-                    iClone = DivCardField.find('fields:first').clone(true);
+                    iClone = DivCardField.find('.fieldLbl:first').clone(true);
                     iClone.removeClass('displayNone');
 
                     //availableFeilds.append("<li index=" + i + " FieldID=" + tabField[i].getAD_Field_ID() + "> <span>" + tabField[i].getHeader() + "</span></li>");
@@ -1037,8 +1047,8 @@
             //IncldfeildClone.removeClass('displayNone');
             //includedFeilds.find('.vis-sec-2-sub-itm:not(.displayNone)').remove();  
             
-            var iClone = DivCardField.find('fields:first').clone(true);
-            DivCardField.find('fields:not(:first)').remove();
+            var iClone = DivCardField.find('.fieldLbl:first').clone(true);
+            DivCardField.find('.fieldLbl:not(:first)').remove();
             iClone.removeClass('displayNone');
 
             cardViewColArray = [];
@@ -1099,7 +1109,7 @@
                                 
                                 iClone.attr("id", WindowNo + "_" + CVColumns[i].AD_Field_ID);
                                 DivCardField.append(iClone);
-                                iClone = DivCardField.find('fields:first').clone(true);
+                                iClone = DivCardField.find('.fieldLbl:first').clone(true);
                                 iClone.removeClass('displayNone');
 
 
@@ -1159,7 +1169,7 @@
                         iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo);
                         iClone.attr("id", WindowNo + "_" + includedFields[i].getAD_Field_ID());
                         DivCardField.append(iClone);
-                        iClone = DivCardField.find('fields:first').clone(true);
+                        iClone = DivCardField.find('.fieldLbl:first').clone(true);
                         iClone.removeClass('displayNone');
                     }
                 }
@@ -2018,7 +2028,7 @@
         function addSelectedTemplate() {
             var $this = DivTemplate.find('.vis-active-template').clone(true);
             spnLastSaved.text(VIS.Msg.getMsg("LastSaved") + " " +$this.attr("lastupdated"));
-            $this.find('fieldvalue').remove();
+            $this.find('.fieldValue').remove();
             CardCreatedby = $this.attr("createdBy");
             isSystemTemplate = $this.attr("isSystemTemplate");
             AD_HeaderLayout_ID = $this.find('.mainTemplate').attr('templateid');
@@ -2420,20 +2430,14 @@
                 var blok = DivViewBlock.find('.vis-active-block');
                 var cmd = $(this).attr('command');
                 isChange = true;
+                var f = blok.closest('.fieldGroup').find('.fieldLbl');
                 if (cmd == 'Show') {
                     if (blok.prop('tagName') == 'I') {
                         blok.attr("class", "fa fa-star");
                         blok.next().attr('showFieldIcon', false);
                     } else {
-                        if (blok.prop("tagName") == 'IMG') {
-                            blok.parent().prev().attr('showFieldText', false);
-                            blok.parent().prev().removeClass("displayNone");
-                        } else {
-                            blok.prev().attr('showFieldText', false);
-                            blok.prev().removeClass("displayNone");
-                        }
-                        
-                        //blok.text(blok.attr('title'));
+                        f.attr('showFieldText', false);
+                        f.removeClass("displayNone");
                     }
 
                     divTopNavigator.find('[command="Hide"]').parent().show();
@@ -2442,16 +2446,24 @@
                     if (blok.prop('tagName') == 'I') {
                         blok.attr("class", "");
                         blok.next().attr('showFieldIcon', true);
+                    } else if (blok.prop('tagName') == 'IMG') {
+                        blok.addClass('displayNone');
+                        f.attr('showFieldIcon', true);
                     } else {
-                        blok.attr('showFieldText', true);
-                        blok.addClass("displayNone");
+                        if (blok.hasClass('fieldValue')) {
+                            blok.css("display", "none");
+                        } else {
+                            blok.attr('showFieldText', true);
+                            blok.addClass("displayNone");
+                        }
                         //blok.html('&nbsp;');
                     }
+
                     divTopNavigator.find('[command="Hide"]').parent().hide();
                     divTopNavigator.find('[command="Show"]').parent().show();
                 } else if (cmd == 'SelectParent') {
                     isChange = false;
-                    if (blok.prop("tagName") == 'IMG') {
+                    if (blok.parent().hasClass("fieldGroup")) {
                         blok.parent().parent().mousedown().mouseup();
                     } else {
                         blok.parent().mousedown().mouseup();
@@ -2466,6 +2478,13 @@
                     divTopNavigator.find('[command="Merge"]').parent().hide();
                 } else if (cmd == 'Unlink') {
                     unlinkField(blok.attr('title'), blok);
+                } else if (cmd == 'ShowImg') {
+                    blok.prev('img').removeClass("displayNone");
+                    f.attr('showFieldIcon', false);
+                    divTopNavigator.find('[command="ShowImg"]').parent().hide();
+                } else if (cmd == 'ShowValue') {
+                    blok.next('.fieldValue').css("display", "unset");
+                    divTopNavigator.find('[command="ShowValue"]').parent().hide();
                 }
 
                 if (isChange) {
@@ -2477,11 +2496,13 @@
             var viewBlock = DivViewBlock.find('.canvas *');
 
             viewBlock.mousedown(function (e) {
-                if (e.target.tagName == 'SQL') {
+                if (e.target.tagName == 'SQL' || $(e.target).hasClass('fieldGroup')) {
                     return;
                 }
                 
                 divTopNavigator.find('[command="Merge"]').parent().hide();
+                divTopNavigator.find('[command="ShowImg"]').parent().hide();
+                divTopNavigator.find('[command="ShowValue"]').parent().hide();
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 if (count == 1) {
                     DivViewBlock.find('.vis-viewBlock').addClass("vis-active-block");
@@ -2503,8 +2524,8 @@
                     divTopNavigator.show();
                     divTopNavigator.find('[command="Unlink"]').parent().hide();
                     divTopNavigator.find('[command="fieldName"]').text('').hide();
-                    if (e.target.tagName == 'FIELDS') {
-                        divTopNavigator.find('[command="fieldName"]').text($(e.target).attr('title')).show();
+                    if ($(e.target).hasClass('fieldLbl')) {
+                        divTopNavigator.find('[command="fieldName"]').text($(e.target).closest('.fieldGroup').find('.fieldLbl').attr('title')).show();
                         divTopNavigator.find('[command="Unlink"]').parent().show();
                         var isTrue = $(e.target).attr('showFieldText') == 'true' ? true : false;
                         if (e.target.hasAttribute('showFieldText') && isTrue) {
@@ -2523,17 +2544,31 @@
                             divTopNavigator.find('[command="Show"]').parent().hide();
                             divTopNavigator.find('[command="Hide"]').parent().show();
                         }
-                    } else {
-                        
-                        if (e.target.tagName == 'IMG') {
-                            var isTrue = $(e.target).parent().prev().attr('showFieldText') == 'true' ? true : false;
-                            divTopNavigator.find('[command="fieldName"]').text($(e.target).parent().prev().attr('title')).show();
-                        } else if (e.target.tagName == 'FIELDVALUE') {
-                            var isTrue = $(e.target).prev().attr('showFieldText') == 'true' ? true : false;
-                            divTopNavigator.find('[command="fieldName"]').text($(e.target).prev().attr('title')).show();
-                        }
+                    } 
+                    else {
                         divTopNavigator.find('[command="Show"]').parent().hide();
                         divTopNavigator.find('[command="Hide"]').parent().hide();
+
+                        if ($(e.target).closest('.fieldGroup').length > 0) {
+                            var target = $(e.target).closest('.fieldGroup').find('.fieldLbl');
+                            var displayType = mTab.getFieldById(Number(target.attr('fieldid'))).getDisplayType();
+                            if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
+                                if ($(e.target).prev('img:hidden').length > 0) {
+                                    divTopNavigator.find('[command="ShowImg"]').parent().show();
+                                    divTopNavigator.find('[command="Hide"]').parent().hide();
+                                } else if ($(e.target).next('.fieldValue:hidden').length > 0) {
+                                    divTopNavigator.find('[command="Hide"]').parent().hide();
+                                    divTopNavigator.find('[command="ShowValue"]').parent().show();
+                                } else {
+                                    divTopNavigator.find('[command="Hide"]').parent().show();
+                                }
+                            } 
+
+                            var isTrue = target.attr('showFieldText') == 'true' ? true : false;
+                            divTopNavigator.find('[command="fieldName"]').text(target.attr('title')).show();
+                        }                       
+
+                        
                         if (isTrue) {
                             divTopNavigator.find('[command="Show"]').parent().show();
                         }
@@ -2669,7 +2704,15 @@
                     DivGridSec.find('.grid-Section').eq(1).find('.vis-grey-disp-el').click();
                 }
                 $(this).closest('.grid-Section').remove();
-                DivViewBlock.find('.vis-viewBlock .section' + secNo).remove();
+                var removeSection = DivViewBlock.find('.vis-viewBlock .section' + secNo);
+
+                removeSection.find('.fieldLbl').each(function () {
+                    if ($(this).attr('title') && $(this).attr('title').length > 0) {
+                        unlinkField($(this).attr('title'), $(this));
+                    }
+                });
+
+                removeSection.remove();
                 secNo = DivGridSec.find('.section-active').attr('sectionCount');
                 activeSection = DivViewBlock.find('.vis-viewBlock .section' + secNo);
                 isChange = true;
@@ -2696,6 +2739,10 @@
                 var dNo = (idx * totalCol + 1) - totalCol;
                 for (var i = dNo; i < (dNo + totalCol); i++) {
                     activeSection.find('.grdDiv').eq(i - 1).addClass('del');
+                    var blk = activeSection.find('.grdDiv').eq(i - 1).find('.fieldLbl');
+                    if (blk && blk.attr('title') && blk.attr('title').length > 0) {
+                        unlinkField(blk.attr('title'), blk);
+                    }
                 }
                 activeSection.find('.del').remove();
                 $(this).closest('.rowBox').remove();
@@ -2713,6 +2760,10 @@
                 for (var i = 0; i < totalRow; i++) {
                     var dNo = idx + (i * totalCol) - 1;
                     activeSection.find('.grdDiv').eq(dNo).addClass('del');
+                    var blk = activeSection.find('.grdDiv').eq(i - 1).find('.fieldLbl');                    
+                    if (blk && blk.attr('title') && blk.attr('title').length > 0) {
+                        unlinkField(blk.attr('title'), blk);
+                    }
                 }
                 activeSection.find('.del').remove();
                 $(this).closest('.colBox').remove();               
@@ -2761,14 +2812,14 @@
 
             DivCardField.find('.vis-grey-icon .fa-circle').click(function () {
                 if ($(this).hasClass('vis-succes-clr')) {
-                    var fid = $(this).closest('fields').attr('fieldid');
+                    var fid = $(this).closest('.fieldLbl').attr('fieldid');
                     DivViewBlock.find('[fieldid="' + fid + '"]').mousedown().mouseup();
                     setTimeout(function () {
                         divTopNavigator.find('[command="Unlink"]').click();        
                     },100);
                                
                 } else {
-                    linkField($(this).closest('fields'));
+                    linkField($(this).closest('.fieldLbl'));
                 }
             });
 
@@ -3143,19 +3194,19 @@
                 //includeCols.push(parseInt(f.AD_Field_ID));
             //}
 
-            DivViewBlock.find('.grdDiv:not(:hidden)').each(function (index) {
-                var gridArea = $(this).css('grid-area').split('/');
+            DivViewBlock.find('.fieldGroup:not(:hidden)').each(function (index) {
+                var gridArea = $(this).closest('.grdDiv').css('grid-area').split('/');
                 var secNo = $(this).closest('.vis-wizard-section').attr("sectioncount");
                 gridObj['section' + secNo]["style"] = $(this).closest('.vis-wizard-section').attr("style");
                 gridObj['section' + secNo]["sectionID"] = $(this).closest('.vis-wizard-section').attr("sectionid") || 0;
 
                 var valueStyle = "";
-                if ($(this).find('fieldvalue img').length > 0) {
-                    valueStyle = '@value::' + $(this).find('fieldvalue').attr('style') || 'display:none';
-                    valueStyle += ' |@img::' + $(this).find('fieldvalue img').attr('style') || '';
+                if ($(this).find('img').length > 0) {
+                    valueStyle = '@value::' + $(this).find('.fieldValue').attr('style') || 'display:none';
+                    valueStyle += ' |@img::' + $(this).find('img').attr('style') || '';
 
                 } else {
-                    valueStyle = $(this).find('fieldvalue').attr('style') || '';
+                    valueStyle = $(this).find('.fieldValue').attr('style') || '';
                 }
 
                 
@@ -3164,12 +3215,12 @@
                     columnSQL = $(this).attr('query') || null;
                 }
                 var hideFieldIcon = true;
-                if ($(this).find('fields').attr('showfieldicon')) {                   
-                    hideFieldIcon = $(this).find('fields').attr('showfieldicon') == 'true' ? true : false;
-                }
                 if ($(this).find('.fa-star').length == 0) {
                     hideFieldIcon = true;
                 }
+                if ($(this).find('.fieldLbl').attr('showfieldicon')) {                   
+                    hideFieldIcon = $(this).find('fieldLbl').attr('showfieldicon') == 'true' ? true : false;                }
+               
 
                 obj1 = {
                     cardFieldID: $(this).attr('cardfieldid'),
@@ -3178,13 +3229,13 @@
                     rowEnd: $.trim(gridArea[2]),
                     colStart: $.trim(gridArea[1]),
                     colEnd: $.trim(gridArea[3]),
-                    seq: seq,                   
-                    style: $(this).attr('style'),
-                    fieldID: $(this).find('fields').attr('fieldid'),
+                    seq: seq,
+                    style: $(this).closest('.grdDiv').attr('style'),
+                    fieldID: $(this).find('.fieldLbl').attr('fieldid'),
                     valueStyle: valueStyle,
-                    fieldStyle: $(this).find('fields').attr('style') || '',
+                    fieldStyle: $(this).find('.fieldLbl').attr('style') || '',
                     hideFieldIcon: hideFieldIcon,
-                    hideFieldText: $(this).find('fields').attr('showfieldtext') == 'true' ? true : false,
+                    hideFieldText: $(this).find('.fieldLbl').attr('showfieldtext') == 'true' ? true : false,
                     columnSQL: columnSQL
                 }
 
@@ -3315,21 +3366,9 @@
             var fld = DivCardField.find('[fieldid="' + itm.attr('fieldid') + '"]');
             fld.find('.linked').removeClass('linked vis-succes-clr');
             fld.removeAttr('seqNo');
-
-            //var listItem = DivCardField.find('fields:not(.displayNone)').not('[seqNo]');
-            //listItem.sort(function (a, b) {
-            //    var upA = $.trim($(a).text().toUpperCase());
-            //    var upB = $.trim($(b).text().toUpperCase());
-            //    return (upA < upB) ? -1 : (upA > upB) ? 1 : 0;
-            //});
-
-
-            //DivCardField.find('fields:not(.displayNone)').not('[seqNo]').remove();
-            //$.each(listItem, function (i, item) {   
-            //    DivCardField.append(item);
-            //});
+           
             fld.prop("draggable", true);
-            var listItem = DivCardField.find('fields:not(.displayNone)').not('[seqNo]');
+            var listItem = DivCardField.find('.fieldLbl:not(.displayNone)').not('[seqNo]');
             var sortedList = [];
             listItem.each(function (i, item) {
                 sortedList.push($.trim($(this).text().toLowerCase()));
@@ -3349,7 +3388,7 @@
             if (i == initialLength) {
                 DivCardField.append(fld);
             } else {
-                DivCardField.find('fields').eq(i + 1).after(fld);
+                DivCardField.find('.fieldLbl').eq(i + 1).after(fld);
             }
             itm.remove();
             divTopNavigator.hide();
@@ -3358,19 +3397,27 @@
         function linkField(itm) {
             var blok = DivViewBlock.find('.vis-active-block');
             if (blok.hasClass('grdDiv')) {
+                var fieldHtml = $('<div class="fieldGroup"></div>');                 
                 var fID = itm.attr('fieldid');
                 var newitm = itm.clone(true);
+                newitm.attr("showfieldicon", true);
                 itm.find('.vis-grey-icon').remove();
                 if (mTab.getFieldById(Number(fID)).getShowIcon()) {                   
-                    blok.append($('<i class="fa fa-star">&nbsp;</i>'));                  
+                    fieldHtml.append($('<i class="fa fa-star">&nbsp;</i>'));                  
                 }
 
-                blok.append(itm);
-                if (mTab.getFieldById(Number(fID)).getDisplayType() == VIS.DisplayType.Image) {
-                    var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
-                    blok.append($('<fieldvalue><img class="vis-colorInvert" src="' + src + '"/></fieldvalue>'));
+                blok.append(fieldHtml);
+                fieldHtml.append(itm);
+                var displayType = mTab.getFieldById(Number(fID)).getDisplayType();
+                var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
+                   
+                if (displayType == VIS.DisplayType.Image) {
+                     fieldHtml.append($('<img class="vis-colorInvert" src="' + src + '"/>'));
+                } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
+                    fieldHtml.append($('<img class="vis-colorInvert displayNone" src="' + src + '"/>'));
+                    fieldHtml.append($('<span class="fieldValue">:Value</span>')); 
                 } else {
-                    blok.append($('<fieldvalue>:Value</fieldvalue>'));
+                    fieldHtml.append($('<span class="fieldValue">:Value</span>'));
                 }
 
                 var linkedLength = DivCardField.find('.linked').length;
@@ -3378,8 +3425,8 @@
                 newitm.find('.fa-circle').addClass('linked vis-succes-clr');
                 newitm.prop("draggable", false);
                 //newitm.find('.fa-chain-broken').addClass('vis-succes-clr').removeClass('fa-chain-broken');
-                newitm.attr('seqNo', blok.attr('seqNo') || (linkedLength*10));
-                DivCardField.find('fields').eq(linkedLength).after(newitm);
+                newitm.attr('seqNo', fieldHtml.attr('seqNo') || (linkedLength*10));
+                DivCardField.find('.fieldLbl').eq(linkedLength).after(newitm);
             }
             isChange = true;
             if (isChange) {

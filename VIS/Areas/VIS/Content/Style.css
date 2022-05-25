@@ -1411,6 +1411,7 @@ center {
 */
 .vis-grad-sec{
     width:20%;
+    margin-top:4px;
 }
 .vis-splt-main-con{
     width:70%
@@ -2934,10 +2935,10 @@ border-top-left-radius:4px !important;
     background-color: rgba(var(--v-c-primary), 1);
     color: #fff;
 }
-.vis-two-sec-content fields {
+.vis-two-sec-content .fieldLbl {
     font-weight: 500;
     justify-content: space-between !important;
-    display:flex;
+    display: flex;
     background-color: #eeeeee;
     border-radius: 4px;
     padding: 0.5rem !important;
@@ -3090,16 +3091,18 @@ field, fieldvalue{
         padding: 0px !important;
         border: none !important;
         outline: none !important;
-        width: 65px !important;
-        margin-top: -4px !important;
+        width: 100% !important;
+     
     }
+
+
 .vis-cancelButtonPosition, .vis-cancelButtonPosition:hover {
     position: absolute;
-    top: 95px;
-    right: 80px;
+    top: 89px;
+    right: 54px;
     color: red !important;
     cursor: pointer;
-    font-size:1.1rem;
+    font-size: 0.8rem;
 }
 .vis-saveButtonPosition {
     background: rgba(var(--v-c-primary), 1);
@@ -3110,10 +3113,14 @@ field, fieldvalue{
     color: #fff;
     padding: 8px 13px;
     border-radius: 3px;
+    height: 25px;
+    width: 25px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
     .vis-saveButtonPosition i{
-        font-size: 1.5rem;
- 
+        font-size: 1.25rem;
     }
     .vis-sortTableHight {
         height: 100px;
@@ -3221,6 +3228,9 @@ field, fieldvalue{
 }
 .vis-cardViewTemplateHead .vis-input-wrap label{
     left:10px !important;
+}
+.fieldGroup {
+    width: fit-content;    
 }
 /* modify Ends */
 /*Media query*/

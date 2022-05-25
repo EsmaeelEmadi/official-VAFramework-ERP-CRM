@@ -281,9 +281,9 @@
             <span class="vis-font-weight-600 mb-2 d-inline-block">@GetText("CardFeild")</span>
         </div>
         <div class="vis-two-sec-content pr-2" id="@("DivCardField_" + ViewBag.WindowNumber)">
-            <fields class="displayNone" title="" draggable="true" ondragstart="drag(event)">
+            <span class="displayNone fieldLbl" title="" draggable="true" ondragstart="drag(event)">
                 <a class="vis-grey-icon" href="#"><i class="fa fa-circle" aria-hidden="true"></i></a>
-            </fields>
+            </span>
         </div>
     </div>
 
@@ -377,7 +377,8 @@
                 <a href="javascript:;" title="@GetText("Separate")" class="vis-topNavigatorIcon" style="display:none"><i command="Separate" class="fa fa-code-fork" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Unlink")" class="vis-topNavigatorIcon" style="display:none"><i command="Unlink" class="fa fa-chain-broken" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Merge")" class="vis-topNavigatorIcon" style="display:none"><i command="Merge" class="fa fa-compress" aria-hidden="true"></i></a>
-               
+                <a href="javascript:;" title="@GetText("ShowImg")" class="vis-topNavigatorIcon" style="display:none"><i command="ShowImg" class="fa fa-camera" aria-hidden="true"></i></a>
+                <a href="javascript:;" title="@GetText("ShowValue")" class="vis-topNavigatorIcon" style="display:none"><i command="ShowValue" class="fa fa-text-width" aria-hidden="true"></i></a>
             </div>
 
             <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">

@@ -647,9 +647,13 @@ namespace VIS.Models
                                     if (msg.IndexOf("<img") > -1 || msg.IndexOf("<svg") > -1)
                                     {
                                         msg = msg.Replace("<img", "<img style='" + imgStyle + "' ");
+                                        design += msg;
                                     }
-
-                                    design += "<fieldValue style='" + valueStyle + "'>" + msg + "</fieldValue>";
+                                    else
+                                    {
+                                        design += "<span class='fieldValue' style='" + valueStyle + "'>" + msg + "</span>";
+                                    }
+                                   
                                     design += "</div>";
                                 }
                             }
