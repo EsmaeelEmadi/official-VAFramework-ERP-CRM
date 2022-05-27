@@ -3220,8 +3220,8 @@ field, fieldvalue{
     color: rgba(var(--v-c-on-secondary), .3) !important;
 }
 
-.vis-two-sec-content fields[draggable="true"]{
-    cursor:all-scroll;
+.vis-two-sec-content .fieldLbl[draggable="true"] {
+    cursor: all-scroll;
 }
 .td_Action i {
     cursor:pointer;

@@ -19,26 +19,26 @@
                 </a>
             </div>
             <div class="vis-card-rht mb-2">
-                @*<span class="mr-2" id="@("btnCopy_" + ViewBag.WindowNumber)">
+                <span class="mr-2" id="@("btnCopy_" + ViewBag.WindowNumber)">
                     <a href="#">
                         <i class="fa fa-files-o vis-font-size-lg vis-change-to-secondary"
                            aria-hidden="true"></i>
                     </a>
                 </span>
-                <span class="mr-2" id="@("btnEdit_" + ViewBag.WindowNumber)">
-                    <a href="#" class="vis-font-weight-semibold">
-                        <i class="fa fa-pencil-square-o vis-font-size-lg vis-change-to-secondary"
-                           aria-hidden="true"></i>
-                    </a>
-                </span>*@
-                <span class="mr-2" id="@("btnDelete_" + ViewBag.WindowNumber)">
+                @* <span class="mr-2" id="@("btnEdit_" + ViewBag.WindowNumber)">
+            <a href="#" class="vis-font-weight-semibold">
+                <i class="fa fa-pencil-square-o vis-font-size-lg vis-change-to-secondary"
+                   aria-hidden="true"></i>
+            </a>
+        </span>*@
+                <span  class="mr-2" id="@("btnDelete_" + ViewBag.WindowNumber)">
                     <a href="#"
                        class="vis-font-weight-semibold vis-change-to-secondary">
                         <i class="fa fa-trash-o vis-font-size-lg"
                            aria-hidden="true"></i>
                     </a>
                 </span>
-                <span class="mr-2" id="@("btnCancle_" + ViewBag.WindowNumber)">
+                <span class="mr-2 displayNone" id="@("btnCancle_" + ViewBag.WindowNumber)">
                     <a href="#"
                        class="vis-font-weight-semibold vis-change-to-secondary">
                         <i class="fa fa-times vis-font-size-lg"
@@ -55,9 +55,9 @@
         <div class="vis-sec-2">
             <div class="vis-sec-2-wrapper mr-2 pr-1">
                 <span class="vis-title-1 d-block  vis-font-weight-600 mb-2 vis-font-size-lg">@GetText("GroupSeq")</span>
-                 <div>
+                <div>
 
-                 </div>
+                </div>
                 <div class="input-group vis-input-wrap vis-custMarginInputWrap vis-custommt">
                     <div class="vis-control-wrap">
                         <select name="cmbGroupField"
@@ -135,7 +135,7 @@
                     </div>
 
                     <!--Left Here-->
-                    
+
                 </div>
                 <span class="vis-font-size-sm d-block mb-1 vis-font-weight-600 vis-font-size-lg">@GetText("ConditionalFormatting") </span>
                 <div class="vis-sec-3">
@@ -174,8 +174,8 @@
 
 
                                     @*<div class="vis-deg-circle pull-right">
-                            <div class="vis-deg-slider"></div>
-                        </div>*@
+                                            <div class="vis-deg-slider"></div>
+                                        </div>*@
                                 </div>
 
 
@@ -209,7 +209,7 @@
                             <div class="vis-des-rgt-fld">
                                 <div class="input-group vis-input-wrap m-0">
                                     <div class="vis-control-wrap mt-3 d-flex" id="@("valcontainer_"+ ViewBag.WindowNumber)">
-                                        <input type="text" disabled/>
+                                        <input type="text" disabled />
                                         <label for="QueryValue">@GetText("QueryValue")</label>
                                     </div>
                                 </div>
@@ -268,8 +268,8 @@
 
 
         <div class="vis-sec-5 d-flex align-items-center justify-content-between">
-            
-            
+
+
         </div>
     </div>
 </div>
@@ -281,7 +281,7 @@
             <span class="vis-font-weight-600 mb-2 d-inline-block">@GetText("CardFeild")</span>
         </div>
         <div class="vis-two-sec-content pr-2" id="@("DivCardField_" + ViewBag.WindowNumber)">
-            <span class="displayNone fieldLbl" title="" draggable="true" ondragstart="drag(event)">
+            <span class="displayNone fieldLbl" title="" draggable="true">
                 <a class="vis-grey-icon" href="#"><i class="fa fa-circle" aria-hidden="true"></i></a>
             </span>
         </div>
@@ -390,7 +390,7 @@
                     <i class="fa fa-floppy-o" aria-hidden="true"></i>
                 </button>
                 <div class="canvas">
-                    <div id="@("DivCardHeader2_" + ViewBag.WindowNumber)" class="vis-viewBlock" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div id="@("DivCardHeader2_" + ViewBag.WindowNumber)" class="vis-viewBlock">
                         <div sectionCount="1" class="section1 vis-wizard-section"></div>
                     </div>
                 </div>
@@ -420,7 +420,7 @@
                         @GetText("BackToCardView")
                     </button>
 
-                    <button class="vis-blue-theme-btn" id="@("BtnChangeTemplate_" + ViewBag.WindowNumber)">                        
+                    <button class="vis-blue-theme-btn" id="@("BtnChangeTemplate_" + ViewBag.WindowNumber)">
                         @GetText("ChangeTemplate")
                     </button>
                     @*<button class="vis-blue-theme-btn" id="@("BtnLayoutSetting_" + ViewBag.WindowNumber)">
@@ -858,7 +858,7 @@
                                     </div>
                                     <div class="vis-accordionWrapper">
                                         <div class="vis-accordionHeader mb-1 d-flex align-items-center justify-content-between" data-toggle="collapse" data-target="#collapseExampleTwo" aria-expanded="false" aria-controls="collapseExample">
-                                            <span >@GetText("Color")</span> <span><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                            <span>@GetText("Color")</span> <span><i class="fa fa-caret-right" aria-hidden="true"></i></span>
                                         </div>
                                         <div class="collapse" id="collapseExampleTwo">
                                             <div class="p-1">
@@ -1075,8 +1075,8 @@
                                                     <div class="vis-hor-align-sy-p2">
                                                         <span class="vis-cll-sy-p2-title vis-font-size-sm d-block pb-1 mt-3 vis-font-weight-600 vis-borderBottomH mb-2">@GetText("JustifyContent")</span>
                                                         <div class="vis-horz-align-d d-flex">
-                                                            <div class="vis-hr-elm vis-hr-elm-fst" data-command1="flexJustifyStart">
-                                                                <div class="vis-cllsty2-single-el">
+                                                            <div class="vis-hr-elm vis-hr-elm-fst">
+                                                                <div class="vis-cllsty2-single-el" data-command1="flexJustifyStart">
                                                                     <div class="vis-box-sin0colr-wrap d-flex">
                                                                         <div class="vis-box-sin0colr"></div>
                                                                         <div class="vis-box-sin0colr"></div>
@@ -1183,65 +1183,7 @@
         <!-- Min content -->
 
     </div>
-    </div>
-    <script>
-        var valueTag = null;
-        var dragedFrom = null;
-        var idx = 0;
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
+</div>
 
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
-            valueTag = $(ev.target).next();
-
-            dragedFrom = ev.target.closest('.vis-two-sec-content');
-            idx = $(dragedFrom).find('.linked').length;
-        }
-
-        function drop(ev) {
-            ev.preventDefault();
-            var textnode = "";
-            var data = ev.dataTransfer.getData("text");
-            var copyNode = $("#" + data).clone(true);
-            var mainNode = document.getElementById(data);
-            if (ev.target.closest('.vis-two-sec-content')) {
-                if (mainNode.getElementsByTagName('img').length > 0) {
-                    mainNode.removeChild(mainNode.getElementsByTagName('img'));
-                }
-                mainNode.innerText = mainNode.getAttribute('title');
-                ev.target.closest('.vis-two-sec-content').appendChild(mainNode);
-            } else {
-                $(mainNode).find('.vis-grey-icon').remove();
-                if ($(mainNode).attr("showfieldicon")) {
-                    $(ev.target).append('<i class="fa fa-star">&nbsp;</i>');
-                }
-                ev.target.appendChild(mainNode);
-                const node = document.createElement("fieldValue");
-
-                if ($(mainNode).attr("displayType")) {
-                    var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
-                    textnode = document.createElement("img");
-                    textnode.src = src;
-                    textnode.classList.add("vis-colorInvert");
-                } else {
-                    textnode = document.createTextNode(":Value");
-                }
-
-                copyNode.find('.fa-circle').addClass('linked vis-succes-clr');
-                copyNode.prop("draggable", false);
-                copyNode.attr('seqNo', $(ev.target).attr('seqNo') || (idx * 10));
-                $(dragedFrom).find('fields').eq(idx).after(copyNode);
-                node.appendChild(textnode);
-                ev.target.appendChild(node);
-            }
-
-            valueTag.remove();
-            valueTag = null;
-            document.getElementById(data).removeAttribute('style');
-            document.getElementById(data).removeAttribute('class');
-        }
-    </script>
 
 

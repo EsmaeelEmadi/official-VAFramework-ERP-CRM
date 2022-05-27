@@ -103,12 +103,13 @@
         var isChange = false;
         var isOnlySave = false;
         var isSystemTemplate = 'Y';
+        var isCopy = false;
+        var dragged = null;
         var gridObj = {
         };
         function init() {
             root = $('<div style="height:100%"></div>');
-            isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
-            root.append(isBusyRoot);
+            isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");           
             CardViewUI();
         }
 
@@ -188,12 +189,17 @@
             //    chkDefault.parent().hide();
             //});
 
-            //btnCopy.click(function () {
-            //    isEdit = true;
-            //    isNewRecord = false;
-            //    enableDisable(true);
-            //    chkDefault.parent().hide();
-            //});
+            btnCopy.click(function () {                
+                var newCopyCard = new cardCopyDialog();
+                newCopyCard.show();
+                newCopyCard.onSave = function () {
+                    var newcardname = newCopyCard.getName();
+                    if (newcardname && newcardname.length > 0) {
+                        IsBusy(true);
+                        saveCopyCard(newcardname);
+                    }
+                }
+            });
 
             btnCancle.click(function () {
                 isNewRecord = false;
@@ -218,6 +224,11 @@
                 if (AD_HeaderLayout_ID == 0 && DivGridSec.find('.rowBox').length==1) {
                     DivGridSec.find('.addGridCol').click();
                     DivGridSec.find('.addGridRow').click();
+                }
+                if (isCopy) {
+                    setTimeout(function () {
+                        btnFinesh.click();
+                    }, 2000);
                 }
                 //FillFields(true, false);
             });
@@ -609,6 +620,20 @@
                 DivViewBlock.find('.canvas').css('zoom', $(this).val());
             })
 
+            DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragover", function (event){
+                // prevent default to allow drop
+                event.preventDefault();
+            });
+
+            DivViewBlock.find('.vis-viewBlock')[0].addEventListener("drop", function (event) {
+                // prevent default action (open as link for some elements)
+                event.preventDefault();
+                DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
+                $(event.target).addClass('vis-active-block');
+                // move dragged element to the selected drop target
+                linkField(dragged);
+            });
+
             /* End Step 1*/
 
         }
@@ -643,7 +668,7 @@
                 chkDefault = root.find('#chkDefault_' + WindowNo);
                 chkPublic = root.find('#chkPublic_' + WindowNo);
                 btnNewCard = root.find('#btnNewCard_' + WindowNo);
-                //btnCopy = root.find('#btnCopy_' + WindowNo);
+                btnCopy = root.find('#btnCopy_' + WindowNo);
                 //btnEdit = root.find('#btnEdit_' + WindowNo);
                 btnDelete = root.find('#btnDelete_' + WindowNo);
                 btnCancle = root.find('#btnCancle_' + WindowNo);
@@ -711,7 +736,7 @@
                 });
                 enableDisable(false);
                 cmbOrderClause.find('option').remove();
-                cmbOrderClause.append('<option value="-1"> </option>)');
+                cmbOrderClause.append('<option value="-1"></option>)');
 
                 for (var j = 0; j < totalTabFileds.length; j++) {
                     var header = totalTabFileds[j].getHeader();
@@ -735,6 +760,7 @@
                 chkDefault.parent().hide();
 
                 cardsList.scrollTop(cardsList.find('.crd-active').offset().top - cardsList.find('.crd-active').height() - 100);
+                root.append(isBusyRoot);
             });
 
 
@@ -943,14 +969,14 @@
                         var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
                         var displayType = mTab.getFieldById(Number(fID)).getDisplayType();
                         if (displayType == VIS.DisplayType.Image) {
-                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
+                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
                         } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
                             var iconClass = hideIcon ? "displayNone" : ""; 
-                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="' + iconClass+' vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/><span class="fieldValue" style="' + vlstyle + '">Value</span>'));
+                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="' + iconClass+' vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/><span class="fieldValue" style="' + vlstyle + '">Value</span>'));
                         }
                         else {
 
-                            fieldHtml.append($('<span class="fieldLbl ' + cls +'" draggable="true" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><span class="fieldValue" style="' + vlstyle + '">:Value</span>'));
+                            fieldHtml.append($('<span class="fieldLbl ' + cls +'" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><span class="fieldValue" style="' + vlstyle + '">:Value</span>'));
                         }
 
                         if (fidItm.attr("query") != null && fidItm.attr("query") != "") {
@@ -1092,10 +1118,13 @@
 
                                 //iClone.find('.vis-change-clr-red').addClass('linked').removeClass('vis-change-clr-red');
                                 //iClone.find('.fa-chain-broken').addClass('fa-link vis-succes-clr').removeClass('fa-chain-broken');
-                                if (DivViewBlock.find('.canvas [seqNo="' + CVColumns[i].SeqNo + '"]')) {
+                                if (DivViewBlock.find('.canvas [seqNo="' + CVColumns[i].SeqNo + '"]').length>0) {
                                     iClone.find('.fa-circle').addClass('linked vis-succes-clr');
                                     iClone.prop("draggable", false);
+                                } else {
+                                    iClone.prop("draggable", true);
                                 }
+
                                 if (mTab.getFieldById(CVColumns[i].AD_Field_ID).getShowIcon()) {
                                     iClone.attr("showfieldicon", false);
                                 }
@@ -1117,6 +1146,11 @@
                                 // ulRoot.append("<li seqno=" + 0 + " index=" + i + " CardViewColumnID=" + 0 + " FieldID=" + CVColumns[i].AD_Field_ID + "> <span>" + CVColumns[i].FieldName + "</span></li>");
 
                             }
+
+                            DivCardField[0].addEventListener("dragstart", function (event){
+                                // store a ref. on the dragged elem
+                                dragged = $(event.target);
+                            });
                         }
                         if (LstCardViewCondition != null && LstCardViewCondition.length > 0) {
                             cardviewCondition = [];
@@ -1452,11 +1486,21 @@
                 //btnCopy.addClass('vis-disable-event');
                 //btnEdit.removeClass('vis-disable-event');
                 btnDelete.removeClass('vis-disable-event');
+
+                btnSaveClose.removeClass('vis-disable-event');
+                btnFinesh.removeClass('vis-disable-event');
+                btnOnlySave.removeClass('vis-disable-event');
+                btnChangeTemplate.removeClass('vis-disable-event');
             } else {
                 isSameUser = false;
                 //btnCopy.removeClass('vis-disable-event');
                 //btnEdit.addClass('vis-disable-event');
                 btnDelete.addClass('vis-disable-event');
+
+                btnSaveClose.addClass('vis-disable-event');
+                btnFinesh.addClass('vis-disable-event');
+                btnOnlySave.addClass('vis-disable-event');
+                btnChangeTemplate.addClass('vis-disable-event');
             }
             if (VIS.MRole.isAdministrator) {
                 chkPublic.show();
@@ -1495,7 +1539,7 @@
             //    DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
             //    DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
             //    txtCardName.attr("disabled", "disabled");
-            //}
+            //}           
 
             if (isNewRecord || isEdit) {
                 //btnNewCard.addClass('vis-disable-event');
@@ -1567,19 +1611,28 @@
             } else {
                 cardViewUserID = VIS.context.getAD_User_ID();
             }
+            AD_User_ID = VIS.context.getAD_User_ID();
 
-            if (VIS.context.getAD_User_ID() == cardViewUserID && !isNewRecord) {
-                AD_User_ID = VIS.context.getAD_User_ID();
-            } else if (VIS.context.getAD_User_ID() != cardViewUserID && !isNewRecord && isEdit) {
+            if (isCopy) {
                 isNewRecord = true;
-                AD_User_ID = VIS.context.getAD_User_ID();
+                isCopy = false;
                 if (!VIS.MRole.isAdministrator) {
                     chkPublic.prop("checked", false);
+                    chkDefault.prop("checked", false);
                 }
-            } else {
-                //  isNewRecord = true;
-                AD_User_ID = VIS.context.getAD_User_ID();
             }
+            //if (VIS.context.getAD_User_ID() == cardViewUserID && !isNewRecord) {
+            //    AD_User_ID = VIS.context.getAD_User_ID();
+            //} else if (VIS.context.getAD_User_ID() != cardViewUserID && !isNewRecord && isEdit) {
+            //    isNewRecord = true;
+            //    AD_User_ID = VIS.context.getAD_User_ID();
+            //    if (!VIS.MRole.isAdministrator) {
+            //        chkPublic.prop("checked", false);
+            //    }
+            //} else {
+            //    //  isNewRecord = true;
+            //    AD_User_ID = VIS.context.getAD_User_ID();
+            //}
 
             if (isNewRecord && cardViewInfo != null) {
                 for (var a = 0; a < cardViewInfo.length; a++) {
@@ -1715,13 +1768,25 @@
 
                             lastSelectedID = null;
                             cardsList.find('.crd-active').remove();
-                            var template = '<div idx="' + idx + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
-                            template += '<span class="vis-lft-sgl-title">' + w2utils.encodeTags(cardViewInfo[idx].CardViewName) + '</span>'
-                                + '    <span class="vis-lft-sgl-sub-title">Created By: ' + cardViewInfo[idx].CreatedName + '</span>'
-                                + '    <span class="vis-lft-sgl-sub-title">Last Modified: ' + cardViewInfo[idx].Updated + '</span>'
-                                + '</div>';
+                            if (cardsList.find('.vis-lft-sgl').length > 0) {
+                                var cardclone = cardsList.find('.vis-lft-sgl:first').clone(true);
+                                cardclone.attr('idx', idx);
+                                cardclone.addClass('crd-active');
+                                cardclone.find('.vis-lft-sgl-title').text(w2utils.encodeTags(cardViewInfo[idx].CardViewName));
+                                cardclone.find('.vis-lft-sgl-sub-title:first').text('Created By: '+ cardViewInfo[idx].CreatedName);
+                                cardclone.find('.vis-lft-sgl-sub-title:last').text('last modified: ' + cardViewInfo[idx].Updated);
+                                cardsList.prepend(cardclone);
+                            } else {
+                                var template = '<div idx="' + idx + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
+                                template += '<span class="vis-lft-sgl-title">' + w2utils.encodeTags(cardViewInfo[idx].CardViewName) + '</span>'
+                                    + '    <span class="vis-lft-sgl-sub-title">Created By: ' + cardViewInfo[idx].CreatedName + '</span>'
+                                    + '    <span class="vis-lft-sgl-sub-title">Last Modified: ' + cardViewInfo[idx].Updated + '</span>'
+                                    + '</div>';
+                                cardsList.prepend($(template));
+                            }
+                            
 
-                            cardsList.prepend($(template));
+                            
 
                             //cmbCardView.append("<Option idx=" + idx + " is_shared=" + AD_User_ID + " ad_user_id=" + VIS.context.getAD_User_ID() + " cardviewid=" + AD_CardView_ID + " groupSequence='" + grpSeq + "' excludedGroup='" + skipGrp + "'  ad_field_id=" + cmbGroupField.find(":selected").attr("fieldid") + " isdefault=" + isdefault.is(":checked") + " ad_headerLayout_id=" + $vSearchHeaderLayout.getValue() + "> " + w2utils.encodeTags(cardViewName) + "</Option>");
                             //cmbCardView.find('[cardviewid="' + AD_CardView_ID + '"]').prop("selected", true).trigger("change");
@@ -2027,7 +2092,9 @@
 
         function addSelectedTemplate() {
             var $this = DivTemplate.find('.vis-active-template').clone(true);
-            spnLastSaved.text(VIS.Msg.getMsg("LastSaved") + " " +$this.attr("lastupdated"));
+            if ($this.attr("lastupdated")) {
+                spnLastSaved.text(VIS.Msg.getMsg("LastSaved") + " " + $this.attr("lastupdated"));
+            }
             $this.find('.fieldValue').remove();
             CardCreatedby = $this.attr("createdBy");
             isSystemTemplate = $this.attr("isSystemTemplate");
@@ -2487,7 +2554,7 @@
                     divTopNavigator.find('[command="ShowValue"]').parent().hide();
                 }
 
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID !="0") {
                     btn_BlockCancel.show();
                 }
                // divTopNavigator.hide();
@@ -2506,12 +2573,13 @@
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 if (count == 1) {
                     DivViewBlock.find('.vis-viewBlock').addClass("vis-active-block");
-                } else {
-                    $(e.target).addClass("vis-active-block");
+                } else {                    
                     var secCount = $(e.target).closest('.vis-wizard-section').attr("sectionCount");
                     if (!DivGridSec.find("[sectionCount='" + secCount + "']").hasClass('section-active')) {
                         DivGridSec.find("[sectionCount='" + secCount + "'] .vis-grey-disp-el").click();
                     }
+
+                    $(e.target).addClass("vis-active-block");
 
                     var top = e.target.offsetTop - divTopNavigator.outerHeight();
                     var left = e.target.offsetLeft;
@@ -2662,7 +2730,7 @@
                 DivGridSec.find('.DivRowBox').append(rClone);
                 createGrid();
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
             });
@@ -2673,7 +2741,7 @@
                 DivGridSec.find('.DivColBox').append(cClone);
                 createGrid();
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") { 
                     btn_BlockCancel.show();
                 }
             });
@@ -2716,7 +2784,7 @@
                 secNo = DivGridSec.find('.section-active').attr('sectionCount');
                 activeSection = DivViewBlock.find('.vis-viewBlock .section' + secNo);
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
             });
@@ -2748,7 +2816,7 @@
                 $(this).closest('.rowBox').remove();
                 gridCss();
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
             });
@@ -2769,7 +2837,7 @@
                 $(this).closest('.colBox').remove();               
                 gridCss();
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
             });
@@ -2780,7 +2848,7 @@
 
             txtColGap.change(function () {
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
                 gridCss();
@@ -2788,7 +2856,7 @@
 
             txtRowGap.change(function () {
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
                 gridCss();
@@ -2796,7 +2864,7 @@
 
             DivGridSec.find('.rowBox input,select').change(function () {
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
                 gridCss();
@@ -2804,7 +2872,7 @@
 
             DivGridSec.find('.colBox input,select').change(function () {
                 isChange = true;
-                if (isChange) {
+                if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
                 gridCss();
@@ -2919,15 +2987,15 @@
                 var oldcol = grSec.attr('col');
                 if (oldcol != totalCol) {
                     for (var r = 0; r < oldrow; r++) {
-                        var pos = oldcol * r + (r + 1);
+                        var pos = oldcol * r + (r + 1);                        
                         grSec.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:10px;'></div>");
                     }
 
-                }
-
-                var totalDiv = totalRow * totalCol - grSec.find('.grdDiv').length;
-                for (var i = 0; i < totalDiv; i++) {
-                    grSec.append("<div class='grdDiv' style='padding:10px;'></div>");
+                } else {
+                    var totalDiv = totalRow * totalCol - grSec.find('.grdDiv').length;
+                    for (var i = 0; i < totalDiv; i++) {
+                        grSec.append("<div class='grdDiv' style='padding:10px;'></div>");
+                    }
                 }
 
                 //grSec.attr('row', totalRow);
@@ -3106,7 +3174,7 @@
 
         function applyCommend(commend, styleValue) {
             isChange = true;
-            if (isChange) {
+            if (isChange && AD_HeaderLayout_ID != "0") {
                 btn_BlockCancel.show();
             }
             var tag = DivViewBlock.find('.vis-active-block');
@@ -3262,10 +3330,18 @@
                 cardSection.push(fobj);
             });
 
-            if (isSystemTemplate=="Y") {
+            if (isSystemTemplate == "Y") {
                 templateName = (templateName || txtCardName.val()) + "_" + Math.floor(Math.random() * 10000);
                 AD_HeaderLayout_ID = 0;
             };
+
+            if (isCopy) {
+                templateName = (txtCardName.val() + "_" + Math.floor(Math.random() * 10000));
+                AD_HeaderLayout_ID = 0;
+                AD_CardView_ID = "undefined"; 
+                isNewRecord=true
+            }
+            
 
             var cardID = AD_CardView_ID;
             if (isNewRecord)
@@ -3402,6 +3478,7 @@
                 var newitm = itm.clone(true);
                 newitm.attr("showfieldicon", true);
                 itm.find('.vis-grey-icon').remove();
+                itm.attr('draggable',false);
                 if (mTab.getFieldById(Number(fID)).getShowIcon()) {                   
                     fieldHtml.append($('<i class="fa fa-star">&nbsp;</i>'));                  
                 }
@@ -3429,9 +3506,28 @@
                 DivCardField.find('.fieldLbl').eq(linkedLength).after(newitm);
             }
             isChange = true;
-            if (isChange) {
+            if (isChange && AD_HeaderLayout_ID != "0") {
                 btn_BlockCancel.show();
             }
+        }
+
+        function saveCopyCard(copyCardName) {
+            for (var a = 0; a < cardViewInfo.length; a++) {
+                if (cardViewInfo[a].CardViewName.trim() == copyCardName.trim()) {
+                    VIS.ADialog.error("cardAlreadyExist", true, "");
+                    IsBusy(false);
+                    return false;
+                }
+            }
+
+            txtCardName.val(copyCardName);
+            isCopy = true;
+            btnCardCustomization.click();
+            //setTimeout(function () {
+            //    btnFinesh.click();
+            //}, 1000);
+
+
         }
         // #endregion
         init();
@@ -3474,11 +3570,15 @@
     VIS.CVDialog = cvd;
 
     function cardCopyDialog() {
-        var $root = $('<div style="padding-bottom:0px">');
+        var $root = $('<div class="input-group vis-input-wrap mb-0" >');
+        var $controlBlock = $('<div class="vis-control-wrap d-block mt-1" >');
         var txtDescription = $('<span style="display:block;margin-bottom:5px;">' + VIS.Msg.getMsg('NewCardInfo') + '</span>');
-        var $txtName = $('<input style="margin-left:5px">');
+        $root.append(txtDescription).append($controlBlock);
+        var $txtName = $('<input type="text">');
         var $lblName = $('<label>' + VIS.Msg.getMsg('EnterName') + '</label>');
-        $root.append(txtDescription).append($lblName).append($txtName);
+        $controlBlock.append($txtName).append($lblName);   
+       
+       
         var self = this;
         this.show = function () {
 
@@ -3486,7 +3586,7 @@
             ch.setTitle(VIS.Msg.getMsg("CardName"));
             ch.setModal(true);
             ch.setContent($root);
-            ch.setWidth("90%");
+            ch.setWidth("50%");
             ch.show();
             ch.onOkClick = ok;
             ch.onCancelClick = cancel;
@@ -3502,12 +3602,12 @@
                 VIS.ADialog.info("FileNameMendatory");
                 return false;
             }
-            self.onClose();
+            self.onSave();
             return true;
         };
 
         function cancel() {
-            self.onClose();
+            ch.close();
             return true;
         };
 
@@ -3527,6 +3627,5 @@
 
     VIS.CardCopyDialog = cardCopyDialog;
 
-    //alert(VIS.CVDialog);
 
 }(VIS, jQuery));
