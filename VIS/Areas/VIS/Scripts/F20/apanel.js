@@ -138,7 +138,7 @@
         this.isAutoCompleteOpen = false;
         this.instructionPop = {};
         this.instructionPop[this.ACTION_NAME_NEW] = false;
-
+        this.fromCardDialogBtn = false;
         function initComponenet() {
 
             var clone = document.importNode(tmpAPanel, true);
@@ -2490,6 +2490,9 @@
             //		to,	subject, message,
             //		null);
             return;
+        } else if (columnName.equals("OpenCardDialog")) {
+            aPanel.fromCardDialogBtn = true;
+            aPanel.cmd_cardDialog();
         }
 
         if (vButton.AD_Process_ID > 0) {
@@ -2552,7 +2555,7 @@
                     break;
                 case 'IMP':
                     aPanel.cmd_ImportMap();
-                    break;
+                    break;             
                 default: actionVADMSDocument(aPanel, vButton.value)
             }
 

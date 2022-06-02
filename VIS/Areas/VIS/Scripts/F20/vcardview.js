@@ -112,6 +112,7 @@
         var leftDiv = null;
         this.cardID = 0;
         var records = null;
+        var $openDialog = null;
         this.editID = 0;
 
         this.VCardRightPanel = null;
@@ -130,13 +131,18 @@
             $lblGroup = $('<p>');
             $imgdownSearch = $('<span class="vis-ad-w-p-tb-s-icon-down vis-cv-cardlist"><i class="fa fa-ellipsis-h"></i></span>');
             groupHeader = $("<div class='vis-cv-groupHeader'style='overflow:hidden; max-width:" + width + "px'>");
-            headerdiv.append($cmbCards).append($imgdownSearch).append($lblGroup); 
+            $openDialog = $('<a href="javascript:;" class="vis-dailogOpen">Open Card Dialog</a>');
+            headerdiv.append($openDialog).append($cmbCards).append($imgdownSearch).append($lblGroup); 
             leftDiv.append(headerdiv).append(groupHeader).append(body);
             root.append(leftDiv).append(rightDiv);
             body.scroll(function () {
                 SyncScroll();
             });
-            createCardautoComplete();           
+            createCardautoComplete();   
+
+            $openDialog.click(function () {
+                self.aPanel.cmd_cardDialog();
+            });
         }
 
        
@@ -144,6 +150,10 @@
         /**
          * create autocomplete box to show list of cards
          * */
+
+      
+
+
         function createCardautoComplete() {
             $cmbCards.autocomplete({
                 select: function (ev, ui) {

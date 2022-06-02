@@ -100,11 +100,11 @@ namespace VIS.Controllers
             {
                 for (int i = 0; i < lstCardViewColumns.Count; i++)
                 {
-                    if (isNewRecord)
-                    {
-                        lstCardViewColumns[i].CardViewID = id;
-                    }
-                    sqNo = ((i+1) * 10);
+                    //if (isNewRecord)
+                    //{
+                    lstCardViewColumns[i].CardViewID = id;
+                    //}
+                    sqNo = ((i + 1) * 10);
                     objCardViewModel.SaveCardViewColumns(lstCardViewColumns[i].CardViewID, lstCardViewColumns[i].AD_Field_ID, sqNo, ctx, lstCardViewColumns[i].sort);
                     id = lstCardViewColumns[i].CardViewID;
                 }
