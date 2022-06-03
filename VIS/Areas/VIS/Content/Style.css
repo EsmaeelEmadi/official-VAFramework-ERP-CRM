@@ -2962,7 +2962,7 @@ border-top-left-radius:4px !important;
 
 .vis-topNavigator {
     position:absolute;
-    min-width: 100px;
+  /*  min-width: 100px;*/
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     z-index:999;

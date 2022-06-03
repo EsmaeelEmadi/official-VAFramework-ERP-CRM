@@ -107,6 +107,9 @@
         var isSystemTemplate = 'Y';
         var isCopy = false;
         var dragged = null;
+        var rowIdx = null;
+        var colIdx = null;
+        var addedColPos = [];
         var gridObj = {
         };
 
@@ -170,14 +173,7 @@
                 enableDisable(true);
                 lastSelectedID = cardsList.find('.crd-active').attr('idx');
                 cardsList.find('.crd-active').removeClass('crd-active');
-                //template = '<div class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
-
-                //template += '<span class="vis-lft-sgl-title">--</span>'
-                //    + '    <span class="vis-lft-sgl-sub-title">Created By: ' + VIS.context.getAD_User_Name() + '</span>'
-                //    + '    <span class="vis-lft-sgl-sub-title">Last Modified: ' + new Date().toLocaleDateString() + '</span>'
-                //    + '</div>';
                 
-                //cardsList.prepend($(template));
                 AD_HeaderLayout_ID = 0;
                 AD_CardView_ID = "undefined";
                 btnTemplateBack.text(VIS.Msg.getMsg("Back"));
@@ -208,12 +204,6 @@
                 isNewRecord = false;
                 isEdit = true;
                 enableDisable(false);
-                //if (lastSelectedID) {
-                //    cardsList.find('.crd-active').remove();
-                //    cardsList.find("[idx='" + lastSelectedID + "']").addClass('crd-active');
-                //    lastSelectedID = null;
-                //}
-                //cardsList.find('.crd-active').trigger('click');
             });
 
             btnLayoutSetting.click(function () {
@@ -1060,35 +1050,23 @@
                         iClone.attr("showfieldicon", false);
                     }
 
-                    if (tabField[i].getDisplayType() == VIS.DisplayType.Image) {
-                        iClone.attr("fieldid", tabField[i].getAD_Field_ID()).attr("displayType", "img");
-                    } else {
-                        iClone.attr("fieldid", tabField[i].getAD_Field_ID());
-                    }
+                    //if (tabField[i].getDisplayType() == VIS.DisplayType.Image) {
+                    //    iClone.attr("fieldid", tabField[i].getAD_Field_ID()).attr("displayType", "img");
+                    //} else {
+                    //    iClone.attr("fieldid", tabField[i].getAD_Field_ID());
+                    //}
+                    iClone.attr("fieldid", tabField[i].getAD_Field_ID());
                     iClone.attr("id", WindowNo + "_" + tabField[i].getAD_Field_ID());
                     DivCardField.append(iClone);
                     iClone = DivCardField.find('.fieldLbl:first').clone(true);
                     iClone.removeClass('displayNone');
-
-                    //availableFeilds.append("<li index=" + i + " FieldID=" + tabField[i].getAD_Field_ID() + "> <span>" + tabField[i].getHeader() + "</span></li>");
+                   
                 }
             }
-
-            //availableFeilds.sortable({
-            //    connectWith: ".connectedSortable",
-            //    disabled: true
-            //}).disableSelection();
-
-            //includedFeilds.sortable({
-            //    connectWith: ".connectedSortable",
-            //    disabled: true
-            //}).disableSelection();
+           
         };
 
-        var FillIncluded = function (isReload) {
-            //var IncldfeildClone = includedFeilds.find('.displayNone').clone(true);
-            //IncldfeildClone.removeClass('displayNone');
-            //includedFeilds.find('.vis-sec-2-sub-itm:not(.displayNone)').remove();  
+        var FillIncluded = function (isReload) {           
 
             var iClone = DivCardField.find('.fieldLbl:first').clone(true);
             DivCardField.find('.fieldLbl:not(:first)').remove();
@@ -1126,42 +1104,20 @@
                                 if (fieldItem.length > 0) {
                                     columnFieldArray.push(fieldItem[0].getAD_Field_ID());
                                 }
-                                //IncldfeildClone.find('.vis-sub-itm-title').text(CVColumns[i].FieldName);
-                                //IncldfeildClone.attr("fieldid", CVColumns[i].AD_Field_ID);
-                                //includedFeilds.append(IncldfeildClone);
-                                //IncldfeildClone = includedFeilds.find('.vis-sec-2-sub-itm:last').clone(true);
+                               
 
                                 iClone.prepend(CVColumns[i].FieldName).attr("title", CVColumns[i].FieldName);
-
-                                //iClone.find('.vis-change-clr-red').addClass('linked').removeClass('vis-change-clr-red');
-                                //iClone.find('.fa-chain-broken').addClass('fa-link vis-succes-clr').removeClass('fa-chain-broken');
-
-                                //if (DivViewBlock.find('.canvas [seqNo="' + CVColumns[i].SeqNo + '"]').length > 0) {
-                                //    iClone.find('.fa-circle').addClass('linked vis-succes-clr');
-                                //    iClone.prop("draggable", false);
-                                //} else {
-                                //    iClone.prop("draggable", true);
-                                //}
+                               
 
                                 if (mTab.getFieldById(CVColumns[i].AD_Field_ID).getShowIcon()) {
                                     iClone.attr("showfieldicon", false);
                                 }
 
-                                if (mTab.getFieldById(CVColumns[i].AD_Field_ID).getDisplayType() == VIS.DisplayType.Image) {
-                                    iClone.attr("fieldid", CVColumns[i].AD_Field_ID).attr("seqNo", CVColumns[i].SeqNo).attr("displayType", "img");
-                                } else {
-                                    iClone.attr("fieldid", CVColumns[i].AD_Field_ID).attr("seqNo", CVColumns[i].SeqNo);
-                                }
-
-
+                                iClone.attr("fieldid", CVColumns[i].AD_Field_ID).attr("seqNo", CVColumns[i].SeqNo);
                                 iClone.attr("id", WindowNo + "_" + CVColumns[i].AD_Field_ID);
                                 DivCardField.append(iClone);
                                 iClone = DivCardField.find('.fieldLbl:first').clone(true);
                                 iClone.removeClass('displayNone');
-
-
-
-                                // ulRoot.append("<li seqno=" + 0 + " index=" + i + " CardViewColumnID=" + 0 + " FieldID=" + CVColumns[i].AD_Field_ID + "> <span>" + CVColumns[i].FieldName + "</span></li>");
 
                             }
 
@@ -1204,21 +1160,10 @@
 
                         iClone.prepend(includedFields[i].getHeader()).attr("title", includedFields[i].getHeader());
 
-                        //if (DivViewBlock.find('[seqNo="' + includedFields[i].SeqNo + '"]')) {
-                        //    iClone.find('.fa-circle').addClass('linked vis-succes-clr');
-                        //}
-
-
                         if (mTab.getFieldById(includedFields[i].getAD_Field_ID()).getShowIcon()) {
                             iClone.attr("showfieldicon", false);
                         }
-
-                        if (mTab.getFieldById(includedFields[i].getAD_Field_ID()).getDisplayType() == VIS.DisplayType.Image) {
-                            iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo).attr("displayType", "img");
-                        } else {
-                            iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo);
-                        }
-
+                       
                         iClone.attr("fieldid", includedFields[i].getAD_Field_ID()).attr("seqNo", includedFields[i].SeqNo);
                         iClone.attr("id", WindowNo + "_" + includedFields[i].getAD_Field_ID());
                         DivCardField.append(iClone);
@@ -1305,7 +1250,7 @@
                     disabled: false
                 });
             } else {
-                //ulGroupSeqColumns.parent().css("background-color", "rgba(var(--v-c-on-secondary), 0.04)");
+                
                 groupSequenceFeilds.closest('.vis-sec-2-wrapper').css('height', '100%');
                 groupSequenceFeilds.append('<div class="onlyLOV"  key=""><span>' + VIS.Msg.getMsg("OnlyForLOV") + '</span></div>');
                 groupSequenceFeilds.sortable({
@@ -1526,46 +1471,12 @@
             } else {
                 chkPublic.hide();
             }
-            //DivCradStep1.find('.vis-cr-right *:not(.vis-submit-win-btn *)').attr('disabled', 'disabled').css("pointer-events", "none");
-            //DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
-            //DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
-            //txtCardName.attr("disabled", "disabled");
+            
         }
 
-        var enableDisable = function (isEnable) {
-            //if (isEnable) {
-            //    DivCradStep1.find('.vis-cr-right *').removeAttr('disabled').css("pointer-events", "auto");;
-            //    //availableFeilds.sortable('enable');
-            //    //includedFeilds.sortable('enable');
-            //    groupSequenceFeilds.sortable('enable');
-            //    cardsList.find('div').css("pointer-events", "none");
-            //    btnCancle.removeClass('vis-disable-event');
-            //    btnEdit.addClass('vis-disable-event');
-            //    btnNewCard.addClass('vis-disable-event');
-            //    btnCopy.addClass('vis-disable-event');
-            //    txtCardName.removeAttr('disabled');
-            //} else {
-            //    DivCradStep1.find('.vis-cr-right *:not(.vis-submit-win-btn *)').attr('disabled', 'disabled').css("pointer-events", "none");;
-            //    //availableFeilds.sortable('disable');
-            //    //includedFeilds.sortable('disable');
-            //    groupSequenceFeilds.sortable('disable');
-            //    btnCancle.addClass('vis-disable-event');
-
-            //    isSameUser ? btnEdit.removeClass('vis-disable-event') : btnCopy.removeClass('vis-disable-event');
-            //    btnNewCard.removeClass('vis-disable-event');
-            //    cardsList.find('div').css("pointer-events", "auto");
-
-            //    DivCradStep1.find('.vis-sec-5').css("pointer-events", "auto");
-            //    DivCradStep1.find('.vis-submit-win-btn').css("pointer-events", "auto");
-            //    txtCardName.attr("disabled", "disabled");
-            //}           
+        var enableDisable = function (isEnable) {                     
 
             if (isNewRecord || isEdit) {
-                //btnNewCard.addClass('vis-disable-event');
-                // btnEdit.addClass('vis-disable-event');
-
-                // btnCopy.addClass('vis-disable-event');
-
                 isNewRecord ? btnDelete.addClass('vis-disable-event') : btnDelete.removeClass('vis-disable-event');
 
                 if (isEdit && !isSameUser) {
@@ -1640,18 +1551,7 @@
                     chkDefault.prop("checked", false);
                 }
             }
-            //if (VIS.context.getAD_User_ID() == cardViewUserID && !isNewRecord) {
-            //    AD_User_ID = VIS.context.getAD_User_ID();
-            //} else if (VIS.context.getAD_User_ID() != cardViewUserID && !isNewRecord && isEdit) {
-            //    isNewRecord = true;
-            //    AD_User_ID = VIS.context.getAD_User_ID();
-            //    if (!VIS.MRole.isAdministrator) {
-            //        chkPublic.prop("checked", false);
-            //    }
-            //} else {
-            //    //  isNewRecord = true;
-            //    AD_User_ID = VIS.context.getAD_User_ID();
-            //}
+           
 
             if (isNewRecord && cardViewInfo != null) {
                 for (var a = 0; a < cardViewInfo.length; a++) {
@@ -1690,18 +1590,7 @@
             }
         };
 
-        var SaveCardInfoFinal = function () {
-            //var len = includedFeilds.find('.vis-sec-2-sub-itm').length;
-            //cardViewColArray = [];
-            //var includeCols = [];
-            //for (var i = 1; i < len; i++) {
-            //var f = {};
-            //f.AD_Field_ID = includedFeilds.find('.vis-sec-2-sub-itm').eq(i).attr("fieldid");
-            //f.CardViewID = AD_CardView_ID;
-            //f.sort = ulCardViewColumnField.children().eq(i).find('option:selected').val()
-            //cardViewColArray.push(f);
-            //includeCols.push(parseInt(f.AD_Field_ID));
-            //}
+        var SaveCardInfoFinal = function () {            
 
             var grpSeq = "";
             var skipGrp = "";
@@ -1764,53 +1653,7 @@
                     else {
                         if (isNewRecord) {
                             GetCards(true);
-                            getTemplateDesign();
-                            //var idx = 0;
-                            //if (!cardViewInfo) {
-                            //    cardViewInfo = [];
-                            //} else {
-                            //    idx = cardViewInfo.length;
-                            //}
-                            ////<Option idx="+i+" is_shared=" + cardViewInfo[i].UserID + " ad_user_id=" + cardViewInfo[i].CreatedBy + " cardviewid=" + cardViewInfo[i].CardViewID + " groupSequence='" + cardViewInfo[i].groupSequence + "' excludedGroup='" + cardViewInfo[i].excludedGroup +"' ad_field_id=" + cardViewInfo[i].AD_GroupField_ID + " isdefault=" + cardViewInfo[i].DefaultID + " ad_headerLayout_id=" + cardViewInfo[i].AD_HeaderLayout_ID + "> " + w2utils.encodeTags(cardViewInfo[i].CardViewName) + "</Option>");
-                            //cardViewInfo.push({
-                            //    'CardViewName': cardViewName,
-                            //    'UserID': AD_User_ID,
-                            //    'CreatedBy': VIS.context.getAD_User_ID(),
-                            //    'CardViewID': AD_CardView_ID,
-                            //    'groupSequence': grpSeq,
-                            //    'excludedGroup': skipGrp,
-                            //    'AD_GroupField_ID': cmbGroupField.find(":selected").val(),
-                            //    'DefaultID': chkDefault.is(":checked"),
-                            //    'AD_HeaderLayout_ID': AD_HeaderLayout_ID,
-                            //    'OrderByClause': sortOrder,
-                            //    'CreatedName': VIS.context.getAD_User_Name(),
-                            //    'Updated': new Date().toLocaleDateString()
-                            //});
-
-                            //lastSelectedID = null;
-                            //cardsList.find('.crd-active').remove();
-                            //if (cardsList.find('.vis-lft-sgl').length > 0) {
-                            //    var cardclone = cardsList.find('.vis-lft-sgl:first').clone(true);
-                            //    cardclone.attr('idx', idx);
-                            //    cardclone.addClass('crd-active');
-                            //    cardclone.find('.vis-lft-sgl-title').text(w2utils.encodeTags(cardViewInfo[idx].CardViewName));
-                            //    cardclone.find('.vis-lft-sgl-sub-title:first').text('Created By: ' + cardViewInfo[idx].CreatedName);
-                            //    cardclone.find('.vis-lft-sgl-sub-title:last').text('last modified: ' + cardViewInfo[idx].Updated);
-                            //    cardsList.prepend(cardclone);
-                            //} else {
-                            //    var template = '<div idx="' + idx + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
-                            //    template += '<span class="vis-lft-sgl-title">' + w2utils.encodeTags(cardViewInfo[idx].CardViewName) + '</span>'
-                            //        + '    <span class="vis-lft-sgl-sub-title">Created By: ' + cardViewInfo[idx].CreatedName + '</span>'
-                            //        + '    <span class="vis-lft-sgl-sub-title">Last Modified: ' + cardViewInfo[idx].Updated + '</span>'
-                            //        + '</div>';
-                            //    cardsList.prepend($(template));
-                            //}
-
-
-
-
-                            //cmbCardView.append("<Option idx=" + idx + " is_shared=" + AD_User_ID + " ad_user_id=" + VIS.context.getAD_User_ID() + " cardviewid=" + AD_CardView_ID + " groupSequence='" + grpSeq + "' excludedGroup='" + skipGrp + "'  ad_field_id=" + cmbGroupField.find(":selected").attr("fieldid") + " isdefault=" + isdefault.is(":checked") + " ad_headerLayout_id=" + $vSearchHeaderLayout.getValue() + "> " + w2utils.encodeTags(cardViewName) + "</Option>");
-                            //cmbCardView.find('[cardviewid="' + AD_CardView_ID + '"]').prop("selected", true).trigger("change");
+                            getTemplateDesign();                            
                         }
                         else {
                             cardViewInfo[selIdx].groupSequence = grpSeq;
@@ -1848,9 +1691,7 @@
             cmbOrderClause.val('-1');
             sortOrderArray = [];
             lastSortOrderArray = [];
-            LastCVCondition = [];
-            //FillFields(false, false);
-            //includedFeilds.find('.vis-sec-2-sub-itm:not(.displayNone)').remove();
+            LastCVCondition = [];            
             cardviewCondition = [];
             AddRow(cardviewCondition);
             clearOrderByClause();
@@ -2824,6 +2665,7 @@
 
             DivGridSec.find('.grdRowDel').click(function () {
                 var idx = $(this).closest('.rowBox').index();
+                rowIdx = idx;
                 var totalRow = DivGridSec.find('.rowBox').length - 1;
                 var totalCol = DivGridSec.find('.colBox').length - 1;
                 var dNo = (idx * totalCol + 1) - totalCol;
@@ -2836,7 +2678,7 @@
                 }
                 activeSection.find('.del').remove();
                 $(this).closest('.rowBox').remove();
-                gridCss();
+                gridCss(-1,0);
                 isChange = true;
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
@@ -2852,23 +2694,22 @@
                 var totalRow = DivGridSec.find('.rowBox').length - 1;
                 var totalCol = DivGridSec.find('.colBox').length - 1;
 
-
-                var pos = (idx * totalCol)+1;
+               
+                var pos = ((idx + 1) * totalCol);
+                rowIdx = (idx+1);
                 for (var i = 0; i < totalCol; i++) {
-                    activeSection.find('.grdDiv').eq(pos+i).after("<div class='grdDiv' style='padding:10px;'></div>");
+                    activeSection.find('.grdDiv').eq(pos-1).after("<div class='grdDiv' style='padding:10px;'></div>");
                 }
 
-                gridCss();
+                gridCss(1,0);
 
             });
-
-
 
             DivGridSec.find('.grdColDel').click(function () {
                 var idx = $(this).closest('.colBox').index() - 1;
                 var totalRow = DivGridSec.find('.rowBox').length - 1;
                 var totalCol = DivGridSec.find('.colBox').length - 1;
-
+                colIdx = (idx + 1);
                 for (var i = 0; i < totalRow; i++) {
                     for (var j = 0; j < totalCol; j++) {
                         if (j == idx) {
@@ -2884,7 +2725,7 @@
                
                 activeSection.find('.del').remove();
                 $(this).closest('.colBox').remove();
-                gridCss();
+                gridCss(0,-1);
                 isChange = true;
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
@@ -2900,15 +2741,17 @@
                 var idx = $(this).closest('.colBox').index() - 1;
                 var totalRow = DivGridSec.find('.rowBox').length - 1;
                 var totalCol = DivGridSec.find('.colBox').length - 1;
+                colIdx = idx + 1;
                 for (var i = 0; i < totalRow; i++) {
                     for (var j = 0; j < totalCol; j++) {
                         if (j == idx) {
                             var pos = totalCol * i + j;
+                            addedColPos.push(pos+1);
                             activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:10px;'></div>");
                         }
                     }
                 }
-                gridCss();
+                gridCss(0,1);
 
             });
 
@@ -2974,7 +2817,15 @@
         // #endregion
         // #region Step 2 functions    
 
-        function gridCss() {
+        function gridCss(r, c) {
+            if (!r) {
+                r = 0;
+            }
+
+            if (!c) {
+                c = 0;
+            }
+
             var secNo = DivGridSec.find('.section-active').attr('sectionCount');
             var Obj = {
             }
@@ -3030,7 +2881,53 @@
                 'gap': txtRowGap.val() + 'px ' + txtColGap.val() + 'px'
             });
 
+            var isEnter = false;
             grSec.find('.grdDiv').each(function (index) {
+                var gArea = $(this).css('grid-area').split('/');
+                var r_start = Number($.trim(gArea[0]));
+                var r_end = Number($.trim(gArea[2]));
+                var c_start = Number($.trim(gArea[1]));
+                var c_end = Number($.trim(gArea[3]));
+                if (rowIdx != null) {
+                    if ((rowIdx > (r_start - 1) && rowIdx < (r_end - 1))) {
+                        $(this).css('grid-area', r_start + '/' + c_start + '/' + (r_end + r) + '/' + (c_end));
+                        isEnter = true;
+                    }
+
+                    if (isEnter && r>0) {
+                        for (var i = Number(r_start); i <= (Number(r_end)); i++) {
+                            for (var j = c_start; j < c_end; j++) {
+                                var pos = totalCol * i + j;
+                                grSec.find('.grdDiv').eq(pos - 1).css('display', 'none');
+                            }
+                            if (rowIdx == i) {
+                                break;
+                            }
+                        }
+                        isEnter = false;
+                        rowIdx = null;
+                    }
+
+                } else if (colIdx != null) {
+                    if ((colIdx > (c_start - 1) && colIdx < (c_end - 1))) {
+                        $(this).css('grid-area', r_start + '/' + c_start + '/' + r_end + '/' + (c_end+c));
+                        isEnter = true;
+                    }
+
+                    if (isEnter && c > 0) {
+                        for (var i = 0; i < addedColPos.length; i++) {
+                            var rowPos = Math.floor(addedColPos[i] / totalCol) + 1;
+                            if (rowPos > (r_start - 1) && rowPos < (r_end)) {
+                                grSec.find('.grdDiv').eq(addedColPos[i]).css('display', 'none');
+                            }
+                        }
+
+                        isEnter = false;
+                        colIdx = null;
+                        addedColPos = [];
+                    }
+                }
+
                 if ($(this).find('.vis-split-cell').length == 0) {
                     var rowPosition = (Math.floor(index / totalCol)) + 1;
                     var colposition = (index % totalCol) + 1;
@@ -3046,12 +2943,6 @@
             var totalRow = rowBox.length - 1;
             var totalCol = colBox.length - 1;
             var grSec = activeSection;
-
-            //grSec.css({
-            //    'grid-template-columns': 'repeat(' + totalCol + ',1fr)',
-            //    'grid-template-rows': 'repeat(' + totalRow + ',1fr)',
-            //    'gap': txtRowGap.val() + 'px ' + txtColGap.val() + 'px'
-            //});
 
             if (totalCol > 0 && totalRow > 0) {
                 var oldrow = grSec.attr('row');
@@ -3069,9 +2960,6 @@
                     }
                 }
 
-                //grSec.attr('row', totalRow);
-                // grSec.attr('col', totalCol);
-
                 grSec.find('.grdDiv').unbind('mouseover');
                 grSec.find('.grdDiv').mouseover(function (e) {
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
@@ -3082,7 +2970,6 @@
             }
 
             gridCss();
-
 
         }
 
@@ -3718,8 +3605,7 @@
         $root.append(txtDescription).append($controlBlock);
         var $txtName = $('<input type="text">');
         var $lblName = $('<label>' + VIS.Msg.getMsg('EnterName') + '</label>');
-        $controlBlock.append($txtName).append($lblName);   
-       
+        $controlBlock.append($txtName).append($lblName);  
        
         var self = this;
         this.show = function () {
