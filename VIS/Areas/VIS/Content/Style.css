@@ -2970,23 +2970,26 @@ border-top-left-radius:4px !important;
 
 .vis-topNavigatorIcon {
     background-color: #3E8CE4;
-    height: 20px;
-    font-size: 0.7rem;
+    height: 21px;
+    font-size: 1rem;
     font-weight: 300;
     color: #fff !important;
-    padding: 0 3px;
+    padding: 0 5px;
     display: inline-block;
     line-height: 18px;
-    margin-right: -5px
+    margin-right: -5px;
+}
+.vis-meta-dynamicIcon{
+    font-size:2rem;
+    margin-right:10px;
 }
 
-
-    .vis-topNavigatorIcon i {
-        width: 1em;
-        height: 1em;
-        text-transform: none;
-        text-rendering: optimizeLegibility;
-    }
+.vis-topNavigatorIcon i {
+    width: 1em;
+    height: 1em;
+    text-transform: none;
+    text-rendering: optimizeLegibility;
+}
 
     .vis-topNavigatorIcon:hover {
         background-color: #387ecd;
@@ -3239,6 +3242,82 @@ field, fieldvalue{
 .fieldGroup {
     width: fit-content;    
 }
+
+.vis-fieldImgPosition {   
+    border: none;
+    position: absolute;
+    top: 75px;
+    right: 17px;
+    color: #fff;
+    padding: 8px 13px;
+    border-radius: 3px;
+    width: 100px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-evenly;
+}
+    .vis-fieldImgPosition i {
+        color: rgba(var(--v-c-primary), 1);
+    }
+.fieldGroup p{
+    margin-bottom:0 !important;
+}
+
+.vis-cancelButtonPositionTemp, .vis-cancelButtonPositionTemp:hover {
+    position: absolute;
+    top: 87px;
+    right: 129px;
+    color: red !important;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+
+.addImgBtnV {
+    padding: 5px 15px;
+    border: none;
+    background-color: #fff;
+    border: 1px solid #999;
+    color: #555;
+    font-weight: 600;
+    border-radius: 2px;
+}
+
+.addImgBtnH {
+    padding: 2px 15px;
+    border: none;
+    background-color: #fff;
+    border: 1px solid #999;
+    color: #555;
+    font-weight: 600;
+    border-radius: 2px;
+}
+
+.addSymbone {
+    font-size: 10px;
+    font-weight: 300;
+    padding-top: 3px;
+}
+
+.addSymb {
+    font-size: 10px;
+    font-weight: 300;
+}
+
+.buttonActiveImgTxt {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+}
+
+.text-fontSz {
+    font-size: 14px;
+}
+
+.img-szFt {
+    font-size: 15px;
+}
+
 /* modify Ends */
 /*Media query*/
 @media screen and (max-width: 1500px) and (min-width: 1360px) {

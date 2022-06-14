@@ -654,6 +654,7 @@
     <Content Include="Areas\VIS\Scripts\app\Framework\attachmentform.js" />
     <Content Include="Areas\VIS\Scripts\app\Framework\attachmentHistory.js" />
     <Content Include="Areas\VIS\Scripts\app\Framework\bpartner.js" />
+    <Content Include="Areas\VIS\Scripts\app\Framework\cardTemplateMaster.js" />
     <Content Include="Areas\VIS\Scripts\app\Framework\cardviewdialog - Copy.js" />
     <Content Include="Areas\VIS\Scripts\app\Framework\cardviewdialog.js" />
     <Content Include="Areas\VIS\Scripts\app\Framework\contactInfo.js" />
@@ -814,6 +815,7 @@
     <Compile Include="Areas\VIS\Controllers\CallOut\MUOMController.cs" />
     <Compile Include="Areas\VIS\Controllers\CallOut\MUOMConversionController.cs" />
     <Compile Include="Areas\VIS\Controllers\CallOut\MWarehouseController.cs" />
+    <Compile Include="Areas\VIS\Controllers\CardTemplateMasterController.cs" />
     <Compile Include="Areas\VIS\Controllers\CardViewController.cs" />
     <Compile Include="Areas\VIS\Controllers\CardViewWizardController.cs" />
     <Compile Include="Areas\VIS\Controllers\MessageController.cs" />
@@ -1005,6 +1007,7 @@
   <ItemGroup>
     <Content Include="Areas\VIS\Views\BiPanel\GetHTMLReport.cshtml" />
     <Content Include="Areas\VIS\Views\CardViewWizard\Index.cshtml" />
+    <Content Include="Areas\VIS\Views\CardTemplateMaster\index.cshtml" />
     <None Include="Areas\VIS\Views\Theme\ThemeCnfgtr.cshtml" />
     <Content Include="Areas\VIS\WebPages\CreateUser.aspx" />
     <Content Include="Areas\VIS\WebPages\CrystalReprotViewer.aspx" />

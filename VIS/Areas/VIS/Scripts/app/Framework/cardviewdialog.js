@@ -110,6 +110,7 @@
         var rowIdx = null;
         var colIdx = null;
         var addedColPos = [];
+        var isNewSection = false;
         var gridObj = {
         };
 
@@ -173,7 +174,12 @@
                 enableDisable(true);
                 lastSelectedID = cardsList.find('.crd-active').attr('idx');
                 cardsList.find('.crd-active').removeClass('crd-active');
-                
+
+                btnSaveClose.removeClass('vis-disable-event');
+                btnFinesh.removeClass('vis-disable-event');
+                btnOnlySave.removeClass('vis-disable-event');
+                btnChangeTemplate.removeClass('vis-disable-event');
+
                 AD_HeaderLayout_ID = 0;
                 AD_CardView_ID = "undefined";
                 btnTemplateBack.text(VIS.Msg.getMsg("Back"));
@@ -204,6 +210,7 @@
                 isNewRecord = false;
                 isEdit = true;
                 enableDisable(false);
+                cardsList.find('[idx="' + lastSelectedID + '"]').click();
             });
 
             btnLayoutSetting.click(function () {
@@ -604,6 +611,7 @@
                 LastCVCondition = [];
 
                 var idx = $(this).attr('idx');
+                lastSelectedID = idx;
                 if (cardViewInfo && cardViewInfo.length != 0) {
                     ControlMgmt(idx);
                     txtCardName.val(cardViewInfo[idx].CardViewName);
@@ -799,6 +807,10 @@
             }
         };
 
+        /**
+         * Get Login User's Card
+         * @param {any} isReload
+         */
         var GetCards = function (isReload) {
             var url = VIS.Application.contextUrl + "CardView/GetCardView";
             cardsList.html('');
@@ -820,7 +832,13 @@
                         var isDefaultcard = false;
                         for (var i = 0; i < cardViewInfo.length; i++) {
                             var template = "";
-                            if (cardViewInfo[i].DefaultID && !isReload) {
+                            if (!isReload && AD_CardView_ID) {
+                                if (cardViewInfo[i].CardViewID == AD_CardView_ID) {
+                                    template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
+                                } else {
+                                    template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2">';
+                                }
+                            } else if (cardViewInfo[i].DefaultID && !isReload) {
                                 isDefaultcard = true;
                                 template = '<div idx="' + i + '" class="vis-lft-sgl p-2 d-flex flex-column mb-2 crd-active">';
                             } else if (isReload && cardViewInfo[i].CardViewID == AD_CardView_ID) {
@@ -839,10 +857,9 @@
                             //cardsList.append("<Option idx=" + i + " is_shared=" + cardViewInfo[i].UserID + " ad_user_id=" + cardViewInfo[i].CreatedBy + " cardviewid=" + cardViewInfo[i].CardViewID + " groupSequence='" + cardViewInfo[i].groupSequence + "' excludedGroup='" + cardViewInfo[i].excludedGroup + "'  ad_field_id=" + cardViewInfo[i].AD_GroupField_ID + " isdefault=" + cardViewInfo[i].DefaultID + " ad_headerLayout_id=" + cardViewInfo[i].AD_HeaderLayout_ID + "> " + w2utils.encodeTags(cardViewInfo[i].CardViewName) + "</Option>");
                         }
 
-                        if (!isDefaultcard && !isReload) {
+                        if (!isDefaultcard && !isReload && !AD_CardView_ID) {
                             cardsList.find('div:first').addClass("crd-active");
                         }
-                       
 
                         var idx = cardsList.find(".crd-active").attr('idx');
                         AD_CardView_ID = cardViewInfo[idx].CardViewID;
@@ -865,7 +882,8 @@
                     if (isReload) {
                         addCardListEvent();
                     }
-                    cardsList.scrollTop(cardsList.find('.crd-active').offset().top - cardsList.find('.crd-active').height() - 100);
+
+                    cardsList.scrollTop(cardsList.find('.crd-active').offset().top - cardsList.find('.crd-active').height() - 100); // focus selected card
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
                 }
@@ -874,11 +892,16 @@
 
         };
 
+        /**
+         *  Fill selected card template Layout
+         * */
+
         var fillcardLayoutfromTemplate = function () {
             gridObj = {};
             var sClone = DivGridSec.find('.grid-Section:first').clone(true);
             sClone.removeClass('displayNone');
             DivGridSec.find('.grid-Section:not(:first)').remove();
+          
             DivViewBlock.find('.vis-wizard-section').each(function (i) {
                 var secNo = $(this).attr('sectionCount');
                 if (i == 0) {
@@ -928,7 +951,7 @@
 
                     var vlu = $(this).text();
                     var fidItm = DivViewBlock.find('[seqNo="' + $(this).attr('seqNo') + '"]');
-                    fidItm.html('');
+                    //fidItm.html('');
                     if (fidItm.length == 0) {
                         $(this).find('.linked').removeClass('linked vis-succes-clr');
                     } else {
@@ -940,10 +963,18 @@
                         var vlstyle = "";
                         var imgStyle = "";
                         var spnStyle = "";
+                        var firstImg = false;
+                        var brStart = 0;
                         var styleArr = fidItm.attr("fieldValuestyle");
                         if (styleArr && styleArr.indexOf('|') > -1) {
-                            styleArr = styleArr.split("|");
+                            var brPos = styleArr.split('<br>');
+                            styleArr = styleArr.split("|");                            
                             if (styleArr && styleArr.length > 0) {
+                                if (styleArr[0].indexOf("@img::") > -1) {
+                                    firstImg = true;
+                                }
+
+
                                 for (var j = 0; j < styleArr.length; j++) {
                                     if (styleArr[j].indexOf("@img::") > -1) {
                                         imgStyle = styleArr[j].replace("@img::", "");
@@ -954,6 +985,16 @@
                                         spnStyle = styleArr[j].replace("@span::", "");
                                     }
                                 }
+
+                                if (brPos != null && brPos.length > 0) {
+                                    if (styleArr[0].indexOf("@img::") > -1) {
+                                        brStart = 1;
+                                    }
+                                    else {
+                                        brStart = 2;
+                                    }
+                                }
+
                             }
                         } else {
                             vlstyle = styleArr;
@@ -976,14 +1017,33 @@
                         var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
                         var displayType = mTab.getFieldById(Number(fID)).getDisplayType();
                         if (displayType == VIS.DisplayType.Image) {
-                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
+                            fieldHtml.append($('<span style="' + fidItm.attr("fieldValueLabel")+'" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
                         } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
-                            var iconClass = hideIcon ? "displayNone" : "";
-                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="' + iconClass + ' vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/><span class="fieldValue" style="' + vlstyle + '">Value</span>'));
+
+                            var fldlbl = '<span style="' + fidItm.attr("fieldValueLabel") +'" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span>';
+                            
+                           var img= '<img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>';
+                            var spn= '';
+                            if (brStart == 0) {
+                                spn = '<span class="fieldValue" style="' + vlstyle + '">Value</span>';
+                            } else if (brStart == 1) {
+                                spn = '<span class="fieldValue" style="' + vlstyle + '"><br>Value</span>';
+                            } else if (brStart == 2) {
+                                spn = '<span class="fieldValue" style="' + vlstyle + '">Value<br></span>';
+                            }
+                            if (firstImg) {
+                                fldlbl += img;
+                                fldlbl += spn;
+                            } else {
+                                fldlbl += spn;
+                                fldlbl += img;
+                            }
+
+                            fieldHtml.append($(fldlbl));
                         }
                         else {
 
-                            fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><span class="fieldValue" style="' + vlstyle + '">:Value</span>'));
+                            fieldHtml.append($('<span style="' + fidItm.attr("fieldValueLabel") +'" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><span class="fieldValue" style="' + vlstyle + '">:Value</span>'));
                         }
 
                         if (fidItm.attr("query") != null && fidItm.attr("query") != "") {
@@ -1191,7 +1251,7 @@
                     }
 
                     if ((VIS.DisplayType.IsLookup(tabField[i].getDisplayType()) && tabField[i].getLookup() && tabField[i].getLookup().getIsValidated() && tabField[i].getIsDisplayed()) || tabField[i].getDisplayType() == VIS.DisplayType.YesNo) {
-                        cmbGroupField.append("<Option value=" + tabField[i].getAD_Field_ID() + "> " + tabField[i].getHeader() + "</Option>");
+                        cmbGroupField.append("<Option value=" + tabField[i].getAD_Field_ID() + "> " + VIS.Utility.Util.getIdentifierDisplayVal(tabField[i].getHeader()) + "</Option>");
                         if (tabField[i].getDisplayType() == VIS.DisplayType.List || tabField[i].getDisplayType() == VIS.DisplayType.TableDir || tabField[i].getDisplayType() == VIS.DisplayType.Table || tabField[i].getDisplayType() == VIS.DisplayType.Search) {
                             if (tabField[i].lookup && tabField[i].lookup.getData()) {
                                 lovcardList[tabField[i].getAD_Field_ID()] = tabField[i].lookup.getData();
@@ -2372,13 +2432,13 @@
 
                     divTopNavigator.find('[command="Hide"]').parent().show();
                     divTopNavigator.find('[command="Show"]').parent().hide();
+                    divTopNavigator.hide();
                 } else if (cmd == 'Hide') {
                     if (blok.prop('tagName') == 'I') {
                         blok.attr("class", "");
                         blok.next().attr('showFieldIcon', true);
                     } else if (blok.prop('tagName') == 'IMG') {
-                        blok.addClass('displayNone');
-                        f.attr('showFieldIcon', true);
+                        blok.css('display','none');
                     } else {
                         if (blok.hasClass('fieldValue')) {
                             blok.css("display", "none");
@@ -2391,13 +2451,14 @@
 
                     divTopNavigator.find('[command="Hide"]').parent().hide();
                     divTopNavigator.find('[command="Show"]').parent().show();
+                    divTopNavigator.hide();
                 } else if (cmd == 'SelectParent') {
                     isChange = false;
                     if (blok.parent().hasClass("fieldGroup")) {
                         blok.parent().parent().mousedown().mouseup();
                     } else {
                         blok.parent().mousedown().mouseup();
-                    }
+                    }                   
 
                 } else if (cmd == 'Separate') {
                     applyunMerge(blok);
@@ -2409,18 +2470,16 @@
                 } else if (cmd == 'Unlink') {
                     unlinkField(blok.attr('title'), blok);
                 } else if (cmd == 'ShowImg') {
-                    blok.prev('img').removeClass("displayNone");
-                    f.attr('showFieldIcon', false);
+                    blok.closest('.fieldGroup').find('img').css("display","unset");
                     divTopNavigator.find('[command="ShowImg"]').parent().hide();
                 } else if (cmd == 'ShowValue') {
-                    blok.next('.fieldValue').css("display", "unset");
+                    blok.closest('.fieldGroup').find('.fieldValue').css("display", "unset");
                     divTopNavigator.find('[command="ShowValue"]').parent().hide();
                 }
 
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
-                // divTopNavigator.hide();
             });
 
             var viewBlock = DivViewBlock.find('.canvas *');
@@ -2433,6 +2492,7 @@
                 divTopNavigator.find('[command="Merge"]').parent().hide();
                 divTopNavigator.find('[command="ShowImg"]').parent().hide();
                 divTopNavigator.find('[command="ShowValue"]').parent().hide();
+                DivStyleSec1.find('.imgTextCont').addClass('vis-disable-event');
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 if (count == 1) {
                     DivViewBlock.find('.vis-viewBlock').addClass("vis-active-block");
@@ -2484,14 +2544,19 @@
                             var target = $(e.target).closest('.fieldGroup').find('.fieldLbl');
                             var displayType = mTab.getFieldById(Number(target.attr('fieldid'))).getDisplayType();
                             if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
-                                if ($(e.target).prev('img:hidden').length > 0) {
+                                var trget = $(e.target).closest('.fieldGroup');
+                                
+                                if (trget.find('img:hidden').length > 0) {
                                     divTopNavigator.find('[command="ShowImg"]').parent().show();
                                     divTopNavigator.find('[command="Hide"]').parent().hide();
-                                } else if ($(e.target).next('.fieldValue:hidden').length > 0) {
+                                } else if (trget.find('.fieldValue:hidden').length > 0) {
                                     divTopNavigator.find('[command="Hide"]').parent().hide();
                                     divTopNavigator.find('[command="ShowValue"]').parent().show();
-                                } else {
+                                } else if (trget.find('img').length == 1 && trget.find('.fieldValue').length == 1) {
                                     divTopNavigator.find('[command="Hide"]').parent().show();
+                                    DivStyleSec1.find('.imgTextCont').removeClass('vis-disable-event');
+                                } else {
+                                    DivStyleSec1.find('.imgTextCont').addClass('vis-disable-event');
                                 }
                             }
 
@@ -2522,6 +2587,13 @@
                     }
                 }
 
+                if ($(e.target).hasClass('vis-wizard-section')) {
+                    divTopNavigator.find('[command="fieldName"]').text('Section ' + $(e.target).attr('sectioncount')).show();
+                }
+
+                if ($(e.target).hasClass('vis-viewBlock')) {
+                    divTopNavigator.find('[command="fieldName"]').text('Main container').show();
+                }
 
                 //$(e.target).not('.ui-resizable-handle').addClass("vis-active-block");
                 //$(this).resizable();
@@ -2559,7 +2631,26 @@
 
                 applyCommend(commend, $(this).val());
             });
-
+            DivStyleSec1.find('[data-command2]').on('click', function (e) {
+                divTopNavigator.hide();
+                var tag = activeSection.find('.vis-active-block').closest('.fieldGroup');
+                var commend = $(this).data('command2');
+                var styleProp = tag.find('.fieldValue').attr('style');
+                var classPro = tag.find('.fieldValue').attr('class');
+                tag.find('.fieldValue br').remove();
+                if (commend == 'SwapImgTxt') {
+                    tag.find('img').before(tag.find('.fieldValue'));
+                } else if (commend == 'SwapTxtImg') {                   
+                        tag.find('.fieldValue').before(tag.find('img'));
+                } else if (commend == 'SwapTxtImgBr') {
+                    tag.find('.fieldValue').before(tag.find('img'));                   
+                    tag.find('.fieldValue').prepend('<br>');
+                }
+                else if (commend == 'SwapImgTxtBr') {                    
+                    tag.find('img').before(tag.find('.fieldValue'));
+                    tag.find('.fieldValue').append('<br>');
+                }
+            });
             DivStyleSec1.find('[data-command1]').on('click', function (e) {
 
                 var commend = $(this).data('command1');
@@ -2610,6 +2701,7 @@
             });
 
             DivGridSec.find('.addGridSection').click(function () {
+                isNewSection = true;
                 DivGridSec.find('.section-active').removeClass('section-active');
                 var sClone = DivGridSec.find('.grid-Section:first').clone(true);
                 sClone.removeClass('displayNone');
@@ -2618,14 +2710,14 @@
                 sClone.attr('sectionCount', sectionCount);
                 sClone.find('.vis-grey-disp-ttl').text("Section " + sectionCount);
                 DivGridSec.find('.vis-sectionAdd').append(sClone);
-                activeSection = $('<div sectionCount="' + sectionCount + '"  class="section' + sectionCount + ' vis-wizard-section"></div>')
+                activeSection = $('<div sectionCount="' + sectionCount + '"  class="section' + sectionCount + ' vis-wizard-section"></div>');
                 DivViewBlock.find('.vis-viewBlock').append(activeSection);
                 //sectionCount++;
                 DivGridSec.find('.rowBox:not(:first)').remove();
                 DivGridSec.find('.colBox:not(:first)').remove();
                 DivGridSec.find('.addGridRow').click();
                 DivGridSec.find('.addGridCol').click();
-
+               
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el-xross').click(function () {
@@ -2947,7 +3039,7 @@
             if (totalCol > 0 && totalRow > 0) {
                 var oldrow = grSec.attr('row');
                 var oldcol = grSec.attr('col');
-                if (oldcol != totalCol) {
+                if (oldcol != totalCol && !isNewSection) {
                     for (var r = 1; r <= oldrow; r++) {
                         var pos = (r * oldcol) + (r - 1);
                         grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:10px;'></div>");
@@ -2967,6 +3059,7 @@
                     }
 
                 });
+                isNewSection = false;
             }
 
             gridCss();
@@ -3211,70 +3304,113 @@
             var seq = 10;
             var cardSection = [];
 
-            cardViewColArray = [];
-            //var includeCols = [];
-            //for (var i = 1; i < len; i++) {
-            //var f = {};
-            //f.AD_Field_ID = includedFeilds.find('.vis-sec-2-sub-itm').eq(i).attr("fieldid");
-            //f.CardViewID = AD_CardView_ID;
-            //f.sort = ulCardViewColumnField.children().eq(i).find('option:selected').val()
-            //cardViewColArray.push(f);
-            //includeCols.push(parseInt(f.AD_Field_ID));
-            //}
-
-            DivViewBlock.find('.fieldGroup:not(:hidden)').each(function (index) {
-                var gridArea = $(this).closest('.grdDiv').css('grid-area').split('/');
+            cardViewColArray = [];            
+            var isFieldLinked = false;
+            DivViewBlock.find('.grdDiv:not(:hidden)').each(function (index) {
+                var gridArea = $(this).css('grid-area').split('/');
                 var secNo = $(this).closest('.vis-wizard-section').attr("sectioncount");
                 gridObj['section' + secNo]["style"] = $(this).closest('.vis-wizard-section').attr("style");
                 gridObj['section' + secNo]["sectionID"] = $(this).closest('.vis-wizard-section').attr("sectionid") || 0;
+                if ($(this).find('.fieldGroup:not(:hidden)').length > 0) {
+                    $(this).find('.fieldGroup:not(:hidden)').each(function (index) {
+                        isFieldLinked = true;
+                        var valueStyle = "";
+                        if ($(this).find('img').length > 0) {
+                            var isBR = $(this).find('br').length;
+                            if ($(this).find('img').next('.fieldValue').length > 0) {
+                                valueStyle = '@img::' + $(this).find('img').attr('style') || '';
+                                if (isBR > 0) {
+                                    valueStyle += '|<br>';
+                                }
+                                valueStyle += ' |@value::' + $(this).find('.fieldValue').attr('style') || 'display:none';
+                            } else {
+                                valueStyle = '@value::' + $(this).find('.fieldValue').attr('style') || 'display:none';
+                                if (isBR > 0) {
+                                    valueStyle += '|<br>';
+                                }
+                                valueStyle += ' |@img::' + $(this).find('img').attr('style') || '';
+                            }
+                           
 
-                var valueStyle = "";
-                if ($(this).find('img').length > 0) {
-                    valueStyle = '@value::' + $(this).find('.fieldValue').attr('style') || 'display:none';
-                    valueStyle += ' |@img::' + $(this).find('img').attr('style') || '';
+                        } else {
+                            valueStyle = $(this).find('.fieldValue').attr('style') || '';
+                        }
 
+
+                        var columnSQL = null;
+                        if ($(this).find('sql').length > 0) {
+                            columnSQL = $(this).attr('query') || null;
+                        }
+                        var hideFieldIcon = true;
+                        if ($(this).find('.fa-star').length == 0) {
+                            hideFieldIcon = true;
+                        }
+                        if ($(this).find('.fieldLbl').attr('showfieldicon')) {
+                            hideFieldIcon = $(this).find('.fieldLbl').attr('showfieldicon') == 'true' ? true : false;
+                        }
+
+
+                        var obj1 = {
+                            cardFieldID: $(this).attr('cardfieldid'),
+                            sectionNo: secNo * 10,
+                            rowStart: $.trim(gridArea[0]),
+                            rowEnd: $.trim(gridArea[2]),
+                            colStart: $.trim(gridArea[1]),
+                            colEnd: $.trim(gridArea[3]),
+                            seq: seq,
+                            style: $(this).closest('.grdDiv').attr('style'),
+                            fieldID: $(this).find('.fieldLbl').attr('fieldid'),
+                            valueStyle: valueStyle,
+                            fieldStyle: $(this).find('.fieldLbl').attr('style') || '',
+                            hideFieldIcon: hideFieldIcon,
+                            hideFieldText: $(this).find('.fieldLbl').attr('showfieldtext') == 'true' ? true : false,
+                            columnSQL: columnSQL,
+                            contentFieldValue: null,
+                            contentFieldLable: null
+                        }
+
+                        var f = {}
+                        f.AD_Field_ID = obj1.fieldID;
+                        f.CardViewID = AD_CardView_ID;
+                        f.SeqNo = obj1.seq;
+                        cardViewColArray.push(f);                        
+                        fieldObj.push(obj1);
+                    });
                 } else {
-                    valueStyle = $(this).find('.fieldValue').attr('style') || '';
-                }
+                    var obj1 = {
+                        cardFieldID: null,
+                        sectionNo: secNo * 10,
+                        rowStart: $.trim(gridArea[0]),
+                        rowEnd: $.trim(gridArea[2]),
+                        colStart: $.trim(gridArea[1]),
+                        colEnd: $.trim(gridArea[3]),
+                        seq: seq,
+                        style: $(this).attr('style'),
+                        fieldID: null,
+                        valueStyle: "",
+                        fieldStyle: '',
+                        hideFieldIcon: false,
+                        hideFieldText:false,
+                        columnSQL: "",
+                        contentFieldValue: null,
+                        contentFieldLable: null
+                    }
 
-
-                var columnSQL = null;
-                if ($(this).find('sql').length > 0) {
-                    columnSQL = $(this).attr('query') || null;
+                    var f = {}
+                    f.AD_Field_ID = obj1.fieldID;
+                    f.CardViewID = AD_CardView_ID;
+                    f.SeqNo = obj1.seq;
+                    cardViewColArray.push(f);
+                    fieldObj.push(obj1);
                 }
-                var hideFieldIcon = true;
-                if ($(this).find('.fa-star').length == 0) {
-                    hideFieldIcon = true;
-                }
-                if ($(this).find('.fieldLbl').attr('showfieldicon')) {
-                    hideFieldIcon = $(this).find('.fieldLbl').attr('showfieldicon') == 'true' ? true : false;
-                }
-
-
-                obj1 = {
-                    cardFieldID: $(this).attr('cardfieldid'),
-                    sectionNo: secNo * 10,
-                    rowStart: $.trim(gridArea[0]),
-                    rowEnd: $.trim(gridArea[2]),
-                    colStart: $.trim(gridArea[1]),
-                    colEnd: $.trim(gridArea[3]),
-                    seq: seq,
-                    style: $(this).closest('.grdDiv').attr('style'),
-                    fieldID: $(this).find('.fieldLbl').attr('fieldid'),
-                    valueStyle: valueStyle,
-                    fieldStyle: $(this).find('.fieldLbl').attr('style') || '',
-                    hideFieldIcon: hideFieldIcon,
-                    hideFieldText: $(this).find('.fieldLbl').attr('showfieldtext') == 'true' ? true : false,
-                    columnSQL: columnSQL
-                }
-
-                var f = {}
-                f.AD_Field_ID = obj1.fieldID;
-                f.CardViewID = AD_CardView_ID;
-                cardViewColArray.push(f);
-                seq += 10;
-                fieldObj.push(obj1);
             });
+            seq += 10;
+            if (!isFieldLinked) {
+                VIS.ADialog.error("FillMandatory", true, "Link atleast one field");
+                IsBusy(false);
+                return false;
+            }
+
             //console.log(gridObj);
             //console.log(fieldObj);
             Object.keys(gridObj).forEach(function (key) {
@@ -3317,7 +3453,8 @@
                 templateName: templateName,
                 style: DivViewBlock.find('.vis-viewBlock').attr('style'),
                 cardSection: cardSection,
-                cardTempField: fieldObj
+                cardTempField: fieldObj,
+                isSystemTemplate:'N'
             }
 
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
@@ -3335,7 +3472,8 @@
                     if (!isNewRecord) {
                         isEdit = true;
                     }
-                    SaveChanges(e)
+                    SaveChanges(e);
+                    toastr.success('Saved Successfully', '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
                     IsBusy(false);
 
                 }, error: function (errorThrown) {
@@ -3450,9 +3588,9 @@
                     var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
 
                     if (displayType == VIS.DisplayType.Image) {
-                        fieldHtml.append($('<img class="vis-colorInvert" src="' + src + '"/>'));
+                        fieldHtml.append($('<img class="vis-colorInvert" style="width:50px;height:50px" src="' + src + '"/>'));
                     } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
-                        fieldHtml.append($('<img class="vis-colorInvert displayNone" src="' + src + '"/>'));
+                        fieldHtml.append($('<img class="vis-colorInvert" style="width:30px;height:30px" style="display:none" src="' + src + '"/>'));
                         fieldHtml.append($('<span class="fieldValue">:Value</span>'));
                     } else {
                         fieldHtml.append($('<span class="fieldValue">:Value</span>'));

@@ -599,23 +599,36 @@ namespace VIS.Models
                                         style += ";grid-area:" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartRow"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartColumn"]);
                                         style += "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["Rowspan"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["ColumnSpan"]);
                                     }
-                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='" + SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
+                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' fieldValueLabel='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='" + SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
                                     //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
-                                    string msg = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["content"]));
-                                    if (msg.IndexOf("[") > -1)
+                                    string contentFieldValue = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]));
+                                    string contentFieldLable = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]));
+                                    if (contentFieldValue.IndexOf("[") > -1)
                                     {
-                                        msg = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["content"]);
+                                        contentFieldValue = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]);
+                                    }
+
+                                    if (contentFieldLable.IndexOf("[") > -1)
+                                    {
+                                        contentFieldLable = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]);
                                     }
                                     string valueStyle = "";
                                     string imgStyle = "";
                                     string htmlStyle = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]);
-
+                                    int brStart = 0;
+                                    bool firstImg = false;
                                     if (htmlStyle != null && htmlStyle.Length > 0 && htmlStyle.IndexOf("@") > -1)
                                     {
                                         string[] stylearr = htmlStyle.Split('|');
+                                        string[] brPos = htmlStyle.Split('<');
 
                                         if (stylearr != null && stylearr.Length > 0)
                                         {
+                                            if(stylearr[0].IndexOf("@img::") > -1)
+                                            {
+                                                firstImg = true;
+                                            }
+
                                             for (int m = 0; m < stylearr.Length; m++)
                                             {
                                                 if (stylearr[m].IndexOf("@img::") > -1)
@@ -625,6 +638,192 @@ namespace VIS.Models
                                                 else if (stylearr[m].IndexOf("@value::") > -1)
                                                 {
                                                     valueStyle = stylearr[m].Replace("@value::", "");
+                                                }
+                                            }
+                                        }
+
+                                        if(brPos !=null && brPos.Length > 0)
+                                        {
+                                            if (stylearr[0].IndexOf("@img::") > -1)
+                                            {
+                                                brStart = 1;
+                                            }
+                                            else
+                                            {
+                                                brStart = 2;
+                                            }
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        valueStyle = htmlStyle;
+                                    }
+
+                                    if (valueStyle.ToUpper().Trim() == "UNDEFINED")
+                                    {
+                                        valueStyle = "";
+                                    }
+                                    if (imgStyle.ToUpper().Trim() == "UNDEFINED")
+                                    {
+                                        imgStyle = "";
+                                    }
+
+                                    design += "<div class='fieldGroup'>";
+                                    string spn = "";
+                                    string img = "";
+                                    if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
+                                    {
+                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
+                                    }
+                                    else
+                                    {
+                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl' title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
+                                    }
+                                    if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1)
+                                    {
+                                        contentFieldValue = contentFieldValue.Replace("<img", "<img style='" + imgStyle + "' ");
+                                        img += contentFieldValue;
+                                    }
+                                    else
+                                    {
+                                        if (brStart==0)
+                                        {
+                                            spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "</span>";
+                                        }else if(brStart == 1)
+                                        {
+                                            spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + contentFieldValue + "</span>";
+                                        }else if(brStart == 2)
+                                        {
+                                            spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "<br></span>";
+                                        }
+                                      
+                                    }
+                                    if (firstImg)
+                                    {
+                                        design += img;
+                                        design += spn;
+                                    }
+                                    else
+                                    {
+                                        design += spn;
+                                        design += img;
+                                    }
+
+                                    design += "</div>";
+                                    design += "</div>";
+                                }
+                            }
+                            design += "</div>";
+                        }
+                    }
+                    design += "</div></div>";
+                }
+            }
+
+            return design;
+        }
+
+        /// <summary>
+        /// Get card Template
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="ad_Window_ID"></param>
+        /// <param name="ad_Tab_ID"></param>
+        /// <returns></returns>
+        public string getSystemTemplateDesign(Ctx ctx)
+        {
+            string design = "";
+            string sqlQuery = "SELECT AD_HEADERLAYOUT.*,CASE when to_date(updated)=to_date(CURRENT_DATE) THEN to_char(updated, 'HH:MI:SS AM') ELSE to_char(updated) END AS lastUpdated  FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N' AND IsSystemTemplate='Y'";
+            DataSet ds = DB.ExecuteDataset(sqlQuery);
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+
+                    design += "<div lastUpdated='" + Util.GetValueOfDateTime(ds.Tables[0].Rows[i]["lastUpdated"]).Value.ToLocalTime().ToString("hh:mm:ss tt") + "' isSystemTemplate='Y' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center'>";
+                    design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
+                    sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
+                    DataSet dsSec = DB.ExecuteDataset(sqlQuery);
+                    if (dsSec != null && dsSec.Tables.Count > 0 && dsSec.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < dsSec.Tables[0].Rows.Count; j++)
+                        {
+
+                            string gridStyle = Util.GetValueOfString(dsSec.Tables[0].Rows[j]["BackgroundColor"]);
+                            int totalRow = Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["TotalRows"]);
+                            int totalCol = Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["TotalColumns"]);
+                            if (gridStyle.IndexOf("grid-template-rows") == -1 || gridStyle.IndexOf("grid-template-columns") == -1)
+                            {
+                                gridStyle += ";grid-template-rows:repeat(" + totalRow + ",auto)";
+                                gridStyle += ";grid-template-columns:repeat(" + totalCol + ",auto)";
+                            }
+
+                            design += "<div row='" + totalRow + "' col='" + totalCol + "' sectionID='" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]) + "' sectionCount='" + (j + 1) + "' class='section" + (j + 1) + " vis-wizard-section' style='" + gridStyle + "'>";
+                            sqlQuery = "SELECT * FROM AD_GRIDLAYOUTITEMS WHERE ISACTIVE='Y' AND AD_GRIDLAYOUT_ID=" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]);
+                            DataSet dsItem = DB.ExecuteDataset(sqlQuery);
+                            if (dsItem != null && dsItem.Tables.Count > 0 && dsItem.Tables[0].Rows.Count > 0)
+                            {
+                                for (int k = 0; k < dsItem.Tables[0].Rows.Count; k++)
+                                {
+                                    string style = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["BackgroundColor"]);
+                                    if (style.IndexOf("grid-area") == -1)
+                                    {
+                                        style += ";grid-area:" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartRow"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartColumn"]);
+                                        style += "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["Rowspan"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["ColumnSpan"]);
+                                    }
+                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' fieldValueLabel='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='" + SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
+                                    //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
+                                    string contentFieldValue = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]));
+                                    string contentFieldLable = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]));
+                                    if (contentFieldValue.IndexOf("[") > -1)
+                                    {
+                                        contentFieldValue = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]);
+                                    }
+
+                                    if (contentFieldLable.IndexOf("[") > -1)
+                                    {
+                                        contentFieldLable = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]);
+                                    }
+                                    string valueStyle = "";
+                                    string imgStyle = "";
+                                    int brStart = 0;
+                                    bool firstImg = false;
+                                    string htmlStyle = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]);
+
+                                    if (htmlStyle != null && htmlStyle.Length > 0 && htmlStyle.IndexOf("@") > -1)
+                                    {
+                                        string[] stylearr = htmlStyle.Split('|');
+                                        string[] brPos = htmlStyle.Split('<');
+                                        if (stylearr != null && stylearr.Length > 0)
+                                        {
+                                            if (stylearr[0].IndexOf("@img::") > -1)
+                                            {
+                                                firstImg = true;
+                                            }
+
+
+                                            for (int m = 0; m < stylearr.Length; m++)
+                                            {
+                                                if (stylearr[m].IndexOf("@img::") > -1)
+                                                {
+                                                    imgStyle = stylearr[m].Replace("@img::", "");
+                                                }
+                                                else if (stylearr[m].IndexOf("@value::") > -1)
+                                                {
+                                                    valueStyle = stylearr[m].Replace("@value::", "");
+                                                }
+                                            }
+
+                                            if (brPos != null && brPos.Length > 1)
+                                            {
+                                                if (stylearr[0].IndexOf("@img::") > -1 && stylearr[1].IndexOf("@value::") > -1)
+                                                {
+                                                    brStart = 1;
+                                                }
+                                                else if (stylearr[1].IndexOf("@img::") > -1 && stylearr[0].IndexOf("@value::") > -1)
+                                                {
+                                                    brStart = 2;
                                                 }
                                             }
                                         }
@@ -644,16 +843,67 @@ namespace VIS.Models
                                         imgStyle = "";
                                     }
 
-                                    if (msg.IndexOf("<img") > -1 || msg.IndexOf("<svg") > -1)
+
+                                    design += "<div class='fieldGroup'>";
+                                    string spn = "";
+                                    string img = "";
+                                    if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
                                     {
-                                        msg = msg.Replace("<img", "<img style='" + imgStyle + "' ");
-                                        design += msg;
+                                        design += "<span style='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
                                     }
                                     else
                                     {
-                                        design += "<span class='fieldValue' style='" + valueStyle + "'>" + msg + "</span>";
+                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl' title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
+                                    }
+
+                                    if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1)
+                                    {
+                                        string cvv = "";
+                                        string cvi = "";
+                                        if (contentFieldValue.IndexOf("|") > -1)
+                                        {
+                                            string[] cv = contentFieldValue.Split('|');
+                                            cvi = cv[0];
+                                            cvv = cv[1];
+                                            img = cvi.Replace("<img", "<img style='" + imgStyle + "' ");
+                                            if (brStart == 0)
+                                            {
+                                                spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "</span>";
+                                            }
+                                            else if (brStart == 1)
+                                            {
+                                                spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + cvv + "</span>";
+                                            }
+                                            else if (brStart == 2)
+                                            {
+                                                spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "<br></span>";
+                                            }
+                                            
+                                        }
+                                        else
+                                        {
+
+                                            contentFieldValue = contentFieldValue.Replace("<img", "<img style='" + imgStyle + "' ");
+                                            img += contentFieldValue;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "</span>";
                                     }
                                    
+                                    if (firstImg)
+                                    {
+                                        design += img;
+                                        design += spn;
+                                    }
+                                    else
+                                    {
+                                        design += spn;
+                                        design += img;
+                                    }
+
+                                    design += "</div>";
                                     design += "</div>";
                                 }
                             }
@@ -667,6 +917,8 @@ namespace VIS.Models
             return design;
         }
 
+
+
         /// <summary>
         /// Save template
         /// </summary>
@@ -678,7 +930,7 @@ namespace VIS.Models
         /// <param name="cardSection"></param>
         /// <param name="cardTempField"></param>
         /// <returns></returns>
-        public int saveCardTemplate(Ctx ctx, int CardViewID, int templateID, string templateName, string style, List<CardSection> cardSection, List<CardTempField> cardTempField)
+        public int saveCardTemplate(Ctx ctx, int CardViewID, int templateID, string templateName, string style, List<CardSection> cardSection, List<CardTempField> cardTempField,string isSystemTemplate)
         {
             MHeaderLayout mhl = new MHeaderLayout(ctx, templateID, null);
             if (templateID > 0)
@@ -689,8 +941,9 @@ namespace VIS.Models
             }
             else
             {
-                mhl.Set_Value("IsSystemTemplate", "N");
+               
             }
+            mhl.Set_Value("IsSystemTemplate", isSystemTemplate);
             mhl.SetName(templateName);
             mhl.SetIsHeaderView(false);
             mhl.SetBackgroundColor(style);
@@ -733,6 +986,9 @@ namespace VIS.Models
                                 mli.SetHideFieldIcon(cardTempField[j].hideFieldIcon);
                                 mli.SetHideFieldText(cardTempField[j].hideFieldText);
                                 mli.SetColumnSQL(columnSQL);
+                                mli.Set_Value("contentFieldLable", cardTempField[j].contentFieldLable);
+                                mli.Set_Value("contentFieldValue", cardTempField[j].contentFieldValue);
+                                mli.Set_Value("FieldLabelStyle", cardTempField[j].fieldStyle);
                                 if (mli.Save())
                                 {
                                     //SaveCardViewColumns(CardViewID, cardTempField[j].fieldID, cardTempField[j].seq,  ctx, 0);
@@ -832,5 +1088,7 @@ namespace VIS.Models
         public int colStart { get; set; }
         public int colEnd { get; set; }
         public int seq { get; set; }
+        public string contentFieldLable { get; set; }
+        public string contentFieldValue { get; set; }
     }
 }

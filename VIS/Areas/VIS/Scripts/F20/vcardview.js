@@ -29,10 +29,10 @@
             divDownArrow.off();
         }
 
-        
+
 
         function clkHandler(btn) {
-           
+
             if (divbody[0].clientHeight + divbody[0].scrollTop >= divbody[0].scrollHeight) {
                 divDownArrow.css('opacity', '.6');
                 // return;
@@ -62,10 +62,10 @@
             else {
                 if (divDownArrow.css('opacity') < 1)
                     return;
-                divbody[0].scrollTop += 60; 
+                divbody[0].scrollTop += 60;
             }
 
-            };
+        };
         divTopArrow.on('click', function () { clkHandler('up') });
         divDownArrow.on('click', function () { clkHandler('down') });
     }
@@ -118,42 +118,37 @@
         this.VCardRightPanel = null;
         //  var cardList;
         function init() {
-            var width = $('body').width()-65;
+            var width = $('body').width() - 65;
             root = $("<div class='vis-cv-body vis-noselect'>");
             leftDiv = $("<div class='vis-cv-ld'>");
             rightDiv = $("<div class='vis-cv-rd'>");
             //bsyDiv = $('<div class="vis-busyindicatorouterwrap"><div class="vis-busyindicatorinnerwrap"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div></div>');
             //root.append(bsyDiv);
             //bsyDiv.css("display", 'none');
-            body = $("<div class='vis-cv-main' style='max-width:" + width+"px'>");
+            body = $("<div class='vis-cv-main' style='max-width:" + width + "px'>");
             headerdiv = $("<div class='vis-cv-header'>");
             $cmbCards = $('<input  class="vis-vs-card-autoComplete" style="display:inline">')
             $lblGroup = $('<p>');
             $imgdownSearch = $('<span class="vis-ad-w-p-tb-s-icon-down vis-cv-cardlist"><i class="fa fa-ellipsis-h"></i></span>');
             groupHeader = $("<div class='vis-cv-groupHeader'style='overflow:hidden; max-width:" + width + "px'>");
-            $openDialog = $('<a href="javascript:;" class="vis-dailogOpen">Open Card Dialog</a>');
-            headerdiv.append($openDialog).append($cmbCards).append($imgdownSearch).append($lblGroup); 
+            $openDialog = $('<a href="javascript:;" class="vis-dailogOpen">' + VIS.Msg.getMsg("editCardView") + '</a>');
+            headerdiv.append($openDialog).append($cmbCards).append($imgdownSearch).append($lblGroup);
             leftDiv.append(headerdiv).append(groupHeader).append(body);
             root.append(leftDiv).append(rightDiv);
             body.scroll(function () {
                 SyncScroll();
             });
-            createCardautoComplete();   
-
+            createCardautoComplete();
             $openDialog.click(function () {
                 self.aPanel.cmd_cardDialog();
             });
         }
 
-       
+
 
         /**
          * create autocomplete box to show list of cards
          * */
-
-      
-
-
         function createCardautoComplete() {
             $cmbCards.autocomplete({
                 select: function (ev, ui) {
@@ -210,7 +205,7 @@
                 }
 
                 if (item.Created != VIS.context.getAD_User_ID()) {
-                    li.find('p').text(item.label +" (S)");
+                    li.find('p').text(item.label + " (S)");
                 }
                 // When user clicks on make default icon, then save details in DB.
                 span.on("click", function (e) {
@@ -235,10 +230,10 @@
 
         function SyncScroll() {
             groupHeader.scrollLeft(body.scrollLeft());
-        }       
+        }
 
         this.SyncScroll = function () {
-            SyncScroll();            
+            SyncScroll();
         }
 
         init();
@@ -278,7 +273,7 @@
 
         this.setBusy = function (isBusy) {
             this.aPanel.setBusy(false);
-           // bsyDiv.css("display", isBusy ? 'block' : 'none');
+            // bsyDiv.css("display", isBusy ? 'block' : 'none');
         };
 
         this.calculateWidth = function (width) {
@@ -381,9 +376,9 @@
          * @param {any} cardID
          * @param {any} cardName
          */
-        var cardChanged = function (cardID, cardName) {            
+        var cardChanged = function (cardID, cardName) {
             self.getCardViewData(self.mTab, cardID, cardName);
-        };       
+        };
 
         var curCard = null;
         var crid = null;
@@ -403,7 +398,7 @@
                 if (!skipScroll)
                     curCard[0].scrollIntoView();
             }
-            
+
         };
 
         this.dC = function () {
@@ -527,25 +522,25 @@
             }
             this.navigate(id, null, null);
         }
-       
+
     };
     /**
      * Replace card after drag drop for apply new condition
      * @param {any} rec
      * @param {any} id
      */
-    VCardView.prototype.replaceCard = function (rec,id) {
+    VCardView.prototype.replaceCard = function (rec, id) {
         rec.recid = id;
 
         var changeCard = new VCard(this.fields, rec, this.headerItems, this.headerStyle, this.headerPadding, this.mTab.getWindowNo(), {}, this.aPanel)
-        if (this.grpCount==1) {
+        if (this.grpCount == 1) {
             changeCard.getRoot().width("240px").css({ 'margin': '5px 12px 12px 5px', 'float': (VIS.Application.isRTL ? 'right' : 'left') });
         }
         if ($('head:contains("' + changeCard.headerCustom + ' {")').length == 0) {
             changeCard.addStyleToDom();
         }
-        
-       this.getRoot().find("[name='vc_" + id + "']").replaceWith(changeCard.getRoot());
+
+        this.getRoot().find("[name='vc_" + id + "']").replaceWith(changeCard.getRoot());
         changeCard.evaluate(this.cConditions);
     }
 
@@ -558,7 +553,7 @@
      */
     VCardView.prototype.setupCardView = function (aPanel, mTab, cContainer, vCardId) {
         this.mTab = mTab;
-        this.aPanel = aPanel;        
+        this.aPanel = aPanel;
         if (mTab.vo && mTab.vo.DefaultCardID) {
             this.cardID = (mTab.vo.DefaultCardID);
         } else {
@@ -574,7 +569,7 @@
      * @param {any} cardID
      * @param {any} cardName
      */
-    VCardView.prototype.getCardViewData = function (mTab, cardID, cardName) {        
+    VCardView.prototype.getCardViewData = function (mTab, cardID, cardName) {
         this.cardID = cardID;
         this.mTab.getTableModel().setCardID(cardID);
         this.aPanel.curGC.query(this.mTab.getOnlyCurrentDays(), 0, false);
@@ -584,7 +579,7 @@
      * Rest card on view change
      * */
     VCardView.prototype.resetCard = function () {
-        
+
         while (this.groupCtrls.length > 0) {
             this.groupCtrls.pop().dispose();
         }
@@ -593,7 +588,7 @@
         this.groupCtrls.length = 0;
         this.editID = 0;
     }
-       
+
     /**
      * Create Card's Schema, like fields included, groupby etc.
      * @param {any} retData
@@ -618,7 +613,7 @@
             for (var i = 0; i < retData.GroupCount.length; i++) {
                 this.GroupCount[retData.GroupCount[i].Group] = retData.GroupCount[i].Count;
             }
-          
+
             this.getCardCmb().val(retData.Name);
 
             var f = this.mTab.getFieldById(retData.FieldGroupID)
@@ -716,7 +711,7 @@
                     var data = lookup.data;
                     for (var i = 0; i < data.length; i++) {
                         this.cGroupInfo[data[i].Key] = { 'name': data[i].Name, 'records': [], 'key': data[i].Key };
-                        this.grpCount += 1;                        
+                        this.grpCount += 1;
                     }
 
 
@@ -739,21 +734,21 @@
      * Create cards and groups
      * @param {any} width
      */
-    VCardView.prototype.refreshUI = function (width) {      
+    VCardView.prototype.refreshUI = function (width) {
         //if (!this.cardViewData && this.cardID>0) {
         //    this.getCardViewData(this.mTab, this.cardID, "", true);
         //} else {            
         //    this.refresh(width);
         //}
 
-        var temp= this.mTab.getTableModel().getCardTemplate();
-        
+        var temp = this.mTab.getTableModel().getCardTemplate();
+
         //Reset Variables
         //this.aPanel.setBusy(true);
         this.setCardViewData(temp);
         this.refresh(width);
         //this.getBody().empty();
-        
+
     };
 
     VCardView.prototype.refresh = function (width) {
@@ -776,7 +771,7 @@
             $this.resetCard();
 
             //root.not('.vis-busyindicatorouterwrap').empty();
-           // $this.getGroupHeader().html('');
+            // $this.getGroupHeader().html('');
             var cardGroup = null;
             if ($this.grpCount == 1) {
 
@@ -824,7 +819,7 @@
                     }
                 }
                 if ($this.editID == 0) {
-                    $this.onCardEdit({ 'recid': root.find(".vis-cv-card:first").attr('data-recid') }, true);                   
+                    $this.onCardEdit({ 'recid': root.find(".vis-cv-card:first").attr('data-recid') }, true);
                 }
                 $this.editID = 0;
 
@@ -845,9 +840,9 @@
                         var recID = $(item).attr("data-recid");
                         $this.onCardEdit({ 'recid': recID }, true);
                         var m_field = $this.mTab.getFieldById($this.getField_Group_ID());
-                        if (m_field.getIsReadOnly() || m_field.getCallout() != '' || !m_field.getIsEditable(true,true)) {
+                        if (m_field.getIsReadOnly() || m_field.getCallout() != '' || !m_field.getIsEditable(true, true)) {
                             vaSortable.prototype.setStopDrag(true);
-                            $(item).css("cursor","not-allowed");
+                            $(item).css("cursor", "not-allowed");
                         } else {
                             $(item).css("cursor", "default");
                             vaSortable.prototype.setStopDrag(false);
@@ -979,7 +974,7 @@
             }
             else {
                 if (!this.cGroupInfo['Other__1']) {
-                    this.cGroupInfo['Other__1'] = { 'name': VIS.Msg.getMsg("No")+ ' ' + this.cGroup.getHeader() , 'records': [], 'key': null };
+                    this.cGroupInfo['Other__1'] = { 'name': VIS.Msg.getMsg("No") + ' ' + this.cGroup.getHeader(), 'records': [], 'key': null };
                     this.grpCount += 1;
                     isgrouprChanged = true;
                     isgrouprChanged = true;
@@ -1020,12 +1015,12 @@
         var body;
         var cards = [];
         windowNo = aPanel.curTab.getWindowNo();//  VIS.Env.getWindowNo();
-        function init() {            
+        function init() {
             var str = "<div class='vis-cv-cg vis-pull-left'>"
                 + "<div data-key='" + key + "'  class='vis-cv-grpbody'></div></div></div>";
             root = $(str);
             body = root.find('.vis-cv-grpbody');
-           
+
             if (onlyOne) {
                 root.css({ 'margin-right': '0px', 'width': '100%' });
                 //root.width('100%');
@@ -1158,6 +1153,7 @@
                 var hideFieldIcon = headerItem.HideFieldIcon;
                 var hideFieldText = headerItem.HideFieldText;
                 var fieldValueStyle = headerItem.FieldValueStyle;
+                var fieldLabelStyle = headerItem.FieldLabelStyle;
 
                 if (!backgroundColor) {
                     backgroundColor = '';
@@ -1172,8 +1168,8 @@
                 }
                 var $div = null;
                 var $divIcon = null;
-                //$divIconSpan = $('<span>');
-                //$divIconImg = $('<img>');
+                $divDBIconSpan = $('<span>');
+                $divDBLevel = $('<span>');
                 var $divLabel = null;
                 var $label = null;
                 var iControl = null;
@@ -1256,6 +1252,10 @@
                         $divIcon = $('<div class="vis-w-p-card-icon-f"></div>');
 
                         $divLabel = $('<div class="vis-w-p-card-Label-f"></div>');
+
+                        $divDBIconSpan = $('<div class="vis-w-p-card-icon-f"></div>');
+
+                        $divDBLevel = $('<div class="vis-w-p-card-Label-f"></div>');
                         // If Referenceof field is Image then added extra class to align image and Label in center.
                         if (mField.getDisplayType() == VIS.DisplayType.Image) {
                             $divLabel.addClass('vis-w-p-card-Label-center-f');
@@ -1271,6 +1271,8 @@
                             $divLabel.addClass(this.dynamicClassForImageJustyfy);
                         }
 
+
+
                         // Get Controls to be displayed in Header Panel
                         $label = VIS.VControlFactory.getHeaderLabel(mField, true);
                         iControl = VIS.VControlFactory.getReadOnlyControl(this.curTab, mField, false, false, false);
@@ -1279,6 +1281,18 @@
                             if (iControl != null)
                                 iControl.addActionListner(this);
                         }
+
+
+                        if (!this.fieldStyles[mField.getColumnName() + 'applyCustomUIForLabelValue'])
+                            this.fieldStyles[mField.getColumnName() + 'applyCustomUIForLabelValue'] = {};
+
+                        this.dynamicLabelValue = this.fieldStyles[mField.getColumnName() + 'applyCustomUIForLabelValue']['applyCustomUIForLabelValue'];
+                        if (!this.dynamicLabelValue) {
+                            this.dynamicLabelValue = this.applyCustomUIForLabelValue(headerSeqNo, startCol, startRow, mField, fieldLabelStyle);
+                            this.fieldStyles[mField.getColumnName() + 'applyCustomUIForLabelValue'] = { 'applyCustomUIForLabelValue': this.dynamicLabelValue };
+                        }
+                        if ($label)
+                            $label.getControl().addClass(this.dynamicLabelValue);
 
                         if (!this.fieldStyles[mField.getColumnName() + 'applyCustomUIForFieldValue'])
                             this.fieldStyles[mField.getColumnName() + 'applyCustomUIForFieldValue'] = {};
@@ -1312,22 +1326,20 @@
 
 
 
-                        setFieldLayout(fieldValueStyle, $div, $divIcon, $divLabel);
+
                         var $image = $('<img>');
                         var $imageSpan = $('<span>');
                         objctrls["img"] = $image;
-
+                        var lType = null;
 
                         if (mField.lookup && mField.lookup.gethasImageIdentifier()) {
-
-
                             objctrls["imgspan"] = $imageSpan;
-
+                            $divLabel = $('<div class="vis-w-p-card-DivLabel-f"></div>');
                             var img = null;
                             var imgSpan = null;
                             var styleArr = null;
                             if (VIS.DisplayType.List == mField.lookup.displayType) {
-
+                                lType = mField.lookup.getLovIconType(record[mField.getColumnName().toLower()], true);
                                 img = mField.lookup.getLOVIconElement(record[mField.getColumnName().toLower()], true);
                                 if (!img && colValue) {
                                     imgSpan = colValue.substring(0, 1);
@@ -1344,62 +1356,118 @@
                             }
                             else {
                                 if (VIS.DisplayType.List == mField.lookup.displayType) {
-                                     $image.attr('src', $(img).attr('src'));
+                                    $image.attr('src', $(img).attr('src'));
                                 }
                                 else {
                                     $image.attr('src', img);
                                 }
-                               
+
                             }
 
-                            $divIcon.append($imageSpan);
-                            $divIcon.append($image);
+                            var $divIconContainer = $('<div>');
+                            var $divLabelValueContainer = $('<div class="vis-w-p-card-value-container">');
+
+
+                            $spanIcon.addClass('vis-w-p-card-icon-fixed');
+                            objctrls["imgspan"] = $spanIcon;
+                            $divIcon.append($spanIcon.append(icon));
+
+                            //if ($lblControl && $lblControl.length > 0)
+                            //    $divLabel.append($lblControl);
 
                             /*Set what do you want to show? Icon OR Label OR Both OR None*/
                             setFieldVisibility(mField, imgSpan, $image, $imageSpan, $lblControl, $divLabel, $divIcon);
+                            $divIconContainer.append($divIcon);
+                            $divLabelValueContainer.append($divLabel);
+                            $divDBLevel.append(iControl.getControl());
 
-                            $divLabel.append(iControl.getControl());
+                            $div.append($divIconContainer).append($divLabelValueContainer);
 
+                            //this.setIconsDisplay(mField, $divIcon, $spanIcon, icon, $lblControl, $divLabel);
+                            //$div.append($divDBIconSpan);
                             $containerDiv.append($div);
-                            setValue(colValue, iControl, mField);
+                            if (VIS.DisplayType.List == mField.lookup.displayType) {
+                                if (lType == "B") {
+                                    //if ($divIcon.parent().length > 0)
+                                    //$divIcon.append($divDBIconSpan);
+                                    //else {
+                                    //    $divIcon.empty();
+                                    //    $div.append($divIcon);
+                                    //    $divIcon.append($divDBIconSpan);
+                                    //}
+                                    $divDBIconSpan.append($imageSpan).append($image)
+
+                                    setValue(colValue, iControl, mField);
+                                    $divLabelValueContainer.append($divDBIconSpan);
+                                    $divLabelValueContainer.append($divDBLevel);
+                                }
+                                else if (lType == "T") {
+
+                                    $divLabelValueContainer.append($divDBLevel);
+                                    setValue(colValue, iControl, mField);
+                                }
+                                else if (lType == "I") {
+                                    $divDBIconSpan.append($imageSpan).append($image)
+                                    $divLabelValueContainer.append($divDBIconSpan);
+                                    //if ($divIcon.parent().length > 0)
+                                    //$divIcon.append($divDBIconSpan);
+                                    //else {
+                                    //    $divIcon.empty();
+                                    //    $div.append($divIcon);
+                                    //    $divIcon.append($divDBIconSpan);
+                                    //}
+                                }
+                                setFieldLayout(fieldValueStyle, $divLabelValueContainer, $divDBIconSpan, $divDBLevel, true);
+                            }
+                            else {
+                                setValue(colValue, iControl, mField);
+                            }
                         }
                         else {
+                            setFieldLayout(fieldValueStyle, $div, $divIcon, $divLabel, false);
                             $spanIcon.addClass('vis-w-p-card-icon-fixed');
                             objctrls["imgspan"] = $spanIcon;
                             /*Set what do you want to show? Icon OR Label OR Both OR None*/
                             if (mField.getOrginalDisplayType() == VIS.DisplayType.Button) {
                                 $divIcon.remove(); // button has image with field
                             }
-                            else if (!mField.isCardIconHide() && !mField.isCardTextHide()) {
-                                $divIcon.append($spanIcon.append(icon));
-                                if ($lblControl && $lblControl.length > 0)
-                                    $divLabel.append($lblControl);
-                            }
-                            else if (mField.isCardIconHide() && mField.isCardTextHide()) {
-                                $divIcon.remove();
-                            }
-                            else if (!mField.isCardIconHide() && mField.isCardTextHide()) {
-                                $divIcon.append($spanIcon.append(icon));
-                                if ($lblControl && $lblControl.length > 0)
-                                    $lblControl.hide();
-                            }
-                            else if (mField.isCardIconHide() && !mField.isCardTextHide()) {
-                                if ($lblControl && $lblControl.length > 0) {
-                                    $divLabel.append($lblControl);
-                                }
-                                $divIcon.remove();
+                            else {
+                                this.setIconsDisplay(mField, $divIcon, $spanIcon, icon, $lblControl, $divLabel);
                             }
 
                             setValue(colValue, iControl, mField);
                             /****END ******  Set what do you want to show? Icon OR Label OR Both OR None*/
+                            $divLabel.append(iControl.getControl());
                         }
-                        $divLabel.append(iControl.getControl());
+                        // 
                         $containerDiv.append($div);
                         //$self.controls.push(objctrls);
                     }
                 }
             }
 
+        };
+
+        this.setIconsDisplay = function (mField, $divIcon, $spanIcon, icon, $lblControl, $divLabel) {
+            if (!mField.isCardIconHide() && !mField.isCardTextHide()) {
+                $divIcon.append($spanIcon.append(icon));
+                if ($lblControl && $lblControl.length > 0)
+                    $divLabel.append($lblControl);
+            }
+            else if (mField.isCardIconHide() && mField.isCardTextHide()) {
+                $divIcon.remove();
+            }
+            else if (!mField.isCardIconHide() && mField.isCardTextHide()) {
+                $divIcon.append($spanIcon.append(icon));
+                if ($lblControl && $lblControl.length > 0)
+                    $lblControl.hide();
+            }
+            else if (mField.isCardIconHide() && !mField.isCardTextHide()) {
+                if ($lblControl && $lblControl.length > 0) {
+                    $divLabel.append($lblControl);
+                }
+                $divIcon.remove();
+            }
         };
 
         /**
@@ -1424,6 +1492,9 @@
                     if (!padding) {
                         padding = '';
                     }
+
+
+
 
                     if (!this.fieldStyles[columns + '_' + rows + '_' + backColor + '_' + padding + '_' + gid])
                         this.fieldStyles[columns + '_' + rows + '_' + backColor + '_' + padding + '_' + gid] = {};
@@ -1472,7 +1543,7 @@
                         var $imageSpan = $('<span>');
                         var colValue = getFieldValue(field, record);
 
-                        setFieldLayout(field.cardFieldStyle, $div, $divIcon, $divLabel);
+                        setFieldLayout(field.cardFieldStyle, $div, $divIcon, $divLabel, true);
 
                         if (VIS.DisplayType.List == field.lookup.displayType) {
                             img = field.lookup.getLOVIconElement(record[field.getColumnName().toLower()], true);
@@ -1754,12 +1825,12 @@
          * @param {any} $divIcon
          * @param {any} $divLabel
          */
-        var setFieldLayout = function (fieldValueStyle, $div, $divIcon, $divLabel) {
+        var setFieldLayout = function (fieldValueStyle, $div, $divIcon, $divLabel, setFieldStyle) {
             var styleArr = fieldValueStyle;
             if (styleArr && styleArr.length > 0)
                 styleArr = styleArr.split("|");
 
-            if (styleArr && styleArr.length > 0) {
+            if (styleArr && styleArr.length > 0 && setFieldStyle == true) {
                 for (var j = 0; j < styleArr.length; j++) {
                     if (styleArr[j].indexOf("@img::") > -1 || styleArr[j].indexOf("@span::") > -1) {
                         $div.append($divIcon);
@@ -1813,7 +1884,7 @@
                     $divLabel.append($lblControl);
             }
             else if (mField.isCardIconHide() && mField.isCardTextHide()) {
-                //$divIcon.hide();
+                $divIcon.empty();
                 $divIcon.remove();
             }
             else if (mField.isCardTextHide()) {
@@ -1829,6 +1900,7 @@
                 if ($lblControl && $lblControl.length > 0) {
                     $divLabel.append($lblControl);
                 }
+                $divIcon.empty();
                 $divIcon.remove();
             }
         };
@@ -1866,6 +1938,27 @@
         this.dynamicStyle.push("." + dynamicClassName + "  {" + style + "} ");
         return dynamicClassName;
     };
+
+
+    /**
+     * Set Label style
+     * @param {any} headerSeqNo
+     * @param {any} startCol
+     * @param {any} startRow
+     * @param {any} mField
+     * @param {any} fieldValueStyle
+     */
+    VCard.prototype.applyCustomUIForLabelValue = function (headerSeqNo, startCol, startRow, mField, fieldValueStyle) {
+        var style = fieldValueStyle;
+        var dynamicClassName = "vis-hp-card-LabelValue_" + startRow + "_" + startCol + "_" + this.windowNo + "_" + headerSeqNo + "_" + mField.getAD_Column_ID();
+        if (style && style.toLower().indexOf("@value::") > -1) {
+            style = getStylefromCompositeValue(style, "@value::");
+        }
+
+        this.dynamicStyle.push("." + dynamicClassName + "  {" + style + "} ");
+        return dynamicClassName;
+    };
+
 
     /**
      * Set field style

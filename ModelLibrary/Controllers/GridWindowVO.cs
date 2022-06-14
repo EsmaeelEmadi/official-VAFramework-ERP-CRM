@@ -466,14 +466,14 @@ namespace VAdvantage.Controller
             if (Utility.Env.IsBaseLanguage(vo.ctx, "AD_Window"))
             {
                 sql01.Append("FROM AD_Window_v WHERE AD_Window_ID=" + vo.AD_Window_ID.ToString());
-                sql01.Append(" AND AD_Role_ID=" + AD_Role_ID);
+                //sql01.Append(" AND AD_Role_ID=" + AD_Role_ID);
             }
 
 
             else
             {
                 sql01.Append("FROM AD_Window_vt w WHERE AD_Window_ID=" + vo.AD_Window_ID.ToString());
-                sql01.Append(" AND AD_Role_ID=" + AD_Role_ID);
+                //sql01.Append(" AND AD_Role_ID=" + AD_Role_ID);
                 sql01.Append(" AND AD_Language='")
                 .Append(Utility.Env.GetAD_Language(vo.ctx)).Append("'");
             }

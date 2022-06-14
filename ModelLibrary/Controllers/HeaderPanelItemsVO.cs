@@ -75,6 +75,7 @@ namespace VAdvantage.Controller
 
         public string FieldValueStyle = "";
 
+        public string FieldLabelStyle = "";
     }
 
     public class HeaderPanelGrid
