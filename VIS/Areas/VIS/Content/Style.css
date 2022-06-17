@@ -2949,7 +2949,8 @@ border-top-left-radius:4px !important;
     overflow:auto;
 }
 .vis-two-sec-content{
-    height:calc(100% - 32px);
+   /* height:calc(100% - 32px);*/
+    height:100%;
     overflow:auto;
 }
 .mainTemplate{
@@ -3199,7 +3200,7 @@ field, fieldvalue{
 }
 
 .vis-cardTemplateContainer {
-    height: calc(100% - 115px);
+    height: calc(100% - 110px);
     overflow-y: auto;
 }
 .vis-active-template{
@@ -3266,7 +3267,7 @@ field, fieldvalue{
 .vis-cancelButtonPositionTemp, .vis-cancelButtonPositionTemp:hover {
     position: absolute;
     top: 87px;
-    right: 129px;
+    right: 139px;
     color: red !important;
     cursor: pointer;
     font-size: 1rem;
@@ -3318,40 +3319,61 @@ field, fieldvalue{
     font-size: 15px;
 }
 
-/* modify Ends */
-/*Media query*/
-@media screen and (max-width: 1500px) and (min-width: 1360px) {
-    .vis-grid-select-one-input {
-        width: 5rem !important;
+.vis-app-aform-root .vis-main-two-container input:not([type="button"]):not([type="checkbox"]):not([type="radio"]) {
+    padding: 5px !important;
+}
+.vis-templatePreview {
+    width: 260px;
+    height: 146px;
+    border: 1px solid rgba(var(--v-c-on-secondary), 0.3);
+    padding: 5px;
+}
+    /* modify Ends */
+    /*Media query*/
+    @media screen and (max-width: 1500px) and (min-width: 1360px) {
+        .vis-grid-select-one-input {
+            width: 5rem !important;
+        }
+
+        .vis-grid-select-one-select {
+            min-width: 5.2rem !important;
+        }
+
+        .vis-overflowContainer {
+            height: 470px !important;
+        }
     }
 
-    .vis-grid-select-one-select {
-        min-width: 5.2rem !important;
+    @media (max-width: 1024px) {
+        .vis-cr-left-header i, .vis-cr-left-header span {
+            font-size: 14px;
+        }
+
+        .vis-split-sec-two {
+            width: 200px;
+        }
+
+        .vis-sec-four-split {
+            width: 260px;
+        }
+
+        .vis-blue-theme-btn {
+            font-size: 12px !important;
+        }
+
+        .vis-footr-sec-left {
+            width: 85px;
+        }
+
+        .vis-cancelButtonPosition {
+            top: 19%;
+        }
+
+        .vis-cancel-btn {
+            font-size: 10px !important;
+        }
+
+        .vis-two-sec-one {
+            width: 200px;
+        }
     }
-}
-@media (max-width: 1024px) {
-    .vis-cr-left-header i, .vis-cr-left-header span {
-        font-size: 14px;
-    }
-    .vis-split-sec-two {
-        width: 200px;
-    }
-    .vis-sec-four-split {
-        width: 260px;
-    }
-    .vis-blue-theme-btn {
-        font-size: 12px !important;
-    }
-    .vis-footr-sec-left{
-        width:85px;
-    }
-    .vis-cancelButtonPosition {
-        top: 19%;
-    }
-    .vis-cancel-btn {
-        font-size: 10px !important;
-    }
-    .vis-two-sec-one {
-        width: 200px;
-    }
-}

@@ -78,14 +78,14 @@
                 </div>
                 <span id="@("spnLastSaved_" + ViewBag.WindowNumber)"></span>
             </div>
-
+            <i class="fa fa fa-pencil-square-o fa-1" id="@("btnEditIcon_" + ViewBag.WindowNumber)" style="display:none;position:absolute;z-index:2"></i>
             <div class="vis-topNavigator" style="display:none">
                 <a href="javascript:;" title="" class="vis-topNavigatorIcon" command="fieldName" style="display:none"></a>
                 <a href="javascript:;" title="@GetText("SelectParent")" class="vis-topNavigatorIcon"><i command="SelectParent" class="fa fa-arrow-up" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("ShowField")" class="vis-topNavigatorIcon" style="display:none"><i command="Show" style="font-size:0.7rem"  class="vis vis-label-show" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Hide")" class="vis-topNavigatorIcon" style="display:none"><i command="Hide" style="font-size:0.7rem" class="fa fa-eye-slash" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Separate")" class="vis-topNavigatorIcon" style="display:none"><i command="Separate" class="fa fa-code-fork" aria-hidden="true"></i></a>
-                <a href="javascript:;" title="@GetText("Unlink")" class="vis-topNavigatorIcon" style="display:none"><i command="Unlink" class="fa fa-chain-broken" aria-hidden="true"></i></a>
+                <a href="javascript:;" title="@GetText("Unlink")" class="vis-topNavigatorIcon" ><i command="Unlink" class="fa fa-chain-broken" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("Merge")" class="vis-topNavigatorIcon" style="display:none"><i command="Merge" class="fa fa-compress" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("ShowImg")" class="vis-topNavigatorIcon" style="display:none"><i command="ShowImg" class="fa fa-picture-o" aria-hidden="true"></i></a>
                 <a href="javascript:;" title="@GetText("ShowValue")" class="vis-topNavigatorIcon" style="display:none"><i command="ShowValue" class="fa fa-text-width" aria-hidden="true"></i></a>

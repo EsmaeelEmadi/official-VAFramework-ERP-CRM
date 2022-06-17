@@ -40,6 +40,7 @@
         var txtTemplateName = null;
         var addedColPos = [];
         var sectionCount = 2;
+        var btnEditIcon = null;
         isNewSection = false;
         var isSystemTemplate = 'Y';
 
@@ -377,6 +378,7 @@
                 btnAddImgField = root.find('#BtnAddImgField_' + WindowNo);
                 btnAddImgTxtField = root.find('#BtnAddImgTxtField_' + WindowNo);
                 spnLastSaved = root.find('#spnLastSaved_' + WindowNo);
+                btnEditIcon = root.find('#btnEditIcon_' + WindowNo);
                 btnTemplateBack.hide();
                 events();
                 getTemplateDesign();
@@ -412,6 +414,11 @@
                 self.show(true);
             });
 
+            btnEditIcon.click(function () {
+                divTopNavigator.hide();
+                self.show(true,true);
+            });
+
             btnTemplateBack.click(function (e) {
                 count++;
                 DivTemplate.hide();
@@ -439,6 +446,7 @@
                 DivTemplate.show();
                 DivStyleSec1.hide();
                 DivCradStep2.find('.vis-two-sec-two').hide();
+                scaleTemplate();
             });
 
             btnFinesh.click(function (e) {
@@ -540,6 +548,7 @@
                     divTopNavigator.find('[command="Hide"]').parent().hide();
                     divTopNavigator.find('[command="Show"]').parent().show();
                     divTopNavigator.hide();
+                    btnEditIcon.hide();
                 } else if (cmd == 'SelectParent') {
                     isChange = false;
                     if (blok.parent().hasClass("fieldGroup")) {
@@ -555,9 +564,12 @@
                 } else if (cmd == 'Merge') {
                     mergeCell();
                     divTopNavigator.find('[command="Merge"]').parent().hide();
+                    mdown = false;
                 } else if (cmd == 'Unlink') {
                     divTopNavigator.hide();
-                    unlinkField(blok.attr('title'), blok);
+                    var fldLbl = blok.closest('.fieldGroup').find('.fieldLbl');
+                    unlinkField(fldLbl.attr('title'), fldLbl);
+                    btnEditIcon.hide();
                 } else if (cmd == 'ShowImg') {
                     blok.closest('.fieldGroup').find('img').css("display", "unset");
                     divTopNavigator.find('[command="ShowImg"]').parent().hide();
@@ -603,11 +615,27 @@
                     });
 
                     divTopNavigator.show();
-                    divTopNavigator.find('[command="Unlink"]').parent().hide();
+                    //divTopNavigator.find('[command="Unlink"]').parent().hide();
                     divTopNavigator.find('[command="fieldName"]').text('').hide();
+                    if (e.target.tagName == 'IMG') {
+                        btnEditIcon.show();
+                        btnEditIcon.css({
+                            "left": e.target.offsetLeft + e.target.width - 12,
+                            "top": e.target.offsetTop,
+                        });
+                    } else {
+                        btnEditIcon.hide();
+                    }
+
+                    if ($(e.target).closest('.fieldGroup').length > 0) {
+                        divTopNavigator.find('[command="Unlink"]').parent().show();
+                    } else {
+                        divTopNavigator.find('[command="Unlink"]').parent().hide();
+                    }
+
                     if ($(e.target).hasClass('fieldLbl')) {
                         divTopNavigator.find('[command="fieldName"]').text($(e.target).closest('.fieldGroup').find('.fieldLbl').attr('title')).show();
-                        divTopNavigator.find('[command="Unlink"]').parent().show();
+                        //divTopNavigator.find('[command="Unlink"]').parent().show();
                         var isTrue = $(e.target).attr('showFieldText') == 'true' ? true : false;
                         if (e.target.hasAttribute('showFieldText') && isTrue) {
                             divTopNavigator.find('[command="Hide"]').parent().hide();
@@ -673,7 +701,13 @@
                     }
                 }
 
+                if ($(e.target).hasClass('vis-wizard-section')) {
+                    divTopNavigator.find('[command="fieldName"]').text('Section ' + $(e.target).attr('sectioncount')).show();
+                }
 
+                if ($(e.target).hasClass('vis-viewBlock')) {
+                    divTopNavigator.find('[command="fieldName"]').text('Main container').show();
+                }
                 //$(e.target).not('.ui-resizable-handle').addClass("vis-active-block");
                 //$(this).resizable();
             }).mouseup(function (e) {
@@ -698,6 +732,7 @@
                         return;
                     }
                 }
+               
 
                 if (commend == 'backgroundColor') {
                     // var clr= rgb2hex(styleValue);
@@ -721,9 +756,11 @@
                 } else {
                     isStyleExist = checkStyle(editorProp[commend].proprty, false, tag)
                 }
+                
+
                 if ((editorProp[commend].proprty == "justify-content" || editorProp[commend].proprty == "align-items") && checkStyle("display", "flex", tag)) {
                     //applyCommend("displayFlex", "");
-                    tag[0].style.removeProperty("display");
+                    tag[0].style.removeProperty("display");                    
                 }
                 if (isStyleExist) {
                     applyCommend(commend, "");
@@ -1014,6 +1051,7 @@
                 spnLastSaved.text(VIS.Msg.getMsg("LastSaved") + " " + $this.attr("lastupdated"));
             }
             //$this.find('.grdDiv').html('');
+            $this.find('.mainTemplate').css("zoom",1);
             CardCreatedby = $this.attr("createdBy");
             isSystemTemplate = $this.attr("isSystemTemplate");
             AD_HeaderLayout_ID = $this.find('.mainTemplate').attr('templateid');
@@ -1103,79 +1141,7 @@
 
             DivGridSec.find('.section-active .vis-grey-disp-el').click();
             DivGridSec.find('.vis-grey-disp-el-xross').eq(1).hide();
-
-            //DivCardField.find('.fieldLbl[seqNo]').each(function (i) {
-            //    var fID = $(this).attr('fieldid');
-            //    if (DivViewBlock.find('[fieldid="' + fID + '"]').length == 0) {
-
-            //        var vlu = $(this).text();
-            //        var fidItm = DivViewBlock.find('[seqNo="' + $(this).attr('seqNo') + '"]');
-            //        fidItm.html('');
-            //        if (fidItm.length == 0) {
-            //            $(this).find('.linked').removeClass('linked vis-succes-clr');
-            //        } else {
-
-            //            $(this).find('.fa-circle').addClass('linked vis-succes-clr');
-            //            $(this).prop("draggable", false);
-
-
-            //            var vlstyle = "";
-            //            var imgStyle = "";
-            //            var spnStyle = "";
-            //            var styleArr = fidItm.attr("fieldValuestyle");
-            //            if (styleArr && styleArr.indexOf('|') > -1) {
-            //                styleArr = styleArr.split("|");
-            //                if (styleArr && styleArr.length > 0) {
-            //                    for (var j = 0; j < styleArr.length; j++) {
-            //                        if (styleArr[j].indexOf("@img::") > -1) {
-            //                            imgStyle = styleArr[j].replace("@img::", "");
-            //                        }
-            //                        else if (styleArr[j].indexOf("@value::") > -1) {
-            //                            vlstyle = styleArr[j].replace("@value::", "");
-            //                        } else if (styleArr[j].indexOf("@span::") > -1) {
-            //                            spnStyle = styleArr[j].replace("@span::", "");
-            //                        }
-            //                    }
-            //                }
-            //            } else {
-            //                vlstyle = styleArr;
-            //            }
-            //        }
-
-            //        if (fidItm.length > 0) {
-            //            var fieldHtml = $('<div class="fieldGroup">'
-            //                + '</div>');
-            //            var hideIcon = fidItm.attr("showfieldicon") == 'Y' ? true : false;
-            //            var hideTxt = fidItm.attr("showfieldtext") == 'Y' ? true : false;
-            //            if (mTab.getFieldById(Number(fID)).getShowIcon()) {
-            //                if (hideIcon) {
-            //                    fieldHtml.append($('<i class="">&nbsp;</i>'));
-            //                } else {
-            //                    fieldHtml.append($('<i class="fa fa-star">&nbsp;</i>'));
-            //                }
-            //            }
-            //            var cls = hideTxt ? "displayNone" : "";
-            //            var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
-            //            var displayType = mTab.getFieldById(Number(fID)).getDisplayType();
-            //            if (displayType == VIS.DisplayType.Image) {
-            //                fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
-            //            } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
-            //                var iconClass = hideIcon ? "displayNone" : "";
-            //                fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="' + iconClass + ' vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/><span class="fieldValue" style="' + vlstyle + '">Value</span>'));
-            //            }
-            //            else {
-
-            //                fieldHtml.append($('<span class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><span class="fieldValue" style="' + vlstyle + '">:Value</span>'));
-            //            }
-
-            //            if (fidItm.attr("query") != null && fidItm.attr("query") != "") {
-            //                fieldHtml.append('<sql>SQL</sql>');
-            //            }
-            //            fidItm.append(fieldHtml);
-            //            //$(this).remove();
-            //        }
-            //    }
-            //});
+         
         }
 
         function gridCss(r, c) {
@@ -1499,10 +1465,17 @@
                 btn_BlockCancel.show();
             }
             var tag = DivViewBlock.find('.vis-active-block');
+
+            if (editorProp[commend].proprty == "flex-direction") {
+                tag[0].style.removeProperty("display");
+                tag.find('.fieldGroup').removeAttr('style');
+            }
+
             if (commend != 'gradient' && (styleValue == "" || styleValue == null)) {
                 tag[0].style.removeProperty(editorProp[commend].proprty);
                 return;
-            }
+            }           
+
 
             if (commend == 'gradient') {
                 var color1 = DivStyleSec1.find('.' + commend + '1').val();
@@ -1526,8 +1499,14 @@
                 styleValue = x + ' ' + y + ' ' + b + ' ' + c;
             }
 
-            if (editorProp[commend].proprty == 'justify-content' || editorProp[commend].proprty == "align-items") {
+            if (editorProp[commend].proprty == 'justify-content' || editorProp[commend].proprty == "align-items" || editorProp[commend].proprty == "flex-direction") {
                 tag.css("display", "flex");
+                if (editorProp[commend].proprty == "flex-direction") {
+                    tag.find('.fieldGroup').css({
+                        "display": "flex",
+                        "flex-direction": $.trim(styleValue)
+                    });
+                }
             }
 
             tag.css(editorProp[commend].proprty, $.trim(styleValue));
@@ -1541,7 +1520,7 @@
             DivStyleSec1.find("[data-command1]").parent().removeClass('vis-hr-elm-inn-active');
             var styles = htm.attr('style');
             if (htm.find('sql').length > 0) {
-                txtSQLQuery.val(VIS.secureEngine.decrypt(htm.find('sql').attr("query")));
+                txtSQLQuery.val(VIS.secureEngine.decrypt(htm.attr("query")));
             } else {
                 txtSQLQuery.val('');
             }
@@ -1613,6 +1592,8 @@
                         DivTemplate.find('.vis-cardSingleViewTemplate').removeClass('vis-active-template');
                         $(this).addClass('vis-active-template');
                     });
+
+                    scaleTemplate();                   
                 }
             });
         }
@@ -1663,13 +1644,12 @@
 
                         } else if ($(this).find('img').length > 0) {
                             contentValue = '<img src="' + $(this).find('img').attr('src') + '" style="' + $(this).find('img').attr('style') + '">';
-                            valueStyle = '@img::' + $(this).find('img').attr('style') || '';
+                            valueStyle = '@value::' + $(this).find('.fieldValue').attr('style')||'';
+                            valueStyle += ' |@img::' + $(this).find('img').attr('style') || '';
                         } else {
                             contentValue = $(this).find('.fieldValue').text();
                             valueStyle = $(this).find('.fieldValue').attr('style') || '';
                         }
-
-
 
                         var columnSQL = null;
                         if ($(this).find('sql').length > 0) {
@@ -1682,8 +1662,6 @@
                         if ($(this).find('.fieldLbl').attr('showfieldicon')) {
                             hideFieldIcon = $(this).find('.fieldLbl').attr('showfieldicon') == 'true' ? true : false;
                         }
-
-
 
                         obj1 = {
                             cardFieldID: $(this).attr('cardfieldid'),
@@ -1734,8 +1712,9 @@
                    
                     fieldObj.push(obj1);
                 }
+                seq += 10;
             });
-            seq += 10;
+            
             Object.keys(gridObj).forEach(function (key) {
                 var fobj = {
                     sectionName: 'section ' + gridObj[key].sectionNo,
@@ -1772,7 +1751,7 @@
                     var result = JSON.parse(data);
                     AD_HeaderLayout_ID = result;
                     isSystemTemplate = 'Y';         
-                    toastr.success('Saved Successfully', '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
+                    toastr.success(VIS.Msg.getMsg('SavedSuccessfully'), '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
                     getTemplateDesign();
                    // IsBusy(false);
 
@@ -1790,42 +1769,119 @@
             return root;
         };
 
+        function scaleTemplate() {
+            DivTemplate.find('.vis-cardSingleViewTemplate').each(function () {
+                var pH = $(this).height();
+                var pW = $(this).width();
+                var inner = $(this).find('.mainTemplate');
+                var iH = inner.height();
+                var iW = inner.width();
+                var zoom = 1;
+                var hR = pH / iH;
+                var wR = pW / iW;
+                if (hR > wR) {
+                    zoom = wR;
+                } else {
+                    zoom = hR;
+                }
 
-        function convertImageToBase64(element,isText) {
-            var file = element[0].files[0];
-            var reader = new FileReader();
-            reader.onloadend = function () {
-                var itm = '<div class="fieldGroup">'
-                    + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>'
-                    + '<img style="width:30px; height:30px" src="' + reader.result + '">';
-                if (isText) {
-                    itm += '<span class="fieldValue" contenteditable="true">Value</span>';
-                }
-                itm+= '</div>';
-                var blok = DivViewBlock.find('.vis-active-block');
-                if (blok.hasClass('grdDiv')) {
-                    blok.append($(itm));
-                }
-                
-            }
-            reader.readAsDataURL(file);
+                inner.css('zoom', zoom);
+            });
         }
 
-        this.show = function (istext) {
-            var input = $('<input type="file" name="" maxlength="50" class="" accept="image/*" placeholder=" " data-placeholder="">');
-            var lbl = $('<label for="">Select From Files</label>');
+        function convertImageToBase64(element, isText,isEdit) {
+            var MAX_WIDTH = 320;
+            var MAX_HEIGHT = 180;
+            var MIME_TYPE = "image/jpeg";
+            var QUALITY = 0.7;
+
+            var file = element[0].files[0];
+            var blobURL = URL.createObjectURL(file);
+            var img = new Image();
+            img.src = blobURL;
+            img.onerror = function () {
+                URL.revokeObjectURL(this.src);
+                // Handle the failure properly
+                console.log("Cannot load image");
+            };
+            img.onload = function () {
+                URL.revokeObjectURL(this.src);
+               
+                var wh = calculateSize(img, MAX_WIDTH, MAX_HEIGHT);
+                newWidth = wh.width;
+                newHeight = wh.height;
+                var canvas = document.createElement("canvas");
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                canvas.toBlob(function (blob) {
+                },
+                    MIME_TYPE,
+                    QUALITY);
+                //console.log(canvas.toDataURL());  
+                if (!isEdit) {
+                    var itm = '<div class="fieldGroup">'
+                        + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>';
+
+                    if (isText) {
+                        itm += '<img style="width:30px; height:30px" src="' + canvas.toDataURL() + '">';
+                        itm += '<span class="fieldValue" contenteditable="true">Value</span>';
+                    } else {
+                        itm += '<img style="width:50px; height:50px" src="' + canvas.toDataURL() + '">';
+                    }
+                    itm += '</div>';
+                    var blok = DivViewBlock.find('.vis-active-block');
+                    if (blok.hasClass('grdDiv')) {
+                        blok.append($(itm));
+                    }
+                } else {
+                    DivViewBlock.find('.vis-active-block').attr('src', canvas.toDataURL());
+                }
+            };            
+            
+        };
+
+
+        function calculateSize(img, maxWidth, maxHeight) {
+            var width = img.width;
+            var height = img.height;
+
+            // calculate the width and height, constraining the proportions
+            if (width > height) {
+                if (width > maxWidth) {
+                    height = Math.round(height * maxWidth / width);
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width = Math.round(width * maxHeight / height);
+                    height = maxHeight;
+                }
+            }
+            return {
+                width: width,
+                height: height
+            }
+        }
+
+      
+
+        this.show = function (istext,isEdit) {
+            var input = $('<input type="file" name="" maxlength="50" style="height: 45px;padding: 10px" class="" accept="image/*" placeholder=" " data-placeholder="">');
+            var lbl = $('<label for="">' + VIS.Msg.getMsg("SelectFromFiles") + '</label>');
             var $root = $('<div class="input-group vis-input-wrap"></div>');
             var control = $('<div class="vis-control-wrap"></div>');
             control.append(input).append(lbl);
             $root.append(control);
            
             ch = new VIS.ChildDialog();
-            ch.setTitle(VIS.Msg.getMsg("Insert Image"));
-            ch.setWidth('50%');
+            ch.setTitle(VIS.Msg.getMsg("InsertImage"));
+            ch.setWidth('30%');
             //ch.setHeight(h);
             ch.setContent($root);
             ch.onOkClick = function (e) {
-                convertImageToBase64(input, istext);
+                convertImageToBase64(input, istext, isEdit);
             };
             ch.onCancelClick = cancel;
             ch.onClose = cancel;
