@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="vis-cardTemplateContainer py-1 px-2 mb-2">
-            <div class="vis-cardSingleViewTemplate d-flex align-items-center justify-content-center blankTemp" isSystemTemplate="Y" style=" background-color: #f1f1f1">
+            <div class="vis-cardSingleViewTemplate d-flex align-items-center justify-content-center blankTemp vis-active-template" isSystemTemplate="Y" style=" background-color: #f1f1f1">
                 <div class="mainTemplate" name="" templateID="0">
                     @*<div sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>*@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 141">
@@ -78,7 +78,7 @@
                 </div>
                 <span id="@("spnLastSaved_" + ViewBag.WindowNumber)"></span>
             </div>
-            <i class="fa fa fa-pencil-square-o fa-1" id="@("btnEditIcon_" + ViewBag.WindowNumber)" style="display:none;position:absolute;z-index:2"></i>
+            <i class="fa fa fa-pencil-square-o fa-1" id="@("btnEditIcon_" + ViewBag.WindowNumber)" style="display:none;position:absolute;z-index:2;cursor:pointer"></i>
             <div class="vis-topNavigator" style="display:none">
                 <a href="javascript:;" title="" class="vis-topNavigatorIcon" command="fieldName" style="display:none"></a>
                 <a href="javascript:;" title="@GetText("SelectParent")" class="vis-topNavigatorIcon"><i command="SelectParent" class="fa fa-arrow-up" aria-hidden="true"></i></a>
@@ -838,8 +838,8 @@
                                                     <div class="vis-vertical-slide mr-3">
                                                         <span class="vis-cll-sy-p2-title mb-2 mt-3 vis-font-size-sm vis-borderBottomH pb-1 vis-font-weight-600 d-block">@GetText("AlignItems") </span>
                                                         <div class="vis-horz-align-d d-flex mb-2">
-                                                            <div class="vis-vl-elm vis-vl-elm-fst" data-command1="flexAlignStart">
-                                                                <div class="vis-cllsty2-single-elTwo">
+                                                            <div class="vis-vl-elm vis-vl-elm-fst" >
+                                                                <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignStart">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
                                                                         <div class="vis-box-sin0colr"></div>

@@ -390,7 +390,7 @@
                         @GetText("Cancel")  <i class="fa fa-times-circle" aria-hidden="true"></i>
                     </button>*@
                 <a href="javascript:;" class="vis-cancelButtonPosition" style="display:none" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)">@GetText("Resettolastsaved") <i class="fa fa-undo" aria-hidden="true"></i></a>
-                <button class=" vis-saveButtonPosition" id="@("btnOnlySave_" + ViewBag.WindowNumber)">
+                <button class=" vis-saveButtonPosition" title="@GetText("Save")" id="@("btnOnlySave_" + ViewBag.WindowNumber)">
                     <i class="fa fa-floppy-o" aria-hidden="true"></i>
                 </button>
                 <div class="canvas">

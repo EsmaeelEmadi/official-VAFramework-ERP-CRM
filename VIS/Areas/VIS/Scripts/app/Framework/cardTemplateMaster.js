@@ -41,7 +41,7 @@
         var addedColPos = [];
         var sectionCount = 2;
         var btnEditIcon = null;
-        isNewSection = false;
+        var isNewSection = false;
         var isSystemTemplate = 'Y';
 
         var gridObj = {
@@ -348,10 +348,20 @@
 
         var root = $('<div style="height:100%"></div>');
         var isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
-        root.append(isBusyRoot);
+        
+
+        function IsBusy(isBusy) {
+            if (isBusy && isBusyRoot != null) {
+                isBusyRoot.css({ "display": "block" });
+            }
+            if (!isBusy && isBusyRoot != null) {
+                isBusyRoot.css({ "display": "none" });
+            }
+        };
 
         function loadUI() {
             root.load(VIS.Application.contextUrl + 'CardTemplateMaster/Index/?windowno=' + WindowNo, function (event) {
+                root.append(isBusyRoot);
                 btnTemplateBack = root.find('#BtnTemplateBack_' + WindowNo);
                 DivTemplate = root.find('#DivTemplate_' + WindowNo);
                 DivCardFieldSec = root.find('#DivCardFieldSec_' + WindowNo);
@@ -446,6 +456,7 @@
                 DivTemplate.show();
                 DivStyleSec1.hide();
                 DivCradStep2.find('.vis-two-sec-two').hide();
+                DivTemplate.find('[templateid="' + lastSelectedID + '"]').click();
                 scaleTemplate();
             });
 
@@ -1055,6 +1066,7 @@
             CardCreatedby = $this.attr("createdBy");
             isSystemTemplate = $this.attr("isSystemTemplate");
             AD_HeaderLayout_ID = $this.find('.mainTemplate').attr('templateid');
+            lastSelectedID = AD_HeaderLayout_ID;
             templateName = $this.find('.mainTemplate').attr('name');
             if (AD_HeaderLayout_ID == "0") {
 
@@ -1569,6 +1581,7 @@
         }
        
         function getTemplateDesign() {
+            IsBusy(true);
             var url = VIS.Application.contextUrl + "CardView/getSystemTemplateDesign";
             DivTemplate.find('.vis-cardSingleViewTemplate:not(:first)').remove();
             var obj = {
@@ -1582,11 +1595,11 @@
                 success: function (data) {
                     var result = JSON.parse(data);
                     DivTemplate.find('.vis-cardTemplateContainer').append(result);
-                    //IsBusy(false);
+                    IsBusy(false);
 
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
-                    //IsBusy(false);
+                    IsBusy(false);
                 }, complete: function () {
                     DivTemplate.find('.vis-cardSingleViewTemplate').click(function () {
                         DivTemplate.find('.vis-cardSingleViewTemplate').removeClass('vis-active-template');
@@ -1607,7 +1620,7 @@
                 return false;
             }
 
-            //IsBusy(true);
+            IsBusy(true);
             var fieldObj = [];
             var seq = 10;
             var cardSection = [];
@@ -1752,12 +1765,13 @@
                     AD_HeaderLayout_ID = result;
                     isSystemTemplate = 'Y';         
                     toastr.success(VIS.Msg.getMsg('SavedSuccessfully'), '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
+                    IsBusy(false);
                     getTemplateDesign();
-                   // IsBusy(false);
+                    
 
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
-                   // IsBusy(false);
+                    IsBusy(false);
                 }
             });
 

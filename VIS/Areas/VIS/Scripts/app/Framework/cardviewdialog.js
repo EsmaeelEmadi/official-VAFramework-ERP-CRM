@@ -184,6 +184,7 @@
                 AD_CardView_ID = "undefined";
                 btnTemplateBack.text(VIS.Msg.getMsg("Back"));
                 btnLayoutSetting.text(VIS.Msg.getMsg("NextLayout"));
+                scaleTemplate();
                 btnCardCustomization.click();
             });
 
@@ -264,6 +265,7 @@
                 DivCardFieldSec.hide();
                 DivStyleSec1.hide();
                 DivCradStep2.find('.vis-two-sec-two').hide();
+                scaleTemplate();
             });
 
 
@@ -3364,7 +3366,7 @@
                 data: JSON.stringify(obj),
                 success: function (data) {
                     var result = JSON.parse(data);
-                    DivTemplate.find('.vis-cardTemplateContainer').append(result);
+                    DivTemplate.find('.vis-cardTemplateContainer').append($(result));                    
                     IsBusy(false);
 
                 }, error: function (errorThrown) {
@@ -3374,8 +3376,7 @@
                     DivTemplate.find('.vis-cardSingleViewTemplate').click(function () {
                         DivTemplate.find('.vis-cardSingleViewTemplate').removeClass('vis-active-template');
                         $(this).addClass('vis-active-template');
-                    });
-                    scaleTemplate();
+                    });                    
                 }
             });
         }

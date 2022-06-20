@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Optimization;
 namespace VIS
 {
@@ -23,7 +22,7 @@ namespace VIS
                                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
                                , new[] { "VIS.Controllers" }
                                );
-            
+
             StyleBundle style = new StyleBundle("~/Areas/VIS/Content/VISstyle");
             //StyleBundle styleRTL = new StyleBundle("~/Areas/VIS/Content/VISstyleRTL");
 
@@ -32,8 +31,6 @@ namespace VIS
             ScriptBundle modScript_v1 = new ScriptBundle("~/Areas/VIS/Scripts/VIS_v1");
 
             ScriptBundle modScript_v2 = new ScriptBundle("~/Areas/VIS/Scripts/VIS_v2");
-
-
 
             modScript.Include(
                   "~/Areas/VIS/Scripts/app/native-extension.js",
@@ -92,6 +89,7 @@ namespace VIS
                 "~/Areas/VIS/Scripts/app/Framework/vdocaction.js",
                 "~/Areas/VIS/Scripts/app/Framework/appointments.js",
                 "~/Areas/VIS/Scripts/app/Framework/vpayment.js",
+                "~/Areas/VIS/Scripts/app/Framework/cardTemplateMaster.js",
                 "~/Areas/VIS/Scripts/app/forms/form.js",
                 "~/Areas/VIS/Scripts/app/forms/vcreatefrom.js",
                 "~/Areas/VIS/Scripts/app/forms/vcreatefrominvoice.js",

@@ -3330,19 +3330,24 @@ field, fieldvalue{
 }
     /* modify Ends */
     /*Media query*/
-    @media screen and (max-width: 1500px) and (min-width: 1360px) {
-        .vis-grid-select-one-input {
-            width: 5rem !important;
-        }
-
-        .vis-grid-select-one-select {
-            min-width: 5.2rem !important;
-        }
-
-        .vis-overflowContainer {
-            height: 470px !important;
-        }
+@media screen and (max-width: 1500px) and (min-width: 1360px) {
+    .vis-grid-select-one-input {
+        width: 5rem !important;
     }
+
+    .vis-grid-select-one-select {
+        min-width: 5.2rem !important;
+    }
+
+    .vis-overflowContainer {
+        height: 445px !important;
+    }
+
+    .vis-templatePreview {
+        width: 230px !important;
+        height: 129px !important;
+    }
+}
 
     @media (max-width: 1024px) {
         .vis-cr-left-header i, .vis-cr-left-header span {
