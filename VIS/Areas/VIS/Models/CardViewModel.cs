@@ -576,7 +576,7 @@ namespace VIS.Models
                     {
                         design += "<div lastUpdated='" + lastUpdated + "' isSystemTemplate='N' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center displayNone'>";
                     }
-
+                    
                     design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
                     sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
                     DataSet dsSec = DB.ExecuteDataset(sqlQuery);
@@ -677,7 +677,16 @@ namespace VIS.Models
                                         imgStyle = "";
                                     }
 
-                                    design += "<div class='fieldGroup'>";
+                                    string directionStyle = "";
+                                    var index = style.IndexOf("flex-direction");
+                                    if (index > -1)
+                                    {
+                                        var index2 = style.IndexOf(";", index + "flex-direction".Length);
+
+                                        directionStyle = "display:flex;" + style.Substring(index, (index2 - index));
+                                    }
+
+                                    design += "<div class='fieldGroup' style='" + directionStyle + "'>";
                                     string spn = "";
                                     string img = "";
                                     if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
@@ -750,6 +759,7 @@ namespace VIS.Models
                 {
 
                     design += "<div lastUpdated='" + Util.GetValueOfDateTime(ds.Tables[0].Rows[i]["lastUpdated"]).Value.ToLocalTime().ToString("hh:mm:ss tt") + "' isSystemTemplate='Y' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center'>";
+                    design += "<i class='fa fa-trash-o vis-deleteTemplate'></i>";
                     design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
                     sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
                     DataSet dsSec = DB.ExecuteDataset(sqlQuery);
@@ -851,8 +861,16 @@ namespace VIS.Models
                                         imgStyle = "";
                                     }
 
+                                    string directionStyle = "";
+                                    var index = style.IndexOf("flex-direction");
+                                    if (index > -1)
+                                    {
+                                        var index2 = style.IndexOf(";", index + "flex-direction".Length);
+                                       
+                                        directionStyle = "display:flex;"+ style.Substring(index, (index2 - index));
+                                    }
 
-                                    design += "<div class='fieldGroup'>";
+                                    design += "<div class='fieldGroup' style='"+ directionStyle + "'>";
                                     string spn = "";
                                     string img = "";
                                     if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
@@ -1009,7 +1027,18 @@ namespace VIS.Models
             return templateID;
         }
 
+        /// <summary>
+        /// Delete Template
+        /// </summary>
+        /// <param name="tempID"></param>
+        public void DeleteTemplate(int tempID) {
+            string sqlQuery = "DELETE FROM AD_HEADERLAYOUT WHERE AD_HEADERLAYOUT_ID=" + tempID;
+            int result = DB.ExecuteQuery(sqlQuery);
+            if (result < 1)
+            {
 
+            }
+        }
     }
 
     public class CardViewPropeties

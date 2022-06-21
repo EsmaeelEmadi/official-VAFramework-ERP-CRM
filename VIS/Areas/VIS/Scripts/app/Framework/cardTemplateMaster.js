@@ -43,6 +43,7 @@
         var btnEditIcon = null;
         var isNewSection = false;
         var isSystemTemplate = 'Y';
+        var btnaddBlankTemplate = null;
 
         var gridObj = {
         };
@@ -389,6 +390,7 @@
                 btnAddImgTxtField = root.find('#BtnAddImgTxtField_' + WindowNo);
                 spnLastSaved = root.find('#spnLastSaved_' + WindowNo);
                 btnEditIcon = root.find('#btnEditIcon_' + WindowNo);
+                btnaddBlankTemplate = root.find('#btnaddBlankTemplate_' + WindowNo);
                 btnTemplateBack.hide();
                 events();
                 getTemplateDesign();
@@ -1035,7 +1037,10 @@
                 btn_BlockCancel.hide();
             });
 
-
+            btnaddBlankTemplate.click(function () {
+                DivTemplate.find('.mainTemplate[templateid="0"]').parent().click();
+                btnLayoutSetting.click();
+            });
 
         };
 
@@ -1472,6 +1477,12 @@
         }
 
         function applyCommend(commend, styleValue) {
+            DivViewBlock.css({
+                'width': DivCradStep2.find('.vis-cardViewTemplateHead')[0].offsetWidth,
+                'overflow': 'auto'
+            });
+
+
             isChange = true;
             if (isChange && AD_HeaderLayout_ID != "0") {
                 btn_BlockCancel.show();
@@ -1604,6 +1615,10 @@
                     DivTemplate.find('.vis-cardSingleViewTemplate').click(function () {
                         DivTemplate.find('.vis-cardSingleViewTemplate').removeClass('vis-active-template');
                         $(this).addClass('vis-active-template');
+                    });
+
+                    DivTemplate.find('.vis-deleteTemplate').click(function () {
+                        deleteTemplate(Number($(this).next().attr('templateID')), $(this));
                     });
 
                     scaleTemplate();                   
@@ -1879,7 +1894,28 @@
             }
         }
 
-      
+
+        function deleteTemplate(tempID,e) {
+            VIS.ADialog.confirm("SureWantToDelete", true, "", VIS.Msg.getMsg("Confirm"), function (result) {
+                if (result) {
+                    var url = VIS.Application.contextUrl + "CardView/DeleteTemplate";
+                    $.ajax({
+                        type: "POST",
+                        async: false,
+                        url: url,
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({ 'tempID': tempID }),
+                        success: function (data) {
+                            var result = JSON.parse(data);
+                            e.parent().remove();
+                        }, error: function (errorThrown) {
+                            alert(errorThrown.statusText);
+                        }
+                    });
+                }
+            });
+        }
 
         this.show = function (istext,isEdit) {
             var input = $('<input type="file" name="" maxlength="50" style="height: 45px;padding: 10px" class="" accept="image/*" placeholder=" " data-placeholder="">');

@@ -110,7 +110,7 @@
         var rowIdx = null;
         var colIdx = null;
         var addedColPos = [];
-        var isNewSection = false;
+        var isNewSection = false;       
         var gridObj = {
         };
 
@@ -144,6 +144,7 @@
                 DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().click();
                 DivStyleSec1.hide();
                 DivCradStep2.find('.vis-two-sec-two').hide();
+                scaleTemplate();
                 if (!isNewRecord) {
                     btnLayoutSetting.click();
                 }
@@ -183,8 +184,7 @@
                 AD_HeaderLayout_ID = 0;
                 AD_CardView_ID = "undefined";
                 btnTemplateBack.text(VIS.Msg.getMsg("Back"));
-                btnLayoutSetting.text(VIS.Msg.getMsg("NextLayout"));
-                scaleTemplate();
+                btnLayoutSetting.text(VIS.Msg.getMsg("NextLayout"));                
                 btnCardCustomization.click();
             });
 
@@ -202,7 +202,7 @@
                     var newcardname = newCopyCard.getName();
                     if (newcardname && newcardname.length > 0) {
                         IsBusy(true);
-                        saveCopyCard(newcardname);
+                        saveCopyCard(newcardname);                       
                     }
                 }
             });
@@ -3918,6 +3918,7 @@
             ch.show();
             ch.hideButtons();
         }
+
         function cancel() {
             ch.close();
             aPanel.fromCardDialogBtn = false;

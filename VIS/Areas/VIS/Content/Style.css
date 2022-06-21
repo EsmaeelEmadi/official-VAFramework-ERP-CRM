@@ -2901,13 +2901,16 @@ border-top-left-radius:4px !important;
     display: grid;
     width: 100%;
     /*padding:5px;*/
-    border:1px dotted black;
+    
 }
 
-.grdDiv {
+.vis-viewBlock .vis-wizard-section {
+    border: 1px dotted black;
+}
+.vis-viewBlock .grdDiv {
     border: 1px dotted grey;
     /*position: relative;*/
-   /* padding: 10px*/
+    /* padding: 10px*/
 }
 
 .vis-split-cell {
@@ -3189,7 +3192,9 @@ field, fieldvalue{
     width: 323px;
     height: 200px;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.3);
-    padding:10px;
+    background-color: #f1f1f1;
+    position:relative;
+    /* padding:10px;*/
 }
 
 .vis-cardTemplateContainer {
@@ -3220,6 +3225,24 @@ field, fieldvalue{
     margin-right: 35px;
     font-weight: 500;
     position: absolute;
+}
+.vis-deleteTemplate {
+    position: absolute;
+    z-index: 9;
+    right: 5px;
+    top: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.vis-addBlankTemplateBtn {
+    padding: 5px 8px;
+    top: 80px;
+    position: absolute;
+    left: 17px;
+    border: 1px solid rgba(var(--v-c-primary),1);
+    color: rgba(var(--v-c-primary),1);
+    border-radius: 5px;
 }
 
 /*placeholder color*/

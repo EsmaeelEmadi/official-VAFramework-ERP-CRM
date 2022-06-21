@@ -123,6 +123,20 @@ namespace VIS.Controllers
             var jsonResult = Json(JsonConvert.SerializeObject(""), JsonRequestBehavior.AllowGet); jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
         }
+        
+        /// <summary>
+        /// Delete Template
+        /// </summary>
+        /// <param name="tempID"></param>
+        /// <returns></returns>
+        public JsonResult DeleteTemplate(int tempID)
+        {
+            Ctx ctx = Session["ctx"] as Ctx;
+            CardViewModel objCardViewModel = new CardViewModel();
+            objCardViewModel.DeleteTemplate(tempID);
+            var jsonResult = Json(JsonConvert.SerializeObject(""), JsonRequestBehavior.AllowGet); jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
+        }
 
         public JsonResult SetDefaultView(int AD_Tab_ID, int cardView)
         {

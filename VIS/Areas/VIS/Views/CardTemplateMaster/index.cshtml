@@ -25,7 +25,7 @@
     <div class="vis-cardStepTwoContainer" id="@("DivTemplate_" + ViewBag.WindowNumber)">
         <div class="vis-cardStepTwoHeader d-flex align-items-center justify-content-between mb-2">
             <div class="vis-stepTwoHeaderttlWrap">
-                <span class="vis-stepTwoHeaderttl">
+                <span class="vis-stepTwoHeaderttl" style="font-size: 1rem; margin-left: 10px;">
                     @GetText("SelectTemplateForyourcard")
                 </span>
             </div>
@@ -92,7 +92,9 @@
             </div>
 
             <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">
-               
+                <button class="vis-addBlankTemplateBtn" id="@("btnaddBlankTemplate_" + ViewBag.WindowNumber)">
+                    <i class="fa fa-plus"></i>@GetText("BlankTemplate")
+                </button>
                 <a href="javascript:;" class="vis-cancelButtonPositionTemp" style="display:none" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)">@GetText("Resettolastsaved") <i class="fa fa-undo" aria-hidden="true"></i></a>
                 @*<button class=" vis-saveButtonPosition" id="@("btnOnlySave_" + ViewBag.WindowNumber)">
                     <i class="fa fa-floppy-o" aria-hidden="true"></i>
@@ -103,7 +105,7 @@
                 <i title="Add Image & Text" id="@("BtnAddImgTxtField_" + ViewBag.WindowNumber)" class="vis vis-add-text-image vis-meta-dynamicIcon" aria-hidden="true"></i>
             </div>
                 <div class="canvas">
-                    <div id="@("DivCardHeader2_" + ViewBag.WindowNumber)" class="vis-viewBlock">
+                    <div id="@("DivCardHeader2_" + ViewBag.WindowNumber)" class="vis-viewBlock" style="background-color:#fff">
                         <div sectionCount="1" class="section1 vis-wizard-section"></div>
                     </div>
                 </div>
