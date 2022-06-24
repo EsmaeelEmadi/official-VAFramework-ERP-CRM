@@ -344,6 +344,11 @@
                 proprty: 'align-items',
                 value: 'flex-start',
                 measurment: true
+            },
+            maxTextmultiline: {
+                proprty: '-webkit-line-clamp',
+                value: '',
+                measurment: false
             }
         }
 
@@ -448,6 +453,9 @@
                 if (AD_HeaderLayout_ID == 0 && DivGridSec.find('.rowBox').length == 1) {
                     DivGridSec.find('.addGridCol').click();
                     DivGridSec.find('.addGridRow').click();
+                }
+                if (AD_HeaderLayout_ID == 0) {
+                    DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');
                 }
             });
 
@@ -577,7 +585,6 @@
                 } else if (cmd == 'Merge') {
                     mergeCell();
                     divTopNavigator.find('[command="Merge"]').parent().hide();
-                    mdown = false;
                 } else if (cmd == 'Unlink') {
                     divTopNavigator.hide();
                     var fldLbl = blok.closest('.fieldGroup').find('.fieldLbl');
@@ -600,7 +607,7 @@
             var viewBlock = DivViewBlock.find('.canvas *');
 
             viewBlock.mousedown(function (e) {
-                if (e.target.tagName == 'SQL' || $(e.target).hasClass('fieldGroup')) {
+                if (e.target.tagName == 'SQL' || $(e.target).hasClass('fieldGroup') || $(e.target).hasClass('vis-addRemoveRowCol')) {
                     return;
                 }
 
@@ -809,6 +816,27 @@
                 }
             });
 
+            txtCustomStyle.change(function () {
+                var selectedItem = DivViewBlock.find('.vis-active-block');
+                selectedItem.attr("style", $(this).val());
+            });
+
+
+            txtSQLQuery.change(function () {
+                var selectedItem = DivViewBlock.find('.vis-active-block');
+                if ($(this).val() == null || $(this).val() == "") {
+                    selectedItem.find('sql').remove();
+                    selectedItem.attr("query", "");
+                } else {
+                    var qry = VIS.secureEngine.encrypt($(this).val());
+                    selectedItem.attr("query", qry);
+                    if (selectedItem.find('sql').length == 0) {
+                        selectedItem.append('<sql>SQL</sql>');
+                    }
+                }
+
+            });
+
             DivGridSec.find('.addGridRow').click(function () {
                 var rClone = DivGridSec.find('.rowBox:first').clone(true);
                 rClone.show();
@@ -848,6 +876,21 @@
                 DivGridSec.find('.colBox:not(:first)').remove();
                 DivGridSec.find('.addGridRow').click();
                 DivGridSec.find('.addGridCol').click();
+
+                DivGridSec.find('.vis-sectionAdd').sortable({
+                    disabled: false,
+                    update: function (event, ui) {
+                        var sectionCount = ui.item.attr('sectioncount');
+                        var end_pos = ui.item.index();
+                        var next = ui.item.next().attr('sectioncount');
+                        if (next) {
+                            DivViewBlock.find('[sectioncount="' + next + '"]').before(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                        } else {
+                            var pre = ui.item.prev().attr('sectioncount');
+                            DivViewBlock.find('[sectioncount="' + pre + '"]').after(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                        }
+                    }
+                });
 
             });
 
@@ -1074,7 +1117,6 @@
             lastSelectedID = AD_HeaderLayout_ID;
             templateName = $this.find('.mainTemplate').attr('name');
             if (AD_HeaderLayout_ID == "0") {
-
                 $this.find('.mainTemplate').html($('<div sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>'));
             }
             $this.find('[contenteditable]').attr('contenteditable', true);
@@ -1099,9 +1141,10 @@
                     });
                     $(this).html(arr.join(" "));
                 });
-                DivViewBlock.find('.grdDiv').unbind('mouseover');
+               
                 DivViewBlock.find('.vis-viewBlock').attr("style", $this.find('.mainTemplate').attr('style') || '');
                 DivViewBlock.find('.vis-viewBlock').html($this.find('.mainTemplate').html());
+                DivViewBlock.find('.grdDiv').unbind('mouseover');
                 DivViewBlock.find('.grdDiv').mouseover(function (e) {
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
                         selectTo($(this));
@@ -1226,15 +1269,17 @@
             });
 
             var isEnter = false;
-            grSec.find('.grdDiv').each(function (index) {
+            grSec.find('.grdDiv').each(function (index) {               
                 var gArea = $(this).css('grid-area').split('/');
                 var r_start = Number($.trim(gArea[0]));
                 var r_end = Number($.trim(gArea[2]));
                 var c_start = Number($.trim(gArea[1]));
                 var c_end = Number($.trim(gArea[3]));
+
                 if (rowIdx != null) {
                     if ((rowIdx > (r_start - 1) && rowIdx < (r_end - 1))) {
                         $(this).css('grid-area', r_start + '/' + c_start + '/' + (r_end + r) + '/' + (c_end));
+
                         isEnter = true;
                     }
 
@@ -1242,6 +1287,7 @@
                         for (var i = Number(r_start); i <= (Number(r_end)); i++) {
                             for (var j = c_start; j < c_end; j++) {
                                 var pos = totalCol * i + j;
+                                console.log(pos);
                                 grSec.find('.grdDiv').eq(pos - 1).css('display', 'none');
                             }
                             if (rowIdx == i) {
@@ -1273,10 +1319,11 @@
                 }
 
                 if ($(this).find('.vis-split-cell').length == 0) {
-                    var rowPosition = (Math.floor(index / totalCol)) + 1;
+                    var rowPosition = (Math.floor(index / totalCol)) + 1;   
                     var colposition = (index % totalCol) + 1;
                     $(this).css('grid-area', rowPosition + '/' + colposition + '/' + (rowPosition + 1) + '/' + (colposition + 1));
-                }
+                }  
+               
             });
 
         }
@@ -1494,10 +1541,25 @@
                 tag.find('.fieldGroup').removeAttr('style');
             }
 
+            if (commend == 'maxTextmultiline') {
+                if (styleValue == "" || styleValue == null) {
+                    tag[0].style.removeProperty('overflow');
+                    tag[0].style.removeProperty('display');
+                    tag[0].style.removeProperty('-webkit-box-orient');
+                } else {
+                    tag.css({
+                        'overflow': 'hidden',
+                        'display': '-webkit-box',
+                        '-webkit-box-orient': 'vertical'
+                    });
+                }
+            }
+
             if (commend != 'gradient' && (styleValue == "" || styleValue == null)) {
                 tag[0].style.removeProperty(editorProp[commend].proprty);
                 return;
-            }           
+            }
+            
 
 
             if (commend == 'gradient') {
@@ -1632,6 +1694,20 @@
            
             if (txtTemplateName.val() == "") {
                 VIS.ADialog.error("FillMandatory", true, "Template Name");
+                return false;
+            }
+
+            var isExist = false;
+            if (AD_HeaderLayout_ID == 0) {
+                DivTemplate.find('.mainTemplate').each(function () {
+                    if ($(this).attr('name') && $.trim($(this).attr('name').toUpperCase()) == $.trim(txtTemplateName.val().toUpperCase())) {
+                        isExist = true;
+                        VIS.ADialog.error("TempalteAlreadyExist", true, "");
+                        return false;
+                    }
+                });
+            }
+            if (isExist) {
                 return false;
             }
 
@@ -1857,7 +1933,7 @@
                         itm += '<img style="width:30px; height:30px" src="' + canvas.toDataURL() + '">';
                         itm += '<span class="fieldValue" contenteditable="true">Value</span>';
                     } else {
-                        itm += '<img style="width:50px; height:50px" src="' + canvas.toDataURL() + '">';
+                        itm += '<img style="width:100px; height:100px" src="' + canvas.toDataURL() + '">';
                     }
                     itm += '</div>';
                     var blok = DivViewBlock.find('.vis-active-block');

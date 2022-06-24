@@ -875,11 +875,11 @@ namespace VIS.Models
                                     string img = "";
                                     if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
                                     {
-                                        design += "<span style='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
+                                        design += "<span style='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl displayNone' contenteditable='true'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
                                     }
                                     else
                                     {
-                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl' title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
+                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' class='fieldLbl' contenteditable='true' title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
                                     }
 
                                     if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1)
@@ -894,15 +894,15 @@ namespace VIS.Models
                                             img = cvi.Replace("<img", "<img style='" + imgStyle + "' ");
                                             if (brStart == 0)
                                             {
-                                                spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "</span>";
+                                                spn += "<span class='fieldValue' contenteditable='true' style='" + valueStyle + "'>" + cvv + "</span>";
                                             }
                                             else if (brStart == 1)
                                             {
-                                                spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + cvv + "</span>";
+                                                spn += "<span class='fieldValue' contenteditable='true' style='" + valueStyle + "'><br>" + cvv + "</span>";
                                             }
                                             else if (brStart == 2)
                                             {
-                                                spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "<br></span>";
+                                                spn += "<span class='fieldValue' contenteditable='true' style='" + valueStyle + "'>" + cvv + "<br></span>";
                                             }
                                             
                                         }

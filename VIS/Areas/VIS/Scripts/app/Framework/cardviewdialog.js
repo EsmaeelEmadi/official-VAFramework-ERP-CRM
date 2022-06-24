@@ -111,6 +111,7 @@
         var colIdx = null;
         var addedColPos = [];
         var isNewSection = false;       
+        var isChangeTemplate = false;       
         var gridObj = {
         };
 
@@ -226,6 +227,11 @@
                     DivGridSec.find('.addGridCol').click();
                     DivGridSec.find('.addGridRow').click();
                 }
+
+                if (AD_HeaderLayout_ID == 0 && !isCopy) {
+                    DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');
+                }
+
                 if (isCopy) {
                     setTimeout(function () {
                         btnFinesh.click();
@@ -266,6 +272,7 @@
                 DivStyleSec1.hide();
                 DivCradStep2.find('.vis-two-sec-two').hide();
                 scaleTemplate();
+                isChangeTemplate = true;
             });
 
 
@@ -607,6 +614,12 @@
                 DivViewBlock.find('.canvas').css('zoom', $(this).val());
             })
 
+            DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
+                // store a ref. on the dragged elem
+                dragged = $(event.target);
+                divTopNavigator.hide();
+            });
+
             DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragover", function (event) {
                 // prevent default to allow drop
                 event.preventDefault();
@@ -615,10 +628,21 @@
             DivViewBlock.find('.vis-viewBlock')[0].addEventListener("drop", function (event) {
                 // prevent default action (open as link for some elements)
                 event.preventDefault();
-                DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
-                $(event.target).addClass('vis-active-block');
-                // move dragged element to the selected drop target
-                linkField(dragged);
+                DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');               
+                var fldLbl = null;
+                var ev = $(event.target);
+                if (!dragged.hasClass('.fieldLbl')) {
+                    fldLbl = dragged.find('.fieldLbl');
+                } 
+
+                if (fldLbl.length>0) {
+                    ev.append(dragged);
+                } else {
+                    ev.addClass('vis-active-block');
+                    linkField(dragged);
+                }   
+               
+               
             });
 
             /* End Step 1*/
@@ -973,7 +997,7 @@
 
             DivGridSec.find('.section-active .vis-grey-disp-el').click();
             DivGridSec.find('.vis-grey-disp-el-xross').eq(1).hide();
-            if (!isNewRecord) {
+            if (!isNewRecord && !isChangeTemplate) {                
                 DivCardField.find('.fieldLbl[seqNo]').each(function (i) {
                     var fID = $(this).attr('fieldid');
                     if (DivViewBlock.find('[fieldid="' + fID + '"]').length == 0) {
@@ -1081,6 +1105,13 @@
                             fidItm.append(fieldHtml);
                             //$(this).remove();
                         }
+                    }
+                });
+            } else {
+                isChangeTemplate = false;
+                DivCardField.find('.fieldLbl[seqNo]').each(function () {
+                    if ($(this).attr('title') && $(this).attr('title').length > 0) {
+                        unlinkField($(this).attr('title'), $(this));
                     }
                 });
             }
@@ -2527,8 +2558,8 @@
                     $(this).parent().hide();
                 } else if (cmd == 'Merge') {
                     mergeCell();
-                    divTopNavigator.find('[command="Merge"]').parent().hide();
-                    mdown = false;
+                    divTopNavigator.find('[command="Merge"]').parent().hide();   
+                    
                 } else if (cmd == 'Unlink') {
                     divTopNavigator.hide();
                     var fldLbl = blok.closest('.fieldGroup').find('.fieldLbl');
@@ -2786,7 +2817,21 @@
                 DivGridSec.find('.colBox:not(:first)').remove();
                 DivGridSec.find('.addGridRow').click();
                 DivGridSec.find('.addGridCol').click();
-               
+
+                DivGridSec.find('.vis-sectionAdd').sortable({
+                    disabled: false,
+                    update: function (event, ui) {
+                        var sectionCount = ui.item.attr('sectioncount');
+                        var end_pos = ui.item.index();
+                        var next = ui.item.next().attr('sectioncount');
+                        if (next) {
+                            DivViewBlock.find('[sectioncount="' + next + '"]').before(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                        } else {
+                            var pre = ui.item.prev().attr('sectioncount');
+                            DivViewBlock.find('[sectioncount="' + pre + '"]').after(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                        }
+                    }
+                });
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el-xross').click(function () {
@@ -3129,6 +3174,8 @@
 
                 grSec.find('.grdDiv').unbind('mouseover');
                 grSec.find('.grdDiv').mouseover(function (e) {
+                    e.preventDefault();
+                    console.log(mdown, $(this).find('.vis-split-cell').length);
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
                         selectTo($(this));
                     }
@@ -3680,7 +3727,7 @@
             if (itm) {
                 var blok = DivViewBlock.find('.vis-active-block');
                 if (blok.hasClass('grdDiv')) {
-                    var fieldHtml = $('<div class="fieldGroup"></div>');
+                    var fieldHtml = $('<div class="fieldGroup" draggable="true"></div>');
                     var fID = itm.attr('fieldid');
                     var newitm = itm.clone(true);
                     newitm.attr("showfieldicon", true);
@@ -3697,7 +3744,7 @@
                     var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
 
                     if (displayType == VIS.DisplayType.Image) {
-                        fieldHtml.append($('<img class="vis-colorInvert" style="width:50px;height:50px" src="' + src + '"/>'));
+                        fieldHtml.append($('<img class="vis-colorInvert" style="width:100px;height:100px" src="' + src + '"/>'));
                     } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
                         fieldHtml.append($('<img class="vis-colorInvert" style="width:30px;height:30px" style="display:none" src="' + src + '"/>'));
                         fieldHtml.append($('<span class="fieldValue">:Value</span>'));
@@ -3759,9 +3806,9 @@
                 }
                
             } else {
-                if (styleArr.indexOf("@img::") > -1) {
+                if (styleArr && styleArr.indexOf("@img::") > -1) {
                     imgStyle = styleArr.replace("@img::", "");
-                } else if (styleArr.indexOf("@value::") > -1) {
+                } else if (styleArr && styleArr.indexOf("@value::") > -1) {
                     vlstyle = styleArr.replace("@value::", "");
                 } else {
                     vlstyle = styleArr;

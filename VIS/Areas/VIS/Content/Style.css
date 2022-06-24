@@ -3193,8 +3193,8 @@ field, fieldvalue{
     height: 200px;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.3);
     background-color: #f1f1f1;
-    position:relative;
-    /* padding:10px;*/
+    position: relative;
+    padding: 5px;
 }
 
 .vis-cardTemplateContainer {
@@ -3350,6 +3350,10 @@ field, fieldvalue{
     height: 146px;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.3);
     padding: 5px;
+}
+.vis-addRemoveRowCol {
+    top: -45px;
+    position: relative;
 }
     /* modify Ends */
     /*Media query*/
