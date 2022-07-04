@@ -1251,25 +1251,33 @@
                         var controls = {};
                         $divIcon = $('<div class="vis-w-p-card-icon-f"></div>');
 
-                        $divLabel = $('<div class="vis-w-p-card-Label-f"></div>');
+                        var fIdx = backgroundColor.indexOf('flex-direction');
+                        var lblflxstyle = "";
+                        if (fIdx > -1) {
+                            var cIdx = backgroundColor.indexOf(";", fIdx + 'flex-direction'.length)
+                            lblflxstyle = 'display:flex; ' + backgroundColor.substring(fIdx, cIdx);
+                        }
+
+                        $divLabel = $('<div class="vis-w-p-card-Label-f" style="' + lblflxstyle+'"></div>');
 
                         $divDBIconSpan = $('<div class="vis-w-p-card-icon-f"></div>');
+                        $divDBImgSpan = $('<div class="vis-w-p-card-img-f"></div>');
 
-                        $divDBLevel = $('<div class="vis-w-p-card-Label-f"></div>');
+                        $divDBLevel = $('<div class="vis-w-p-card-Label-f" style="' + lblflxstyle +'"></div>');
                         // If Referenceof field is Image then added extra class to align image and Label in center.
-                        if (mField.getDisplayType() == VIS.DisplayType.Image) {
-                            $divLabel.addClass('vis-w-p-card-Label-center-f');
+                        //if (mField.getDisplayType() == VIS.DisplayType.Image) {
+                        //    $divLabel.addClass('vis-w-p-card-Label-center-f');
 
-                            if (!this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems'])
-                                this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems'] = {};
+                        //    if (!this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems'])
+                        //        this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems'] = {};
 
-                            this.dynamicClassForImageJustyfy = this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems']['justifyAlignImageItems'];
-                            if (!this.dynamicClassForImageJustyfy) {
-                                this.dynamicClassForImageJustyfy = this.justifyAlignImageItems(headerSeqNo, justyFy, alignItem);
-                                this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems'] = { 'justifyAlignImageItems': this.dynamicClassForImageJustyfy };
-                            }
-                            $divLabel.addClass(this.dynamicClassForImageJustyfy);
-                        }
+                        //    this.dynamicClassForImageJustyfy = this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems']['justifyAlignImageItems'];
+                        //    if (!this.dynamicClassForImageJustyfy) {
+                        //        this.dynamicClassForImageJustyfy = this.justifyAlignImageItems(headerSeqNo, justyFy, alignItem);
+                        //        this.fieldStyles[mField.getColumnName() + 'justifyAlignImageItems'] = { 'justifyAlignImageItems': this.dynamicClassForImageJustyfy };
+                        //    }
+                        //    $divLabel.addClass(this.dynamicClassForImageJustyfy);
+                        //}
 
 
 
@@ -1350,6 +1358,7 @@
                                 colValue = VIS.Utility.Util.getIdentifierDisplayVal(colValue);
                                 img = getIdentifierImage(mField, record);
                             }
+
                             if (img && !img.contains("Images/")) {
                                 imgSpan = img;//img contains First charater of Name or Identifier text
                                 $imageSpan.append(imgSpan);
@@ -1422,6 +1431,20 @@
                             else {
                                 setValue(colValue, iControl, mField);
                             }
+                        }
+                        else if (mField.getDisplayType() == VIS.DisplayType.Image) {
+                            setValue(colValue, iControl, mField);
+                            var imgCtrl = iControl.getControl().find('img');
+                            if (!mField.isCardTextHide()) {
+                                var lblcontrol = $('<label for="' + mField.getColumnName()+'" class="vis-w-p-card-data-label">' + mField.getHeader() + '</label>');
+                                lblcontrol.addClass(this.dynamicLabelValue);
+                                $divLabel.append(lblcontrol);
+                            }
+                                                        
+                            $divDBLevel = null;
+                            setFieldLayout(fieldValueStyle, $divLabel, imgCtrl, $divDBLevel, true);
+                            $div.append($divLabel);
+
                         }
                         else {
                             setFieldLayout(fieldValueStyle, $div, $divIcon, $divLabel, false);

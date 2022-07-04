@@ -2005,6 +2005,7 @@ center {
     height: 30px;
     width: 40px;
     border-radius: 3px;
+    border: 1px solid rgba(var(--v-c-on-secondary), .2) !important;
 }
 
 .vis-color-pallet-sym {
@@ -2909,6 +2910,7 @@ border-top-left-radius:4px !important;
 }
 .vis-viewBlock .grdDiv {
     border: 1px dotted grey;
+    display: flex;
     /*position: relative;*/
     /* padding: 10px*/
 }
@@ -3239,12 +3241,41 @@ field, fieldvalue{
     padding: 5px 8px;
     top: 80px;
     position: absolute;
+    left: 95px;
+    border: 1px solid rgba(var(--v-c-primary),1);
+    color: rgba(var(--v-c-primary),1);
+    border-radius: 5px;
+}
+
+.vis-undo {
+    padding: 5px 8px;
+    top: 80px;
+    position: absolute;
     left: 17px;
     border: 1px solid rgba(var(--v-c-primary),1);
     color: rgba(var(--v-c-primary),1);
     border-radius: 5px;
 }
 
+ .vis-undo[disabled=disabled], .vis-undo:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+ }
+
+.vis-redo[disabled=disabled], .vis-redo:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.vis-redo {
+    padding: 5px 8px;
+    top: 80px;
+    position: absolute;
+    left: 55px;
+    border: 1px solid rgba(var(--v-c-primary),1);
+    color: rgba(var(--v-c-primary),1);
+    border-radius: 5px;
+}
 /*placeholder color*/
 .vis-main-container input::-webkit-input-placeholder {
     color: rgba(var(--v-c-on-secondary), .3) !important;
@@ -3264,7 +3295,8 @@ field, fieldvalue{
     left:10px !important;
 }
 .fieldGroup {
-    width: fit-content;    
+    width: fit-content;
+    height: fit-content;
 }
 
 .vis-fieldImgPosition {   
@@ -3343,7 +3375,8 @@ field, fieldvalue{
 }
 
 .vis-app-aform-root .vis-main-two-container input:not([type="button"]):not([type="checkbox"]):not([type="radio"]) {
-    padding: 5px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
 }
 .vis-templatePreview {
     width: 260px;
@@ -3367,7 +3400,7 @@ field, fieldvalue{
     }
 
     .vis-overflowContainer {
-        height: 445px !important;
+        height: 435px !important;
     }
 
     .vis-templatePreview {

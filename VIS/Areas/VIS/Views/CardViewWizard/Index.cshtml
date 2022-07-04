@@ -387,9 +387,15 @@
 
             <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">
                 @*<button class="vis-cancel-btn vis-cancelButtonPosition" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)" style="display:none">
-                        @GetText("Cancel")  <i class="fa fa-times-circle" aria-hidden="true"></i>
-                    </button>*@
+            @GetText("Cancel")  <i class="fa fa-times-circle" aria-hidden="true"></i>
+        </button>*@
                 <a href="javascript:;" class="vis-cancelButtonPosition" style="display:none" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)">@GetText("Resettolastsaved") <i class="fa fa-undo" aria-hidden="true"></i></a>
+                <button class="vis-undo" title="Undo" id="@("btnUndo_" + ViewBag.WindowNumber)">
+                    <i class="fa fa-undo"></i>
+                </button>
+                <button class="vis-redo" title="Redo" id="@("btnRedo_" + ViewBag.WindowNumber)">
+                    <i class="fa fa-repeat"></i>
+                </button>
                 <button class=" vis-saveButtonPosition" title="@GetText("Save")" id="@("btnOnlySave_" + ViewBag.WindowNumber)">
                     <i class="fa fa-floppy-o" aria-hidden="true"></i>
                 </button>
@@ -466,7 +472,7 @@
                             <div class="vis-grid-zone">
                                 <div class="vis-overflowContainer">
                                     <div class="vis-grid-headr d-flex align-items-center justify-content-between position-relative vis-borderBottomH pb-2 mb-2">
-                                        <span class="d-block vis-font-size-md vis-font-weight-600">Grid</span>
+                                        <span class="d-block vis-font-size-md vis-font-weight-600">@GetText("Section")</span>
                                         <div class="vis-grid-btn">
                                             <a href="#" class="vis-blue-theme-btn-sm d-block addGridSection">@GetText("ADD") </a>
                                         </div>
@@ -480,7 +486,6 @@
                                                 <i class="fa fa-trash-o vis-red-icon vis-font-size-lg" aria-hidden="true"></i>
                                             </div>
                                         </div>
-
                                     </div>
                                     <div class="vis-grid-prop-one d-flex align-items-center justify-content-between mb-2 vis-borderBottomH mt-3 pb-2">
                                         <span class="vis-font-size-md d-block vis-font-weight-600">@GetText("GridRow")</span>
@@ -947,10 +952,11 @@
                                                                 <input type="text" data-command="opacity" class="vis-check-select vis-sm-input-feild vis-input-under-line" placeholder="0px" />
                                                             </div>
                                                             @*<div class="mt-1 ml-3">
-                                                                    <input type="range" data-command="opacity" min="0" max="100" value="0" class="vis-slider-fontsz-ran-input w-100" />
-                                                                </div>*@
+                    <input type="range" data-command="opacity" min="0" max="100" value="0" class="vis-slider-fontsz-ran-input w-100" />
+                </div>*@
                                                         </div>
                                                     </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -970,6 +976,14 @@
                                                         @*<div><input type="range" data-command="fontSize" min="0" max="100" class="vis-slider-fontsz-ran-input w-100" /></div>*@
                                                     </div>
                                                 </div>
+                                                <div class="vis-txt-syl-cont-p3 mb-1">
+                                                    <span class="vis-font-size-sm mb-1 d-block vis-font-weight-600 vis-borderBottomH pb-1" for="FZ">@GetText("MaxTextmultiline")</span>
+                                                    <div class="vis-slider-action d-flex mb-2">
+                                                        <div class="vis-range-font-value mr-2">
+                                                            <input type="text" data-command="maxTextmultiline" class="vis-check-select vis-sm-input-feild vis-smInputWidth mr-3 vis-input-under-line" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="vis-txt-syl-cont-p3 d-flex mb-1">
                                                     <div class="vis-tx-clr-1 w-100">
                                                         <span class="vis-font-size-sm d-block pb-1 vis-borderBottomH vis-font-weight-600 mb-2 mt-2" for="FZ">@GetText("TextColor") </span>
@@ -986,11 +1000,11 @@
 
 
                                                         @*<div class="vis-background-fld-ctrl d-flex align-items-center">
-                                                                <div class="vis-background-grad-clr">
-                                                                    <input type="color" data-command="color" class="vis-opn-clr-plt" />
-                                                                </div>
-                                                                <div class="vis-background-grad-clr-icn"><i class="fa fa-paint-brush vis-change-to-blue vis-change-to-pointer" aria-hidden="true"></i></div>
-                                                            </div>*@
+                    <div class="vis-background-grad-clr">
+                        <input type="color" data-command="color" class="vis-opn-clr-plt" />
+                    </div>
+                    <div class="vis-background-grad-clr-icn"><i class="fa fa-paint-brush vis-change-to-blue vis-change-to-pointer" aria-hidden="true"></i></div>
+                </div>*@
                                                     </div>
                                                 </div>
                                                 <div class="vis-txt-stl-cont-p4 mb-1">
@@ -1007,10 +1021,10 @@
                                                                 <div class="vis-font-weight-sectf-emt"><i class="fa fa-underline" data-command1="underline" aria-hidden="true"></i></div>
                                                             </div>
                                                             @*<div class="vis-font-weight-sectf">
-                                                                    <div class="vis-font-weight-sectf-emt vis-text-align-sectf-last">
-                                                                        <i class="fa fa-strikethrough" data-command1="strikethrough" aria-hidden="true"></i>
-                                                                    </div>
-                                                                </div>*@
+                        <div class="vis-font-weight-sectf-emt vis-text-align-sectf-last">
+                            <i class="fa fa-strikethrough" data-command1="strikethrough" aria-hidden="true"></i>
+                        </div>
+                    </div>*@
                                                         </div>
                                                         <div class="vis-letter-case-sectf d-flex mb-1">
                                                             <div class="vis-letter-case-sectf-emt vis-font-weight-sectf-emt-fst">
@@ -1030,22 +1044,22 @@
                                                     </div>
                                                 </div>
                                                 @*<div class="vis-rad-box">
-                                                        <span class="vis-cll-sy-p2-title vis-font-size-sm d-block m">@GetText("TextOverflow") </span>
-                                                        <div class="vis-rad-blo9ck d-flex">
-                                                            <div class="vis-rad-sgl-elm mr-2 d-flex align-items-center">
-                                                                <input type="radio" id="Ellipsis" name="Ellipsis" value="Ellipsis" />
-                                                                <label for="Ellipsis" class="vis-font-size-sm mb-0 ml-1">@GetText("Ellipsis") </label><br />
-                                                            </div>
-                                                            <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
-                                                                <input type="radio" id="scroll" name="scroll" value="scroll" />
-                                                                <label for="scroll" class="vis-font-size-sm m-0 ml-1">@GetText("Scroll") </label><br />
-                                                            </div>
-                                                            <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
-                                                                <input type="radio" id="auto" name="auto" value="auto" />
-                                                                <label for="auto" class="vis-font-size-sm m-0 ml-1">@GetText("Auto")</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>*@
+            <span class="vis-cll-sy-p2-title vis-font-size-sm d-block m">@GetText("TextOverflow") </span>
+            <div class="vis-rad-blo9ck d-flex">
+                <div class="vis-rad-sgl-elm mr-2 d-flex align-items-center">
+                    <input type="radio" id="Ellipsis" name="Ellipsis" value="Ellipsis" />
+                    <label for="Ellipsis" class="vis-font-size-sm mb-0 ml-1">@GetText("Ellipsis") </label><br />
+                </div>
+                <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
+                    <input type="radio" id="scroll" name="scroll" value="scroll" />
+                    <label for="scroll" class="vis-font-size-sm m-0 ml-1">@GetText("Scroll") </label><br />
+                </div>
+                <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
+                    <input type="radio" id="auto" name="auto" value="auto" />
+                    <label for="auto" class="vis-font-size-sm m-0 ml-1">@GetText("Auto")</label>
+                </div>
+            </div>
+        </div>*@
                                             </div>
                                         </div>
                                     </div>
@@ -1150,8 +1164,8 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="vis-vl-elm vis-hr-elm-lst" data-command1="flexAlignEnd">
-                                                                <div class="vis-cllsty2-single-elTwo">
+                                                            <div class="vis-vl-elm vis-hr-elm-lst" >
+                                                                <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignEnd">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex align-items-end justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
                                                                         <div class="vis-box-sin0colr"></div>

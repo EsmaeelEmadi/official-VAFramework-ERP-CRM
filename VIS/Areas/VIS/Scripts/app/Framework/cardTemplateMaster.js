@@ -44,10 +44,17 @@
         var isNewSection = false;
         var isSystemTemplate = 'Y';
         var btnaddBlankTemplate = null;
-
+        var btnUndo =null;
+        var btnRedo = null;
+        var dragged = null;
+        var force = 0;
         var gridObj = {
         };
 
+        var isUndoRedo = false;
+        var history = [];
+        var s_history = true;
+        var cur_history_index = 0; 
 
         var measurment = ['px', '%', 'cm', 'mm', 'in', 'pc', 'pt', 'ch', 'em', 'rem', 'vh', 'vw', 'vmin', 'vmax'];
         var editorProp = {
@@ -396,6 +403,8 @@
                 spnLastSaved = root.find('#spnLastSaved_' + WindowNo);
                 btnEditIcon = root.find('#btnEditIcon_' + WindowNo);
                 btnaddBlankTemplate = root.find('#btnaddBlankTemplate_' + WindowNo);
+                btnUndo = root.find('#btnUndo_' + WindowNo);
+                btnRedo = root.find('#btnRedo_' + WindowNo);
                 btnTemplateBack.hide();
                 events();
                 getTemplateDesign();
@@ -410,7 +419,7 @@
 
             btnAddField.click(function () {
                 divTopNavigator.hide();
-                var itm = $('<div class="fieldGroup">'
+                var itm = $('<div class="fieldGroup" draggable="true">'
                     + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>'
                     + '<span class="fieldValue" contenteditable="true">Value</span>'
                     + '</div>');
@@ -418,7 +427,7 @@
                 if (blok.hasClass('grdDiv')) {
                     blok.append(itm);
                 }
-
+                templatechanges();
             });
 
             btnAddImgField.click(function () {
@@ -444,6 +453,7 @@
             });
 
             btnLayoutSetting.click(function () {
+                buffer = [];
                 addSelectedTemplate();
                 count++;
                 fillcardLayoutfromTemplate();
@@ -550,11 +560,12 @@
                     divTopNavigator.find('[command="Hide"]').parent().show();
                     divTopNavigator.find('[command="Show"]').parent().hide();
                     divTopNavigator.hide();
+                    templatechanges();
                 } else if (cmd == 'Hide') {
                     if (blok.prop('tagName') == 'I') {
                         blok.attr("class", "");
                         blok.next().attr('showFieldIcon', true);
-                    } else if (blok.prop('tagName') == 'IMG') {
+                    } else if (blok.hasClass('imgField')) {
                         blok.css('display', 'none');
                     } else {
                         if (blok.hasClass('fieldValue')) {
@@ -570,6 +581,7 @@
                     divTopNavigator.find('[command="Show"]').parent().show();
                     divTopNavigator.hide();
                     btnEditIcon.hide();
+                    templatechanges();
                 } else if (cmd == 'SelectParent') {
                     isChange = false;
                     if (blok.parent().hasClass("fieldGroup")) {
@@ -582,35 +594,56 @@
                     applyunMerge(blok);
                     blok.find('.vis-split-cell:first').remove();
                     $(this).parent().hide();
+                    templatechanges();
                 } else if (cmd == 'Merge') {
                     mergeCell();
                     divTopNavigator.find('[command="Merge"]').parent().hide();
+                    templatechanges();
                 } else if (cmd == 'Unlink') {
                     divTopNavigator.hide();
                     var fldLbl = blok.closest('.fieldGroup').find('.fieldLbl');
                     unlinkField(fldLbl.attr('title'), fldLbl);
                     btnEditIcon.hide();
+                    templatechanges();
                 } else if (cmd == 'ShowImg') {
-                    blok.closest('.fieldGroup').find('img').css("display", "unset");
+                    blok.closest('.fieldGroup').find('.imgField').css("display", "unset");
                     divTopNavigator.find('[command="ShowImg"]').parent().hide();
+                    templatechanges();
                 } else if (cmd == 'ShowValue') {
                     blok.closest('.fieldGroup').find('.fieldValue').css("display", "unset");
                     divTopNavigator.find('[command="ShowValue"]').parent().hide();
+                    templatechanges();
                 }
 
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                
                 // divTopNavigator.hide();
             });
 
             var viewBlock = DivViewBlock.find('.canvas *');
 
             viewBlock.mousedown(function (e) {
+               
                 if (e.target.tagName == 'SQL' || $(e.target).hasClass('fieldGroup') || $(e.target).hasClass('vis-addRemoveRowCol')) {
                     return;
                 }
 
+                if (e.ctrlKey) {
+                    if ($(e.target).attr('contenteditable')) {
+                        $(e.target).attr('contenteditable', false);
+                    }
+                    return;
+                } else {
+                    if ($(e.target).attr('contenteditable')) {
+                        $(e.target).attr('contenteditable', true);
+                    }
+                }
+
+                if ($(e.target).hasClass('.grdDiv')) {
+                    e.preventDefault();
+                }
                 divTopNavigator.find('[command="Merge"]').parent().hide();
                 divTopNavigator.find('[command="ShowImg"]').parent().hide();
                 divTopNavigator.find('[command="ShowValue"]').parent().hide();
@@ -637,7 +670,7 @@
                     divTopNavigator.show();
                     //divTopNavigator.find('[command="Unlink"]').parent().hide();
                     divTopNavigator.find('[command="fieldName"]').text('').hide();
-                    if (e.target.tagName == 'IMG') {
+                    if ($(e.target).hasClass('imgField')) {
                         btnEditIcon.show();
                         btnEditIcon.css({
                             "left": e.target.offsetLeft + e.target.width - 12,
@@ -681,13 +714,13 @@
                         if ($(e.target).closest('.fieldGroup').length > 0) {
                             var target = $(e.target).closest('.fieldGroup').find('.fieldLbl');                           
                             var trget = $(e.target).closest('.fieldGroup');
-                            if (trget.find('img:hidden').length > 0) {
+                            if (trget.find('.imgField:hidden').length > 0) {
                                 divTopNavigator.find('[command="ShowImg"]').parent().show();
                                 divTopNavigator.find('[command="Hide"]').parent().hide();
                             } else if (trget.find('.fieldValue:hidden').length > 0) {
                                 divTopNavigator.find('[command="Hide"]').parent().hide();
                                 divTopNavigator.find('[command="ShowValue"]').parent().show();
-                            } else if (trget.find('img').length == 1 && trget.find('.fieldValue').length == 1) {
+                            } else if (trget.find('.imgField').length == 1 && trget.find('.fieldValue').length == 1) {
                                 divTopNavigator.find('[command="Hide"]').parent().show();
                                 DivStyleSec1.find('.imgTextCont').removeClass('vis-disable-event');
                             } else {
@@ -803,22 +836,24 @@
                 var classPro = tag.find('.fieldValue').attr('class');
                 tag.find('.fieldValue br').remove();
                 if (commend == 'SwapImgTxt') {
-                    tag.find('img').before(tag.find('.fieldValue'));
+                    tag.find('.imgField').before(tag.find('.fieldValue'));
                 } else if (commend == 'SwapTxtImg') {
-                    tag.find('.fieldValue').before(tag.find('img'));
+                    tag.find('.fieldValue').before(tag.find('.imgField'));
                 } else if (commend == 'SwapTxtImgBr') {
-                    tag.find('.fieldValue').before(tag.find('img'));
+                    tag.find('.fieldValue').before(tag.find('.imgField'));
                     tag.find('.fieldValue').prepend('<br>');
                 }
                 else if (commend == 'SwapImgTxtBr') {
-                    tag.find('img').before(tag.find('.fieldValue'));
+                    tag.find('.imgField').before(tag.find('.fieldValue'));
                     tag.find('.fieldValue').append('<br>');
                 }
+                templatechanges();
             });
 
             txtCustomStyle.change(function () {
                 var selectedItem = DivViewBlock.find('.vis-active-block');
                 selectedItem.attr("style", $(this).val());
+                templatechanges();
             });
 
 
@@ -834,7 +869,7 @@
                         selectedItem.append('<sql>SQL</sql>');
                     }
                 }
-
+                templatechanges();
             });
 
             DivGridSec.find('.addGridRow').click(function () {
@@ -846,6 +881,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.addGridCol').click(function () {
@@ -857,6 +893,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.addGridSection').click(function () {
@@ -889,9 +926,10 @@
                             var pre = ui.item.prev().attr('sectioncount');
                             DivViewBlock.find('[sectioncount="' + pre + '"]').after(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
                         }
+                        templatechanges();
                     }
                 });
-
+                templatechanges();
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el-xross').click(function () {
@@ -916,6 +954,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el').click(function () {
@@ -927,6 +966,12 @@
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 activeSection.addClass('vis-active-block');
                 createGridRowCol();
+                if (isUndoRedo) {
+                    isUndoRedo = false;
+                } else {
+                    templatechanges();
+                }
+               
             });
 
             DivGridSec.find('.grdRowDel').click(function () {
@@ -949,6 +994,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.grdRowAdd').click(function () {
@@ -967,8 +1013,9 @@
                     activeSection.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:10px;'></div>");
                 }
 
+                grdsecMousehover();
                 gridCss(1, 0);
-
+                templatechanges();
             });
 
             DivGridSec.find('.grdColDel').click(function () {
@@ -996,6 +1043,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.grdColAdd').click(function () {
@@ -1003,7 +1051,7 @@
                 var cClone = DivGridSec.find('.colBox:first').clone(true);
                 cClone.show();
                 DivGridSec.find('.DivColBox').append(cClone);
-
+                addedColPos = [];
                 var idx = $(this).closest('.colBox').index() - 1;
                 var totalRow = DivGridSec.find('.rowBox').length - 1;
                 var totalCol = DivGridSec.find('.colBox').length - 1;
@@ -1017,12 +1065,14 @@
                         }
                     }
                 }
+                grdsecMousehover();
                 gridCss(0, 1);
-
+                templatechanges();
             });
 
             DivGridSec.find('.mergeCell').click(function () {
                 mergeCell();
+                templatechanges();
             });
 
             txtColGap.change(function () {
@@ -1031,6 +1081,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             txtRowGap.change(function () {
@@ -1039,6 +1090,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             DivGridSec.find('.rowBox input,select').change(function () {
@@ -1047,6 +1099,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             DivGridSec.find('.colBox input,select').change(function () {
@@ -1055,6 +1108,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             //DivCardField.find('.vis-grey-icon .fa-circle').click(function () {
@@ -1083,6 +1137,61 @@
             btnaddBlankTemplate.click(function () {
                 DivTemplate.find('.mainTemplate[templateid="0"]').parent().click();
                 btnLayoutSetting.click();
+            });
+
+            DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
+                // store a ref. on the dragged elem 
+                dragged = $(event.target);
+                if (dragged.hasClass('grdDiv')) {
+                    event.preventDefault();
+                } else {
+                    divTopNavigator.hide();
+                    mdown = false;
+                }
+            }, false);
+
+            DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragover", function (event) {
+                // prevent default to allow drop
+                event.preventDefault();
+            });
+
+            DivViewBlock.find('.vis-viewBlock')[0].addEventListener("drop", function (event) {
+                // prevent default action (open as link for some elements)
+                event.preventDefault();
+                DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
+                var ev = $(event.target); 
+                ev.append(dragged);
+                templatechanges();
+            });
+
+            btnUndo.click(function (e) {
+                if (cur_history_index > 0) {
+                    s_history = false;
+                    canv_data = JSON.parse(history[cur_history_index - 1]);
+                    DivViewBlock.find('.vis-viewBlock').html(canv_data);
+                    cur_history_index--;                    
+                    btnRedo.removeAttr("disabled");
+                    fillcardLayoutfromTemplate();
+                }
+                else {
+                    btnUndo.attr("disabled","disabled");
+                }
+                isUndoRedo = true;
+            });
+
+            btnRedo.click(function (e) {
+                if (history[cur_history_index + 1]) {
+                    s_history = false;
+                    canv_data = JSON.parse(history[cur_history_index + 1]);
+                    DivViewBlock.find('.vis-viewBlock').html(canv_data);
+                    cur_history_index++;   
+                    btnUndo.removeAttr("disabled");
+                    fillcardLayoutfromTemplate();
+                }
+                else {
+                    btnRedo.attr("disabled", "disabled");
+                } 
+                isUndoRedo = true;
             });
 
         };
@@ -1199,9 +1308,35 @@
                 }
             });
 
+            DivGridSec.find('.vis-sectionAdd').sortable({
+                disabled: false,
+                update: function (event, ui) {
+                    var sectionCount = ui.item.attr('sectioncount');
+                    var end_pos = ui.item.index();
+                    var next = ui.item.next().attr('sectioncount');
+                    if (next) {
+                        DivViewBlock.find('[sectioncount="' + next + '"]').before(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                    } else {
+                        var pre = ui.item.prev().attr('sectioncount');
+                        DivViewBlock.find('[sectioncount="' + pre + '"]').after(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                    }
+                }
+            });
+
             DivGridSec.find('.section-active .vis-grey-disp-el').click();
             DivGridSec.find('.vis-grey-disp-el-xross').eq(1).hide();
          
+        }
+
+        function grdsecMousehover() {
+            var grSec = activeSection;
+            grSec.find('.grdDiv').unbind('mouseover');
+            grSec.find('.grdDiv').mouseover(function (e) {
+                if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                    selectTo($(this));
+                }
+
+            });
         }
 
         function gridCss(r, c) {
@@ -1269,17 +1404,27 @@
             });
 
             var isEnter = false;
-            grSec.find('.grdDiv').each(function (index) {               
+            var ri = rowIdx;
+            var ci = colIdx;
+            if (r == -1) {
+                ri--;
+            }
+            if (c == -1) {
+                ci--;
+            }
+            var cc = 0;           
+            var ps = addedColPos;
+            grSec.find('.grdDiv').each(function (index) {
                 var gArea = $(this).css('grid-area').split('/');
                 var r_start = Number($.trim(gArea[0]));
                 var r_end = Number($.trim(gArea[2]));
                 var c_start = Number($.trim(gArea[1]));
                 var c_end = Number($.trim(gArea[3]));
 
+                var rowPosition = (Math.floor(index / totalCol)) + 1;
                 if (rowIdx != null) {
                     if ((rowIdx > (r_start - 1) && rowIdx < (r_end - 1))) {
                         $(this).css('grid-area', r_start + '/' + c_start + '/' + (r_end + r) + '/' + (c_end));
-
                         isEnter = true;
                     }
 
@@ -1287,7 +1432,6 @@
                         for (var i = Number(r_start); i <= (Number(r_end)); i++) {
                             for (var j = c_start; j < c_end; j++) {
                                 var pos = totalCol * i + j;
-                                console.log(pos);
                                 grSec.find('.grdDiv').eq(pos - 1).css('display', 'none');
                             }
                             if (rowIdx == i) {
@@ -1302,6 +1446,8 @@
                     if ((colIdx > (c_start - 1) && colIdx < (c_end - 1))) {
                         $(this).css('grid-area', r_start + '/' + c_start + '/' + r_end + '/' + (c_end + c));
                         isEnter = true;
+                        grSec.find('.grdDiv').eq(ps[cc]).css('display', 'none');
+                        cc++;
                     }
 
                     if (isEnter && c > 0) {
@@ -1310,22 +1456,49 @@
                             if (rowPos > (r_start - 1) && rowPos < (r_end)) {
                                 grSec.find('.grdDiv').eq(addedColPos[i]).css('display', 'none');
                             }
+
                         }
 
                         isEnter = false;
-                        colIdx = null;
+                        //colIdx = null;
                         addedColPos = [];
                     }
                 }
 
+                gArea = $(this).css('grid-area').split('/');
+                r_start = Number($.trim(gArea[0]));
+                r_end = Number($.trim(gArea[2]));
+                c_start = Number($.trim(gArea[1]));
+                c_end = Number($.trim(gArea[3]));
+
+                var colposition = (index % totalCol) + 1;
                 if ($(this).find('.vis-split-cell').length == 0) {
-                    var rowPosition = (Math.floor(index / totalCol)) + 1;   
-                    var colposition = (index % totalCol) + 1;
                     $(this).css('grid-area', rowPosition + '/' + colposition + '/' + (rowPosition + 1) + '/' + (colposition + 1));
-                }  
-               
+                } else if (c != 0) {                  
+                    if (c > 0) {
+                        if (colposition > ci) {
+                            $(this).css('grid-area', rowPosition + '/' + (c_start + c) + '/' + (rowPosition + 1) + '/' + (c_end + c));
+                        }
+                    } else {
+                        if (colposition > ci) {
+                            $(this).css('grid-area', rowPosition + '/' + (c_start -1) + '/' + (rowPosition + 1) + '/' + (c_end -1));
+                        }
+                    }
+                } else if (r != 0) { 
+                    if (r > 0) {
+                        if (rowPosition > ri) {
+                            $(this).css('grid-area', (r_start + r) + '/' + c_start + '/' + (r_end + r) + '/' + c_end);
+                        }
+                    } else {
+                        if (rowPosition > ri) {
+                            $(this).css('grid-area', (r_start - 1) + '/' + c_start + '/' + (r_end - 1) + '/' + c_end);
+                        }
+                    }                   
+                }                
+
             });
 
+            colIdx = null;
         }
 
         function createGrid() {
@@ -1351,13 +1524,7 @@
                     }
                 }
 
-                grSec.find('.grdDiv').unbind('mouseover');
-                grSec.find('.grdDiv').mouseover(function (e) {
-                    if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
-                        selectTo($(this));
-                    }
-
-                });
+                grdsecMousehover();
                 isNewSection = false;
             }
 
@@ -1691,7 +1858,7 @@
 
 
         function saveTemplate(e) {
-           
+            e.preventDefault();
             if (txtTemplateName.val() == "") {
                 VIS.ADialog.error("FillMandatory", true, "Template Name");
                 return false;
@@ -1727,12 +1894,18 @@
                         var contentValue = "";
                         var contentLable = $(this).find('.fieldLbl').text();
                         var valueStyle = "";
-                        if ($(this).find('img').length > 0 && $(this).find('.fieldValue').length > 0) {
-                            contentValue = '<img src="' + $(this).find('img').attr('src') + '" style="' + $(this).find('img').attr('style') + '">';
-                            contentValue += ' |'+$(this).find('.fieldValue').text();
+                        if ($(this).find('.imgField').length > 0 && $(this).find('.fieldValue').length > 0) {
+                            if ($(this).find('.imgField').attr('src')) {
+                                contentValue = '<img class="imgField" src="' + $(this).find('.imgField').attr('src') + '" style="' + $(this).find('.imgField').attr('style') + '">';
+                            } else {
+                                var cls = $(this).find('.imgField').attr('class');
+                                cls = cls.replace('vis-active-block', '');
+                                contentValue = '<i class="' + cls+'" style="' + $(this).find('.imgField').attr('style') + '"></i>'
+                            }
+                            contentValue += ' |' + $(this).find('.fieldValue').text();
                             var isBR = $(this).find('br').length;
-                            if ($(this).find('img').next('.fieldValue').length > 0) {
-                                valueStyle = '@img::' + $(this).find('img').attr('style') || '';
+                            if ($(this).find('.imgField').next('.fieldValue').length > 0) {
+                                valueStyle = '@img::' + $(this).find('.imgField').attr('style') || '';
                                 if (isBR > 0) {
                                     valueStyle += '|<br>';
                                 }
@@ -1742,14 +1915,14 @@
                                 if (isBR > 0) {
                                     valueStyle += '|<br>';
                                 }
-                                valueStyle += ' |@img::' + $(this).find('img').attr('style') || '';
+                                valueStyle += ' |@img::' + $(this).find('.imgField').attr('style') || '';
                             }
 
 
-                        } else if ($(this).find('img').length > 0) {
-                            contentValue = '<img src="' + $(this).find('img').attr('src') + '" style="' + $(this).find('img').attr('style') + '">';
+                        } else if ($(this).find('.imgField').length > 0) {
+                            contentValue = '<img class="imgField" src="' + $(this).find('.imgField').attr('src') + '" style="' + $(this).find('.imgField').attr('style') + '">';
                             valueStyle = '@value::' + $(this).find('.fieldValue').attr('style')||'';
-                            valueStyle += ' |@img::' + $(this).find('img').attr('style') || '';
+                            valueStyle += ' |@img::' + $(this).find('.imgField').attr('style') || '';
                         } else {
                             contentValue = $(this).find('.fieldValue').text();
                             valueStyle = $(this).find('.fieldValue').attr('style') || '';
@@ -1894,7 +2067,33 @@
             });
         }
 
-        function convertImageToBase64(element, isText,isEdit) {
+        function addImgValue(element, isText, isEdit, InputIcon) {
+            var itm = '<div class="fieldGroup" draggable="true">'
+                + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>';
+
+            if ($.trim(InputIcon.val()).length > 0) {
+                if (!isEdit) {
+                    if (isText) {
+                        itm += '<i class="imgField ' + $.trim(InputIcon.val()) + '"></i>';
+                        itm += '<span class="fieldValue" contenteditable="true">Value</span>';
+                        itm += '</div>';
+                        var blok = DivViewBlock.find('.vis-active-block');
+                        if (blok.hasClass('grdDiv')) {
+                            blok.append($(itm));
+                        }
+                        templatechanges();
+                    }
+                } else {
+                    var dvb = DivViewBlock.find('.vis-active-block');
+                    dvb.removeAttr('class');
+                    dvb.addClass('imgField vis-active-block');
+                    dvb.addClass($.trim(InputIcon.val()));
+                    templatechanges();
+                }
+                
+                return;
+            }
+
             var MAX_WIDTH = 320;
             var MAX_HEIGHT = 180;
             var MIME_TYPE = "image/jpeg";
@@ -1926,22 +2125,22 @@
                     QUALITY);
                 //console.log(canvas.toDataURL());  
                 if (!isEdit) {
-                    var itm = '<div class="fieldGroup">'
-                        + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>';
-
+                   
                     if (isText) {
-                        itm += '<img style="width:30px; height:30px" src="' + canvas.toDataURL() + '">';
+                        itm += '<img class="imgField" style="width:30px; height:30px" src="' + canvas.toDataURL() + '">';
                         itm += '<span class="fieldValue" contenteditable="true">Value</span>';
                     } else {
-                        itm += '<img style="width:100px; height:100px" src="' + canvas.toDataURL() + '">';
+                        itm += '<img class="imgField" style="width:100px; height:100px" src="' + canvas.toDataURL() + '">';
                     }
                     itm += '</div>';
                     var blok = DivViewBlock.find('.vis-active-block');
                     if (blok.hasClass('grdDiv')) {
                         blok.append($(itm));
                     }
+                    templatechanges();
                 } else {
                     DivViewBlock.find('.vis-active-block').attr('src', canvas.toDataURL());
+                    templatechanges();
                 }
             };            
             
@@ -1993,21 +2192,73 @@
             });
         }
 
-        this.show = function (istext,isEdit) {
+
+        function templatechanges() {
+            var Chtml = DivViewBlock.find('.vis-viewBlock').html();
+            if (cur_history_index < history.length - 1) {
+                history = history.slice(0, cur_history_index + 1);
+                cur_history_index++;
+                btnRedo.attr("disabled", "disabled");
+            }
+
+            var cur_canvas = JSON.stringify(Chtml);
+            if (cur_canvas != history[cur_history_index] || force == 1) {
+                history.push(cur_canvas);
+                history.length > 5 ? history.shift() : null;
+                cur_history_index = history.length - 1;
+            }
+
+            btnRedo.removeAttr("disabled");
+        }
+
+        this.show = function (istext, isEdit) {
+            var mainDiv = $('<div>');
             var input = $('<input type="file" name="" maxlength="50" style="height: 45px;padding: 10px" class="" accept="image/*" placeholder=" " data-placeholder="">');
             var lbl = $('<label for="">' + VIS.Msg.getMsg("SelectFromFiles") + '</label>');
             var $root = $('<div class="input-group vis-input-wrap"></div>');
             var control = $('<div class="vis-control-wrap"></div>');
             control.append(input).append(lbl);
             $root.append(control);
-           
+            mainDiv.append($root);
+            IconInput = $('<input type="text" name="" class="" placeholder=" " data-placeholder="">');
+            if (istext) {
+                var orDiv = $('<div class="mb-2"><center>OR</center></div>');
+                $root = $('<div class="input-group vis-input-wrap"></div>');
+                lbl = $('<label for="">' + VIS.Msg.getMsg("Icon") + '</label>');
+                control = $('<div class="vis-control-wrap"></div>');
+                
+                control.append(IconInput).append(lbl);
+                $root.append(control);
+                mainDiv.append(orDiv).append($root);
+            }
+
+            input.change(function () {
+                IconInput.val('');
+                if ($(this).val().length > 0) {
+                    IconInput.attr('disabled', 'disabled');
+                } else {
+                    IconInput.removeAttr('disabled');
+                }
+            });
+
+            IconInput.change(function () {
+                input.val('');
+                if ($(this).val().length > 0) {                   
+                    input.attr('disabled', 'disabled');
+                } else {
+                    input.removeAttr('disabled');
+                }
+            })
+
+
             ch = new VIS.ChildDialog();
             ch.setTitle(VIS.Msg.getMsg("InsertImage"));
             ch.setWidth('30%');
             //ch.setHeight(h);
-            ch.setContent($root);
+            ch.setContent(mainDiv);
             ch.onOkClick = function (e) {
-                convertImageToBase64(input, istext, isEdit);
+                addImgValue(input, istext, isEdit, IconInput);
+                //convertImageToBase64(input, istext, isEdit);
             };
             ch.onCancelClick = cancel;
             ch.onClose = cancel;

@@ -115,6 +115,15 @@
         var gridObj = {
         };
 
+        var btnUndo = null;
+        var btnRedo = null;
+
+        var isUndoRedo = false;
+        var history = [];
+        var s_history = true;
+        var cur_history_index = 0; 
+        var force = 0;
+
         function init() {
             root = $('<div style="height:100%"></div>');
             isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
@@ -274,7 +283,6 @@
                 scaleTemplate();
                 isChangeTemplate = true;
             });
-
 
             btnFinesh.click(function (e) {
                 isOnlySave = false;
@@ -617,8 +625,13 @@
             DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
                 // store a ref. on the dragged elem
                 dragged = $(event.target);
-                divTopNavigator.hide();
-            });
+                if (dragged.hasClass('grdDiv')) {
+                    event.preventDefault();
+                } else {
+                    divTopNavigator.hide();
+                    mdown = false;
+                }
+            },false);
 
             DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragover", function (event) {
                 // prevent default to allow drop
@@ -640,13 +653,65 @@
                 } else {
                     ev.addClass('vis-active-block');
                     linkField(dragged);
-                }   
+                }
+                templatechanges();
                
-               
+            });
+
+            btnUndo.click(function (e) {
+                if (cur_history_index > 0) {
+                    isUndoRedo = true;
+                    s_history = false;
+                    canv_data = JSON.parse(history[cur_history_index - 1]);
+                    DivViewBlock.find('.vis-viewBlock').html(canv_data);
+                    cur_history_index--;
+                    btnRedo.removeAttr("disabled");                   
+                    fillcardLayoutfromTemplate();
+                    isUndoRedo = false;
+                }
+                else {
+                    btnUndo.attr("disabled", "disabled");
+                }               
+                markfilledField();
+            });
+
+            btnRedo.click(function (e) {
+                if (history[cur_history_index + 1]) {
+                    isUndoRedo = true;
+                    s_history = false;
+                    canv_data = JSON.parse(history[cur_history_index + 1]);
+                    DivViewBlock.find('.vis-viewBlock').html(canv_data);
+                    cur_history_index++;
+                    btnUndo.removeAttr("disabled");                    
+                    fillcardLayoutfromTemplate(); 
+                    isUndoRedo = false;
+                }
+                else {
+                    btnRedo.attr("disabled", "disabled");
+                }
+                
+                markfilledField();
             });
 
             /* End Step 1*/
 
+        }
+
+        function markfilledField() {
+            DivCardField.find('.linked').removeClass('linked vis-succes-clr');
+            DivCardField.find('.fieldLbl:not(:hidden)').prop("draggable", true);
+            DivViewBlock.find('.vis-viewBlock').find('.fieldLbl').each(function () {
+                var fidUR = DivCardField.find('[fieldid="' + $(this).attr('fieldid') + '"]');
+                fidUR.find('.fa-circle').addClass('linked vis-succes-clr');
+                fidUR.prop("draggable", false);
+            });    
+
+            DivCardField.find('[draggable="true"]').sort(Ascending_sort).appendTo(DivCardField);
+
+        }
+        function Ascending_sort(a, b) {
+            return ($(b).attr('title').toUpperCase()) <
+                ($(a).attr('title').toUpperCase()) ? 1 : -1;
         }
 
         function addCardListEvent() {
@@ -755,6 +820,9 @@
                 txtSQLQuery = root.find('#txtSQLQuery_' + WindowNo);
                 txtZoomInOut = root.find('#txtZoomInOut_' + WindowNo);
                 btn_BlockCancel = root.find('#Btn_BlockCancel_' + WindowNo);
+
+                btnUndo = root.find('#btnUndo_' + WindowNo);
+                btnRedo = root.find('#btnRedo_' + WindowNo);
 
                 divTopNavigator = DivCradStep2.find('.vis-topNavigator');
                 txtRowGap = DivGridSec.find('.rowGap');
@@ -995,6 +1063,22 @@
                 }
             });
 
+            DivGridSec.find('.vis-sectionAdd').sortable({
+                disabled: false,
+                update: function (event, ui) {
+                    var sectionCount = ui.item.attr('sectioncount');
+                    var end_pos = ui.item.index();
+                    var next = ui.item.next().attr('sectioncount');
+                    if (next) {
+                        DivViewBlock.find('[sectioncount="' + next + '"]').before(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                    } else {
+                        var pre = ui.item.prev().attr('sectioncount');
+                        DivViewBlock.find('[sectioncount="' + pre + '"]').after(DivViewBlock.find('[sectioncount="' + sectionCount + '"]'));
+                    }
+                }
+            });
+
+
             DivGridSec.find('.section-active .vis-grey-disp-el').click();
             DivGridSec.find('.vis-grey-disp-el-xross').eq(1).hide();
             if (!isNewRecord && !isChangeTemplate) {                
@@ -1054,8 +1138,17 @@
                             }
                         }
 
+
                         if (fidItm.length > 0) {
-                            var fieldHtml = $('<div class="fieldGroup">'
+                            var styleflx = fidItm.attr("style");
+                            var fIdx = styleflx.indexOf('flex-direction');
+                            var lblflxstyle = "";
+                            if (fIdx > -1) {
+                                var cIdx = styleflx.indexOf(";", fIdx + 'flex-direction'.length)
+                                lblflxstyle = 'display:flex; ' + styleflx.substring(fIdx, cIdx);
+                            }
+
+                            var fieldHtml = $('<div class="fieldGroup" style="' + lblflxstyle+'" draggable="true">'
                                 + '</div>');
                             var hideIcon = fidItm.attr("showfieldicon") == 'Y' ? true : false;
                             var hideTxt = fidItm.attr("showfieldtext") == 'Y' ? true : false;
@@ -1070,7 +1163,7 @@
                             var src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='50' height='50'%3E%3Cdefs%3E%3Cpath d='M23 31l-3.97-2.9L19 28l-.24-.09.19.13L13 33v2h24v-2l-3-9-5-3-6 10zm-2-12c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-11-8c-.55 0-1 .45-1 1v26c0 .55.45 1 1 1h30c.55 0 1-.45 1-1V12c0-.55-.45-1-1-1H10zm28 26H12c-.55 0-1-.45-1-1V14c0-.55.45-1 1-1h26c.55 0 1 .45 1 1v22c-.3.67-.63 1-1 1z' id='a'/%3E%3C/defs%3E%3Cuse xlink:href='%23a' fill='%23fff'/%3E%3Cuse xlink:href='%23a' fill-opacity='0' stroke='%23000' stroke-opacity='0'/%3E%3C/svg%3E";
                             var displayType = mTab.getFieldById(Number(fID)).getDisplayType();
                             if (displayType == VIS.DisplayType.Image) {
-                                fieldHtml.append($('<span style="' + fidItm.attr("fieldValueLabel") + '" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
+                                fieldHtml.append($('<span style="' + fidItm.attr("fieldValueLabel") + '" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '"  title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span><img class="vis-colorInvert" style="' + imgStyle + '" src="' + src + '"/>'));
                             } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List) {
 
                                 var fldlbl = '<span style="' + fidItm.attr("fieldValueLabel") + '" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span>';
@@ -1109,9 +1202,36 @@
                 });
             } else {
                 isChangeTemplate = false;
+                if (isUndoRedo) {
+                    return;
+                }
+
                 DivCardField.find('.fieldLbl[seqNo]').each(function () {
                     if ($(this).attr('title') && $(this).attr('title').length > 0) {
-                        unlinkField($(this).attr('title'), $(this));
+                        //unlinkField($(this).attr('title'), $(this));
+                        $(this).find('.linked').removeClass('linked vis-succes-clr');
+                        $(this).removeAttr('seqNo');
+                        var fieldName = $(this).attr('title');
+                        $(this).prop("draggable", true);
+                        var listItem = DivCardField.find('.fieldLbl:not(.displayNone)').not('[seqNo]');
+                        var sortedList = [];
+                        listItem.each(function (i, item) {
+                            sortedList.push($.trim($(this).text().toLowerCase()));
+                        });
+
+                        var initialLength = sortedList.length;
+                        sortedList.push($.trim($(this).attr('title').toLowerCase()));
+                        sortedList.sort();
+
+                        var i = $.inArray($.trim(fieldName.toLowerCase()), sortedList);
+                        var linkedLength = DivCardField.find('.linked').length;
+                        i += linkedLength;
+        
+                        if (i == initialLength) {
+                            DivCardField.append($(this));
+                        } else {
+                            DivCardField.find('.fieldLbl').eq(i + 1).after($(this));
+                        }
                     }
                 });
             }
@@ -1354,7 +1474,7 @@
                 for (var i = 0, ln = lovcardList[fieldID]; i < ln.length; i++) {
                     if (ln[i].Key.toString().length > 0 && ln[i].Name.toString().length > 0) {
                         GrpSeqfeildClone.attr("key", ln[i].Key);
-                        GrpSeqfeildClone.find('.vis-sub-itm-title').text(ln[i].Name);
+                        GrpSeqfeildClone.find('.vis-sub-itm-title').text(VIS.Utility.Util.getIdentifierDisplayVal(ln[i].Name));
                         groupSequenceFeilds.append(GrpSeqfeildClone);
                         GrpSeqfeildClone = groupSequenceFeilds.find('.vis-sec-2-sub-itm:last').clone(true);
                         //ulGroupSeqColumns.append('<li key="' + ln[i].Key + '"><input type="checkbox"/>' + ln[i].Name + '</li>');
@@ -2450,6 +2570,11 @@
                 proprty: 'align-items',
                 value: 'flex-start',
                 measurment: true
+            },
+            maxTextmultiline: {
+                proprty: '-webkit-line-clamp',
+                value: '',
+                measurment: false
             }
         }
 
@@ -2525,12 +2650,15 @@
                     divTopNavigator.find('[command="Hide"]').parent().show();
                     divTopNavigator.find('[command="Show"]').parent().hide();
                     divTopNavigator.hide();
+                    templatechanges();
                 } else if (cmd == 'Hide') {
                     if (blok.prop('tagName') == 'I') {
                         blok.attr("class", "");
                         blok.next().attr('showFieldIcon', true);
+                        templatechanges();
                     } else if (blok.prop('tagName') == 'IMG') {
-                        blok.css('display','none');
+                        blok.css('display', 'none');
+                        templatechanges();
                     } else {
                         if (blok.hasClass('fieldValue')) {
                             blok.css("display", "none");
@@ -2538,6 +2666,7 @@
                             blok.attr('showFieldText', true);
                             blok.addClass("displayNone");
                         }
+                        templatechanges();
                         //blok.html('&nbsp;');
                     }
 
@@ -2556,20 +2685,24 @@
                     applyunMerge(blok);
                     blok.find('.vis-split-cell:first').remove();
                     $(this).parent().hide();
+                    templatechanges();
                 } else if (cmd == 'Merge') {
                     mergeCell();
                     divTopNavigator.find('[command="Merge"]').parent().hide();   
-                    
+                    templatechanges();
                 } else if (cmd == 'Unlink') {
                     divTopNavigator.hide();
                     var fldLbl = blok.closest('.fieldGroup').find('.fieldLbl');
                     unlinkField(fldLbl.attr('title'), fldLbl);
+                    templatechanges();
                 } else if (cmd == 'ShowImg') {
                     blok.closest('.fieldGroup').find('img').css("display","unset");
                     divTopNavigator.find('[command="ShowImg"]').parent().hide();
+                    templatechanges();
                 } else if (cmd == 'ShowValue') {
                     blok.closest('.fieldGroup').find('.fieldValue').css("display", "unset");
                     divTopNavigator.find('[command="ShowValue"]').parent().hide();
+                    templatechanges();
                 }
 
                 if (isChange && AD_HeaderLayout_ID != "0") {
@@ -2580,8 +2713,17 @@
             var viewBlock = DivViewBlock.find('.canvas *');
 
             viewBlock.mousedown(function (e) {
+                
                 if (e.target.tagName == 'SQL' || $(e.target).hasClass('fieldGroup')) {
                     return;
+                }
+
+                if (e.ctrlKey) {
+                    return;
+                }
+
+                if ($(e.target).hasClass('.grdDiv')) {
+                    e.preventDefault();
                 }
 
                 divTopNavigator.find('[command="Merge"]').parent().hide();
@@ -2787,6 +2929,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.addGridCol').click(function () {
@@ -2798,6 +2941,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.addGridSection').click(function () {
@@ -2856,6 +3000,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.grid-Section .vis-grey-disp-el').click(function () {
@@ -2867,6 +3012,12 @@
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 activeSection.addClass('vis-active-block');
                 createGridRowCol();
+                if (isUndoRedo) {
+                    //isUndoRedo = false;
+                } else {
+                    templatechanges();
+                }
+
             });
 
             DivGridSec.find('.grdRowDel').click(function () {
@@ -2889,6 +3040,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.grdRowAdd').click(function () {
@@ -2908,7 +3060,7 @@
                 }
 
                 gridCss(1,0);
-
+                templatechanges();
             });
 
             DivGridSec.find('.grdColDel').click(function () {
@@ -2936,6 +3088,7 @@
                 if (isChange && AD_HeaderLayout_ID != "0") {
                     btn_BlockCancel.show();
                 }
+                templatechanges();
             });
 
             DivGridSec.find('.grdColAdd').click(function () {
@@ -2943,7 +3096,7 @@
                 var cClone = DivGridSec.find('.colBox:first').clone(true);
                 cClone.show();
                 DivGridSec.find('.DivColBox').append(cClone);
-
+                addedColPos = [];
                 var idx = $(this).closest('.colBox').index() - 1;
                 var totalRow = DivGridSec.find('.rowBox').length - 1;
                 var totalCol = DivGridSec.find('.colBox').length - 1;
@@ -2958,7 +3111,7 @@
                     }
                 }
                 gridCss(0,1);
-
+                templatechanges();
             });
 
             DivGridSec.find('.mergeCell').click(function () {
@@ -2971,6 +3124,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             txtRowGap.change(function () {
@@ -2979,6 +3133,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             DivGridSec.find('.rowBox input,select').change(function () {
@@ -2987,6 +3142,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             DivGridSec.find('.colBox input,select').change(function () {
@@ -2995,6 +3151,7 @@
                     btn_BlockCancel.show();
                 }
                 gridCss();
+                templatechanges();
             });
 
             DivCardField.find('.vis-grey-icon .fa-circle').click(function () {
@@ -3008,6 +3165,7 @@
                 } else {
                     linkField($(this).closest('.fieldLbl'));
                 }
+                templatechanges();
             });
 
             btn_BlockCancel.click(function () {
@@ -3093,12 +3251,25 @@
             });
 
             var isEnter = false;
+            var ri = rowIdx;
+            var ci = colIdx;
+            if (r == -1) {
+                ri--;
+            }
+            if (c == -1) {
+                ci--;
+            }
+            var cc = 0;
+            var ps = addedColPos;
+
             grSec.find('.grdDiv').each(function (index) {
                 var gArea = $(this).css('grid-area').split('/');
                 var r_start = Number($.trim(gArea[0]));
                 var r_end = Number($.trim(gArea[2]));
                 var c_start = Number($.trim(gArea[1]));
                 var c_end = Number($.trim(gArea[3]));
+
+                var rowPosition = (Math.floor(index / totalCol)) + 1;
                 if (rowIdx != null) {
                     if ((rowIdx > (r_start - 1) && rowIdx < (r_end - 1))) {
                         $(this).css('grid-area', r_start + '/' + c_start + '/' + (r_end + r) + '/' + (c_end));
@@ -3123,6 +3294,8 @@
                     if ((colIdx > (c_start - 1) && colIdx < (c_end - 1))) {
                         $(this).css('grid-area', r_start + '/' + c_start + '/' + r_end + '/' + (c_end+c));
                         isEnter = true;
+                        grSec.find('.grdDiv').eq(ps[cc]).css('display', 'none');
+                        cc++;
                     }
 
                     if (isEnter && c > 0) {
@@ -3134,18 +3307,44 @@
                         }
 
                         isEnter = false;
-                        colIdx = null;
+                        //colIdx = null;
                         addedColPos = [];
                     }
                 }
 
-                if ($(this).find('.vis-split-cell').length == 0) {
-                    var rowPosition = (Math.floor(index / totalCol)) + 1;
-                    var colposition = (index % totalCol) + 1;
+                gArea = $(this).css('grid-area').split('/');
+                r_start = Number($.trim(gArea[0]));
+                r_end = Number($.trim(gArea[2]));
+                c_start = Number($.trim(gArea[1]));
+                c_end = Number($.trim(gArea[3]));
+
+                var colposition = (index % totalCol) + 1;
+                if ($(this).find('.vis-split-cell').length == 0) {                   
                     $(this).css('grid-area', rowPosition + '/' + colposition + '/' + (rowPosition + 1) + '/' + (colposition + 1));
-                }
+                } else if (c != 0) {
+                    if (c > 0) {
+                        if (colposition > ci) {
+                            $(this).css('grid-area', rowPosition + '/' + (c_start + c) + '/' + (rowPosition + 1) + '/' + (c_end + c));
+                        }
+                    } else {
+                        if (colposition > ci) {
+                            $(this).css('grid-area', rowPosition + '/' + (c_start - 1) + '/' + (rowPosition + 1) + '/' + (c_end - 1));
+                        }
+                    }
+                } else if (r != 0) {
+                    if (r > 0) {
+                        if (rowPosition > ri) {
+                            $(this).css('grid-area', (r_start + r) + '/' + c_start + '/' + (r_end + r) + '/' + c_end);
+                        }
+                    } else {
+                        if (rowPosition > ri) {
+                            $(this).css('grid-area', (r_start - 1) + '/' + c_start + '/' + (r_end - 1) + '/' + c_end);
+                        }
+                    }
+                }  
             });
 
+            colIdx = null;
         }
 
         /**Genrate Grid */
@@ -3358,6 +3557,21 @@
                 tag.find('.fieldGroup').removeAttr('style');
             }
 
+            if (commend == 'maxTextmultiline') {
+                if (styleValue == "" || styleValue == null) {
+                    tag[0].style.removeProperty('overflow');
+                    tag[0].style.removeProperty('display');
+                    tag[0].style.removeProperty('-webkit-box-orient');
+                } else {
+                    tag.css({
+                        'overflow': 'hidden',
+                        'display': '-webkit-box',
+                        '-webkit-box-orient': 'vertical'
+                    });
+                }
+            }
+
+
             if (commend != 'gradient' && (styleValue == "" || styleValue == null)) {
                 tag[0].style.removeProperty(editorProp[commend].proprty);
                 return;
@@ -3396,6 +3610,7 @@
             }
 
             tag.css(editorProp[commend].proprty, $.trim(styleValue));
+            templatechanges();
         }
 
         function getTemplateDesign() {
@@ -3842,6 +4057,14 @@
                 fidItm.find('.fieldValue').append('<br>');
             }
 
+            var styleflx = fidItm.attr("style");
+            var fIdx = styleflx.indexOf('flex-direction');
+            var lblflxstyle = "";
+            if (fIdx > -1) {
+                var cIdx = styleflx.indexOf(";", fIdx + 'flex-direction'.length)
+                lblflxstyle = 'display:flex; ' + styleflx.substring(fIdx, cIdx);
+                fidItm.find('.fieldGroup').attr("style", lblflxstyle);
+            }
         }
         
         function saveCopyCard(copyCardName) {
@@ -3971,6 +4194,24 @@
             aPanel.fromCardDialogBtn = false;
             return true;
         };
+
+        function templatechanges() {
+            var Chtml = DivViewBlock.find('.vis-viewBlock').html();
+            if (cur_history_index < history.length - 1) {
+                history = history.slice(0, cur_history_index + 1);
+                cur_history_index++;
+                btnRedo.attr("disabled", "disabled");
+            }
+
+            var cur_canvas = JSON.stringify(Chtml);
+            if (cur_canvas != history[cur_history_index] || force == 1) {
+                history.push(cur_canvas);
+                history.length > 5 ? history.shift() : null;
+                cur_history_index = history.length - 1;
+            }
+
+            btnRedo.removeAttr("disabled");
+        }
     };
 
 

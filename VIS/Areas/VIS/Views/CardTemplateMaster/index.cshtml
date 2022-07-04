@@ -92,18 +92,25 @@
             </div>
 
             <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">
+                <button class="vis-undo" title="Undo" id="@("btnUndo_" + ViewBag.WindowNumber)">
+                    <i class="fa fa-undo"></i>
+                </button>
+                <button class="vis-redo" title="Redo"  id="@("btnRedo_" + ViewBag.WindowNumber)">
+                    <i class="fa fa-repeat"></i>
+                </button>
                 <button class="vis-addBlankTemplateBtn" id="@("btnaddBlankTemplate_" + ViewBag.WindowNumber)">
                     <i class="fa fa-plus"></i>@GetText("BlankTemplate")
                 </button>
+
                 <a href="javascript:;" class="vis-cancelButtonPositionTemp" style="display:none" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)">@GetText("Resettolastsaved") <i class="fa fa-undo" aria-hidden="true"></i></a>
                 @*<button class=" vis-saveButtonPosition" id="@("btnOnlySave_" + ViewBag.WindowNumber)">
-                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                </button>*@
-            <div class="vis-fieldImgPosition">
-                <i class="vis vis-add-text vis-meta-dynamicIcon" id="@("BtnAddField_" + ViewBag.WindowNumber)" title="Add Field" aria-hidden="true"></i>
-                <i title="Add Image" id="@("BtnAddImgField_" + ViewBag.WindowNumber)" class="vis vis-add-image vis-meta-dynamicIcon" aria-hidden="true"></i>
-                <i title="Add Image & Text" id="@("BtnAddImgTxtField_" + ViewBag.WindowNumber)" class="vis vis-add-text-image vis-meta-dynamicIcon" aria-hidden="true"></i>
-            </div>
+            <i class="fa fa-floppy-o" aria-hidden="true"></i>
+        </button>*@
+                <div class="vis-fieldImgPosition">
+                    <i class="vis vis-add-text vis-meta-dynamicIcon" id="@("BtnAddField_" + ViewBag.WindowNumber)" title="Add Field" aria-hidden="true"></i>
+                    <i title="Add Image" id="@("BtnAddImgField_" + ViewBag.WindowNumber)" class="vis vis-add-image vis-meta-dynamicIcon" aria-hidden="true"></i>
+                    <i title="Add Image & Text" id="@("BtnAddImgTxtField_" + ViewBag.WindowNumber)" class="vis vis-add-text-image vis-meta-dynamicIcon" aria-hidden="true"></i>
+                </div>
                 <div class="canvas">
                     <div id="@("DivCardHeader2_" + ViewBag.WindowNumber)" class="vis-viewBlock" style="background-color:#fff">
                         <div sectionCount="1" class="section1 vis-wizard-section"></div>
@@ -174,7 +181,7 @@
                             <div class="vis-grid-zone">
                                 <div class="vis-overflowContainer">
                                     <div class="vis-grid-headr d-flex align-items-center justify-content-between position-relative vis-borderBottomH pb-2 mb-2">
-                                        <span class="d-block vis-font-size-md vis-font-weight-600">Grid</span>
+                                        <span class="d-block vis-font-size-md vis-font-weight-600">@GetText("Section")</span>
                                         <div class="vis-grid-btn">
                                             <a href="#" class="vis-blue-theme-btn-sm d-block addGridSection">@GetText("ADD") </a>
                                         </div>
@@ -682,7 +689,7 @@
                                                     <span class="vis-font-size-sm mb-1 d-block vis-font-weight-600 vis-borderBottomH pb-1" for="FZ">@GetText("MaxTextmultiline")</span>
                                                     <div class="vis-slider-action d-flex mb-2">
                                                         <div class="vis-range-font-value mr-2">
-                                                            <input type="text" data-command="maxTextmultiline" class="vis-check-select vis-sm-input-feild vis-smInputWidth mr-3 vis-input-under-line" placeholder="0px" />
+                                                            <input type="text" data-command="maxTextmultiline" class="vis-check-select vis-sm-input-feild vis-smInputWidth mr-3 vis-input-under-line"  />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -866,8 +873,8 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="vis-vl-elm vis-hr-elm-lst" data-command1="flexAlignEnd">
-                                                                <div class="vis-cllsty2-single-elTwo">
+                                                            <div class="vis-vl-elm vis-hr-elm-lst" >
+                                                                <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignEnd">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex align-items-end justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
                                                                         <div class="vis-box-sin0colr"></div>

@@ -578,7 +578,7 @@ namespace VIS.Models
                     }
                     
                     design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
-                    sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
+                    sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y' ORDER BY SeqNo";
                     DataSet dsSec = DB.ExecuteDataset(sqlQuery);
                     if (dsSec != null && dsSec.Tables.Count > 0 && dsSec.Tables[0].Rows.Count > 0)
                     {
@@ -607,7 +607,7 @@ namespace VIS.Models
                                         style += ";grid-area:" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartRow"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["StartColumn"]);
                                         style += "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["Rowspan"]) + "/" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["ColumnSpan"]);
                                     }
-                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='" + SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
+                                    design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' fieldValueLabel='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='" + SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
                                     //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
                                     string contentFieldValue = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]));
                                     string contentFieldLable = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]));
@@ -761,7 +761,7 @@ namespace VIS.Models
                     design += "<div lastUpdated='" + Util.GetValueOfDateTime(ds.Tables[0].Rows[i]["lastUpdated"]).Value.ToLocalTime().ToString("hh:mm:ss tt") + "' isSystemTemplate='Y' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center'>";
                     design += "<i class='fa fa-trash-o vis-deleteTemplate'></i>";
                     design += "<div class='mainTemplate' name='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "' templateID='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + "' style='" + Util.GetValueOfString(ds.Tables[0].Rows[i]["BackgroundColor"]) + "'>";
-                    sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y'";
+                    sqlQuery = "SELECT * FROM AD_GRIDLAYOUT WHERE AD_HeaderLayout_ID=" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_HeaderLayout_ID"]) + " AND ISACTIVE='Y' ORDER BY SeqNo";
                     DataSet dsSec = DB.ExecuteDataset(sqlQuery);
                     if (dsSec != null && dsSec.Tables.Count > 0 && dsSec.Tables[0].Rows.Count > 0)
                     {

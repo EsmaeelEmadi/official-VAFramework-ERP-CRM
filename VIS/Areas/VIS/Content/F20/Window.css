@@ -1422,6 +1422,7 @@ li.vis-page-item-select {
 .vis-w-p-card-data-label {
     font-weight: 400;
     margin-bottom:0px;
+    margin-right:5px;
 }
 
 .vis-w-p-card-Label-f span {
@@ -1568,9 +1569,10 @@ li.vis-page-item-select {
 
 
 .vis-w-p-card-Label-f {
-    display: flex;
-    flex-direction: column;
+    /*display: flex;
+    flex-direction: column;*/
     height:100%;
+    padding:5px;
 
 }
 
