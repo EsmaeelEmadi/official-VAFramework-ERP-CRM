@@ -546,7 +546,7 @@
             divTopNavigator.find("i").click(function () {
                 var blok = DivViewBlock.find('.vis-active-block');
                 var cmd = $(this).attr('command');
-                isChange = true;
+                //isChange = true;
                 var f = blok.closest('.fieldGroup').find('.fieldLbl');
                 if (cmd == 'Show') {
                     if (blok.prop('tagName') == 'I') {
@@ -583,7 +583,7 @@
                     btnEditIcon.hide();
                     templatechanges();
                 } else if (cmd == 'SelectParent') {
-                    isChange = false;
+                    //isChange = false;
                     if (blok.parent().hasClass("fieldGroup")) {
                         blok.parent().parent().mousedown().mouseup();
                     } else {
@@ -615,9 +615,9 @@
                     templatechanges();
                 }
 
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 
                 // divTopNavigator.hide();
             });
@@ -641,8 +641,15 @@
                     }
                 }
 
-                if ($(e.target).hasClass('.grdDiv')) {
+                if ($(e.target).hasClass('grdDiv')) {
+                    btnAddField.removeClass("vis-disable-event");
+                    btnAddImgField.removeClass("vis-disable-event");
+                    btnAddImgTxtField.removeClass("vis-disable-event");
                     e.preventDefault();
+                } else {
+                    btnAddField.addClass('vis-disable-event');
+                    btnAddImgField.addClass('vis-disable-event');
+                    btnAddImgTxtField.addClass('vis-disable-event');
                 }
                 divTopNavigator.find('[command="Merge"]').parent().hide();
                 divTopNavigator.find('[command="ShowImg"]').parent().hide();
@@ -877,10 +884,10 @@
                 rClone.show();
                 DivGridSec.find('.DivRowBox').append(rClone);
                 createGrid();
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -889,10 +896,10 @@
                 cClone.show();
                 DivGridSec.find('.DivColBox').append(cClone);
                 createGrid();
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -900,13 +907,14 @@
                 isNewSection = true;
                 DivGridSec.find('.section-active').removeClass('section-active');
                 var sClone = DivGridSec.find('.grid-Section:first').clone(true);
+
                 sClone.removeClass('displayNone');
                 sClone.addClass('section-active');
-                sectionCount = Number(DivGridSec.find('.grid-Section:last').attr("sectionCount")) + 1;
+                sectionCount = DivGridSec.find('.grid-Section').length; //Number(DivGridSec.find('.grid-Section:last').attr("sectionCount")) + 1;
                 sClone.attr('sectionCount', sectionCount);
                 sClone.find('.vis-grey-disp-ttl').text("Section " + sectionCount);
                 DivGridSec.find('.vis-sectionAdd').append(sClone);
-                activeSection = $('<div sectionCount="' + sectionCount + '"  class="section' + sectionCount + ' vis-wizard-section"></div>')
+                activeSection = $('<div name="Section ' + sectionCount+'" sectionCount="' + sectionCount + '"  class="section' + sectionCount + ' vis-wizard-section" style="padding:5px"></div>')
                 DivViewBlock.find('.vis-viewBlock').append(activeSection);
                 //sectionCount++;
                 DivGridSec.find('.rowBox:not(:first)').remove();
@@ -948,12 +956,13 @@
                 });
 
                 removeSection.remove();
+                delete gridObj['section' + secNo];
                 secNo = DivGridSec.find('.section-active').attr('sectionCount');
                 activeSection = DivViewBlock.find('.vis-viewBlock .section' + secNo);
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -990,10 +999,10 @@
                 activeSection.find('.del').remove();
                 $(this).closest('.rowBox').remove();
                 gridCss(-1, 0);
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -1039,10 +1048,10 @@
                 activeSection.find('.del').remove();
                 $(this).closest('.colBox').remove();
                 gridCss(0, -1);
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -1076,37 +1085,37 @@
             });
 
             txtColGap.change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
 
             txtRowGap.change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
 
             DivGridSec.find('.rowBox input,select').change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
 
             DivGridSec.find('.colBox input,select').change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
@@ -1172,6 +1181,12 @@
                     cur_history_index--;                    
                     btnRedo.removeAttr("disabled");
                     fillcardLayoutfromTemplate();
+                    DivViewBlock.find('.grdDiv').unbind('mouseover');
+                    DivViewBlock.find('.grdDiv').mouseover(function (e) {
+                        if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                            selectTo($(this));
+                        }
+                    });
                 }
                 else {
                     btnUndo.attr("disabled","disabled");
@@ -1187,6 +1202,12 @@
                     cur_history_index++;   
                     btnUndo.removeAttr("disabled");
                     fillcardLayoutfromTemplate();
+                    DivViewBlock.find('.grdDiv').unbind('mouseover');
+                    DivViewBlock.find('.grdDiv').mouseover(function (e) {
+                        if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                            selectTo($(this));
+                        }
+                    });
                 }
                 else {
                     btnRedo.attr("disabled", "disabled");
@@ -1226,7 +1247,7 @@
             lastSelectedID = AD_HeaderLayout_ID;
             templateName = $this.find('.mainTemplate').attr('name');
             if (AD_HeaderLayout_ID == "0") {
-                $this.find('.mainTemplate').html($('<div sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>'));
+                $this.find('.mainTemplate').html($('<div name="Section 1" sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>'));
             }
             $this.find('[contenteditable]').attr('contenteditable', true);
             txtTemplateName.val($this.find('.mainTemplate').attr('name'));
@@ -1253,12 +1274,24 @@
                
                 DivViewBlock.find('.vis-viewBlock').attr("style", $this.find('.mainTemplate').attr('style') || '');
                 DivViewBlock.find('.vis-viewBlock').html($this.find('.mainTemplate').html());
+                DivViewBlock.find('.vis-viewBlock').find('.fieldValue').attr("contenteditable", true);
+                DivViewBlock.find('.vis-viewBlock').find('.fieldLbl').attr("contenteditable", true);
                 DivViewBlock.find('.grdDiv').unbind('mouseover');
                 DivViewBlock.find('.grdDiv').mouseover(function (e) {
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
                         selectTo($(this));
                     }
                 });
+
+                //DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
+                //    dragged = $(event.target);
+                //    if (dragged.hasClass('grdDiv')) {
+                //        event.preventDefault();
+                //    } else {
+                //        divTopNavigator.hide();
+                //        mdown = false;
+                //    }
+                //}, false);
             }
 
         }
@@ -1275,7 +1308,8 @@
                     $(this).addClass('vis-active-block');
                 }
                 sClone.attr('sectionCount', secNo);
-                sClone.find('.vis-grey-disp-ttl').text("Section " + secNo);
+                var secName = $(this).attr('name');
+                sClone.find('.vis-grey-disp-ttl').text(secName);
                 DivGridSec.find('.vis-sectionAdd').append(sClone);
                 sClone = DivGridSec.find('.grid-Section:first').clone(true);
                 sClone.removeClass('displayNone');
@@ -1299,6 +1333,7 @@
                     }
 
                     Obj["sectionNo"] = secNo;
+                    Obj["sectionName"] = secName;
                     Obj["rowGap"] = 0;
                     Obj["colGap"] = 0;
                     Obj["totalRow"] = totalRow;
@@ -1349,6 +1384,7 @@
             }
 
             var secNo = DivGridSec.find('.section-active').attr('sectionCount');
+            var secName = DivGridSec.find('.section-active .vis-grey-disp-ttl').text();
             var Obj = {
             }
             var rowCss = "";
@@ -1387,6 +1423,7 @@
             var totalRow = DivGridSec.find('.rowBox:not(:first)').length;
             var totalCol = DivGridSec.find('.colBox:not(:first)').length;
             Obj["sectionNo"] = secNo;
+            Obj["sectionName"] = secName;
             Obj["rowGap"] = txtRowGap.val();
             Obj["colGap"] = txtColGap.val();
             Obj["totalRow"] = totalRow;
@@ -1697,10 +1734,10 @@
             });
 
 
-            isChange = true;
-            if (isChange && AD_HeaderLayout_ID != "0") {
-                btn_BlockCancel.show();
-            }
+            //isChange = true;
+            //if (isChange && AD_HeaderLayout_ID != "0") {
+            //    btn_BlockCancel.show();
+            //}
             var tag = DivViewBlock.find('.vis-active-block');
 
             if (editorProp[commend].proprty == "flex-direction") {
@@ -1762,6 +1799,7 @@
             }
 
             tag.css(editorProp[commend].proprty, $.trim(styleValue));
+            templatechanges();
         }
 
         function fill(htm) {
@@ -1889,6 +1927,9 @@
                 var secNo = $(this).closest('.vis-wizard-section').attr("sectioncount");
                 gridObj['section' + secNo]["style"] = $(this).closest('.vis-wizard-section').attr("style");
                 gridObj['section' + secNo]["sectionID"] = $(this).closest('.vis-wizard-section').attr("sectionid") || 0;
+                var sectionSeq= ($(this).closest('.vis-wizard-section').index() + 1) *10;
+                gridObj['section' + secNo]["sectionSeq"] = sectionSeq;
+                gridObj['section' + secNo]["sectionName"] = $(this).closest('.vis-wizard-section').attr("name");
                 if ($(this).find('.fieldGroup:not(:hidden)').length > 0) {
                     $(this).find('.fieldGroup:not(:hidden)').each(function (index) {                        
                         var contentValue = "";
@@ -1942,7 +1983,7 @@
 
                         obj1 = {
                             cardFieldID: $(this).attr('cardfieldid'),
-                            sectionNo: secNo * 10,
+                            sectionNo: sectionSeq, //secNo * 10,
                             rowStart: $.trim(gridArea[0]),
                             rowEnd: $.trim(gridArea[2]),
                             colStart: $.trim(gridArea[1]),
@@ -1969,7 +2010,7 @@
                 } else {
                     var obj1 = {
                         cardFieldID: null,
-                        sectionNo: secNo * 10,
+                        sectionNo: sectionSeq,
                         rowStart: $.trim(gridArea[0]),
                         rowEnd: $.trim(gridArea[2]),
                         colStart: $.trim(gridArea[1]),
@@ -1994,9 +2035,9 @@
             
             Object.keys(gridObj).forEach(function (key) {
                 var fobj = {
-                    sectionName: 'section ' + gridObj[key].sectionNo,
+                    sectionName: gridObj[key].sectionName,
                     sectionID: gridObj[key].sectionID,
-                    sectionNo: gridObj[key].sectionNo * 10,
+                    sectionNo: gridObj[key].sectionSeq,
                     style: gridObj[key].style,
                     totalRow: gridObj[key].totalRow,
                     totalCol: gridObj[key].totalCol,
@@ -2015,7 +2056,7 @@
                 cardTempField: fieldObj,
                 isSystemTemplate:'Y'
             }
-
+            
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
             $.ajax({
                 type: "POST",
@@ -2026,6 +2067,11 @@
                 data: JSON.stringify(finalobj),
                 success: function (data) {
                     var result = JSON.parse(data);
+                    if (isNaN(result)) {
+                        toastr.error(result, '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
+                        IsBusy(false);
+                        return;
+                    }
                     AD_HeaderLayout_ID = result;
                     isSystemTemplate = 'Y';         
                     toastr.success(VIS.Msg.getMsg('SavedSuccessfully'), '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
@@ -2229,6 +2275,7 @@
                 
                 control.append(IconInput).append(lbl);
                 $root.append(control);
+                $root.append('<div class="input-group vis-input-wrap"><div class="vis-control-wrap"><label for="">' + VIS.Msg.getMsg("IconLinkMsg") + '</label></div></div>')
                 mainDiv.append(orDiv).append($root);
             }
 

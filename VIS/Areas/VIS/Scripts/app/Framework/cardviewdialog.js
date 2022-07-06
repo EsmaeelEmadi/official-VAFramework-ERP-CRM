@@ -707,8 +707,15 @@
             });    
 
             DivCardField.find('[draggable="true"]').sort(Ascending_sort).appendTo(DivCardField);
+            DivViewBlock.find('.grdDiv').unbind('mouseover');
+            DivViewBlock.find('.grdDiv').mouseover(function (e) {
+                if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                    selectTo($(this));
+                }
+            });
 
         }
+
         function Ascending_sort(a, b) {
             return ($(b).attr('title').toUpperCase()) <
                 ($(a).attr('title').toUpperCase()) ? 1 : -1;
@@ -1000,7 +1007,7 @@
                     } else {
                         cardViewInfo = [];
                     }
-                    if (isReload) {
+                    if (isReload) {                        
                         addCardListEvent();
                     }
 
@@ -1030,7 +1037,8 @@
                     $(this).addClass('vis-active-block');
                 }
                 sClone.attr('sectionCount', secNo);
-                sClone.find('.vis-grey-disp-ttl').text("Section " + secNo);
+                var secName = $(this).attr('name');
+                sClone.find('.vis-grey-disp-ttl').text(secName);
                 DivGridSec.find('.vis-sectionAdd').append(sClone);
                 sClone = DivGridSec.find('.grid-Section:first').clone(true);
                 sClone.removeClass('displayNone');
@@ -1054,6 +1062,7 @@
                     }
 
                     Obj["sectionNo"] = secNo;
+                    Obj["sectionName"] = secName;
                     Obj["rowGap"] = 0;
                     Obj["colGap"] = 0;
                     Obj["totalRow"] = totalRow;
@@ -1213,27 +1222,9 @@
                         $(this).removeAttr('seqNo');
                         var fieldName = $(this).attr('title');
                         $(this).prop("draggable", true);
-                        var listItem = DivCardField.find('.fieldLbl:not(.displayNone)').not('[seqNo]');
-                        var sortedList = [];
-                        listItem.each(function (i, item) {
-                            sortedList.push($.trim($(this).text().toLowerCase()));
-                        });
-
-                        var initialLength = sortedList.length;
-                        sortedList.push($.trim($(this).attr('title').toLowerCase()));
-                        sortedList.sort();
-
-                        var i = $.inArray($.trim(fieldName.toLowerCase()), sortedList);
-                        var linkedLength = DivCardField.find('.linked').length;
-                        i += linkedLength;
-        
-                        if (i == initialLength) {
-                            DivCardField.append($(this));
-                        } else {
-                            DivCardField.find('.fieldLbl').eq(i + 1).after($(this));
-                        }
                     }
                 });
+                DivCardField.find('[draggable="true"]').sort(Ascending_sort).appendTo(DivCardField);
             }
         }
 
@@ -1922,9 +1913,10 @@
                         ch.close();
                     }
                     else {
+                       
                         if (isNewRecord) {
                             GetCards(true);
-                            getTemplateDesign();                            
+                            //getTemplateDesign();                            
                         }
                         else {
                             cardViewInfo[selIdx].groupSequence = grpSeq;
@@ -1937,6 +1929,8 @@
                             cardViewInfo[selIdx].Updated = new Date().toLocaleDateString();
                             cardsList.find('.crd-active .vis-lft-sgl-title').text(cardViewName);
                         }
+                        getTemplateDesign();
+                        FillFields(true, false);
                         isEdit = true;
                         isNewRecord = false;
                         if (!isOnlySave) {
@@ -2237,7 +2231,7 @@
             templateName = $this.find('.mainTemplate').attr('name');
             if (AD_HeaderLayout_ID == "0") {
 
-                $this.find('.mainTemplate').html($('<div sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>'));
+                $this.find('.mainTemplate').html($('<div name="Section 1" sectionCount="1" class="section1 vis-wizard-section" style="padding:5px;"></div>'));
             }
             //txtTemplateName.val($(this).find('.mainTemplate').attr('name')).attr("templateid", $(this).find('.mainTemplate').attr('templateid'));
 
@@ -2268,6 +2262,15 @@
                         selectTo($(this));
                     }
                 });
+                DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
+                    dragged = $(event.target);
+                    if (dragged.hasClass('grdDiv')) {
+                        event.preventDefault();
+                    } else {
+                        divTopNavigator.hide();
+                        mdown = false;
+                    }
+                }, false);
             }
 
         }
@@ -2636,7 +2639,7 @@
             divTopNavigator.find("i").click(function () {
                 var blok = DivViewBlock.find('.vis-active-block');
                 var cmd = $(this).attr('command');
-                isChange = true;
+                //isChange = true;
                 var f = blok.closest('.fieldGroup').find('.fieldLbl');
                 if (cmd == 'Show') {
                     if (blok.prop('tagName') == 'I') {
@@ -2674,7 +2677,7 @@
                     divTopNavigator.find('[command="Show"]').parent().show();
                     divTopNavigator.hide();
                 } else if (cmd == 'SelectParent') {
-                    isChange = false;
+                    //isChange = false;
                     if (blok.parent().hasClass("fieldGroup")) {
                         blok.parent().parent().mousedown().mouseup();
                     } else {
@@ -2705,9 +2708,9 @@
                     templatechanges();
                 }
 
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
             });
 
             var viewBlock = DivViewBlock.find('.canvas *');
@@ -2722,7 +2725,7 @@
                     return;
                 }
 
-                if ($(e.target).hasClass('.grdDiv')) {
+                if ($(e.target).hasClass('grdDiv')) {
                     e.preventDefault();
                 }
 
@@ -2925,10 +2928,10 @@
                 rClone.show();
                 DivGridSec.find('.DivRowBox').append(rClone);
                 createGrid();
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -2937,10 +2940,10 @@
                 cClone.show();
                 DivGridSec.find('.DivColBox').append(cClone);
                 createGrid();
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -2950,11 +2953,11 @@
                 var sClone = DivGridSec.find('.grid-Section:first').clone(true);
                 sClone.removeClass('displayNone');
                 sClone.addClass('section-active');
-                sectionCount = Number(DivGridSec.find('.grid-Section:last').attr("sectionCount")) + 1;
+                sectionCount = DivGridSec.find('.grid-Section').length; //Number(DivGridSec.find('.grid-Section:last').attr("sectionCount")) + 1;
                 sClone.attr('sectionCount', sectionCount);
                 sClone.find('.vis-grey-disp-ttl').text("Section " + sectionCount);
                 DivGridSec.find('.vis-sectionAdd').append(sClone);
-                activeSection = $('<div sectionCount="' + sectionCount + '"  class="section' + sectionCount + ' vis-wizard-section"></div>');
+                activeSection = $('<div name="Section ' + sectionCount + '" sectionCount="' + sectionCount + '"  class="section' + sectionCount + ' vis-wizard-section" style="padding:5px"></div>')
                 DivViewBlock.find('.vis-viewBlock').append(activeSection);
                 //sectionCount++;
                 DivGridSec.find('.rowBox:not(:first)').remove();
@@ -2992,14 +2995,14 @@
                         unlinkField($(this).attr('title'), $(this));
                     }
                 });
-
                 removeSection.remove();
+                delete gridObj['section' + secNo];
                 secNo = DivGridSec.find('.section-active').attr('sectionCount');
                 activeSection = DivViewBlock.find('.vis-viewBlock .section' + secNo);
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -3036,10 +3039,10 @@
                 activeSection.find('.del').remove();
                 $(this).closest('.rowBox').remove();
                 gridCss(-1,0);
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -3084,10 +3087,10 @@
                 activeSection.find('.del').remove();
                 $(this).closest('.colBox').remove();
                 gridCss(0,-1);
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 templatechanges();
             });
 
@@ -3119,37 +3122,37 @@
             });
 
             txtColGap.change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
 
             txtRowGap.change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
 
             DivGridSec.find('.rowBox input,select').change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
 
             DivGridSec.find('.colBox input,select').change(function () {
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
                 gridCss();
                 templatechanges();
             });
@@ -3196,6 +3199,7 @@
             }
 
             var secNo = DivGridSec.find('.section-active').attr('sectionCount');
+            var secName = DivGridSec.find('.section-active .vis-grey-disp-ttl').text();
             var Obj = {
             }
             var rowCss = "";
@@ -3234,6 +3238,7 @@
             var totalRow = DivGridSec.find('.rowBox:not(:first)').length;
             var totalCol = DivGridSec.find('.colBox:not(:first)').length;
             Obj["sectionNo"] = secNo;
+            Obj["sectionName"] = secName;
             Obj["rowGap"] = txtRowGap.val();
             Obj["colGap"] = txtColGap.val();
             Obj["totalRow"] = totalRow;
@@ -3546,10 +3551,10 @@
         }
 
         function applyCommend(commend, styleValue) {
-            isChange = true;
-            if (isChange && AD_HeaderLayout_ID != "0") {
-                btn_BlockCancel.show();
-            }
+            //isChange = true;
+            //if (isChange && AD_HeaderLayout_ID != "0") {
+            //    btn_BlockCancel.show();
+            //}
             var tag = DivViewBlock.find('.vis-active-block');
 
             if (editorProp[commend].proprty == "flex-direction") {
@@ -3680,6 +3685,10 @@
                 var secNo = $(this).closest('.vis-wizard-section').attr("sectioncount");
                 gridObj['section' + secNo]["style"] = $(this).closest('.vis-wizard-section').attr("style");
                 gridObj['section' + secNo]["sectionID"] = $(this).closest('.vis-wizard-section').attr("sectionid") || 0;
+                var sectionSeq = ($(this).closest('.vis-wizard-section').index() + 1) * 10;
+                gridObj['section' + secNo]["sectionSeq"] = sectionSeq;
+                gridObj['section' + secNo]["sectionName"] = $(this).closest('.vis-wizard-section').attr("name");
+
                 if ($(this).find('.fieldGroup:not(:hidden)').length > 0) {
                     $(this).find('.fieldGroup:not(:hidden)').each(function (index) {
                         isFieldLinked = true;
@@ -3721,7 +3730,7 @@
 
                         var obj1 = {
                             cardFieldID: $(this).attr('cardfieldid'),
-                            sectionNo: secNo * 10,
+                            sectionNo: sectionSeq,
                             rowStart: $.trim(gridArea[0]),
                             rowEnd: $.trim(gridArea[2]),
                             colStart: $.trim(gridArea[1]),
@@ -3748,7 +3757,7 @@
                 } else {
                     var obj1 = {
                         cardFieldID: null,
-                        sectionNo: secNo * 10,
+                        sectionNo: sectionSeq,
                         rowStart: $.trim(gridArea[0]),
                         rowEnd: $.trim(gridArea[2]),
                         colStart: $.trim(gridArea[1]),
@@ -3785,9 +3794,9 @@
             //console.log(fieldObj);
             Object.keys(gridObj).forEach(function (key) {
                 var fobj = {
-                    sectionName: 'section ' + gridObj[key].sectionNo,
+                    sectionName: gridObj[key].sectionName,
                     sectionID: gridObj[key].sectionID,
-                    sectionNo: gridObj[key].sectionNo * 10,
+                    sectionNo: gridObj[key].sectionSeq,
                     style: gridObj[key].style,
                     totalRow: gridObj[key].totalRow,
                     totalCol: gridObj[key].totalCol,
@@ -3826,7 +3835,7 @@
                 cardTempField: fieldObj,
                 isSystemTemplate:'N'
             }
-
+           
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
             $.ajax({
                 type: "POST",
@@ -3837,11 +3846,16 @@
                 data: JSON.stringify(finalobj),
                 success: function (data) {
                     var result = JSON.parse(data);
+                    if (isNaN(result)) {
+                        toastr.error(result, '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
+                        IsBusy(false);
+                        return;
+                    }
                     AD_HeaderLayout_ID = result;
                     isSystemTemplate = 'N';
                     if (!isNewRecord) {
                         isEdit = true;
-                    }
+                    }                    
                     SaveChanges(e);
                     toastr.success(VIS.Msg.getMsg('SavedSuccessfully'), '', { timeOut: 3000, "positionClass": "toast-top-center", "closeButton": true, });
                     IsBusy(false);
@@ -3912,28 +3926,30 @@
             fld.removeAttr('seqNo');
 
             fld.prop("draggable", true);
-            var listItem = DivCardField.find('.fieldLbl:not(.displayNone)').not('[seqNo]');
-            var sortedList = [];
-            listItem.each(function (i, item) {
-                sortedList.push($.trim($(this).text().toLowerCase()));
-            });
+            //var listItem = DivCardField.find('.fieldLbl:not(.displayNone)').not('[seqNo]');
+            //var sortedList = [];
+            //listItem.each(function (i, item) {
+            //    sortedList.push($.trim($(this).text().toLowerCase()));
+            //});
 
-            var initialLength = sortedList.length;
-            sortedList.push($.trim(fieldName.toLowerCase()));
-            sortedList.sort();
+            //var initialLength = sortedList.length;
+            //sortedList.push($.trim(fieldName.toLowerCase()));
+            //sortedList.sort();
 
-            ////var iclone = DivCardField.find('fields:first').clone(true);
-            var i = $.inArray($.trim(fieldName.toLowerCase()), sortedList);
-            var linkedLength = DivCardField.find('.linked').length;
-            i += linkedLength;
+            //////var iclone = DivCardField.find('fields:first').clone(true);
+            //var i = $.inArray($.trim(fieldName.toLowerCase()), sortedList);
+            //var linkedLength = DivCardField.find('.linked').length;
+            //i += linkedLength;
 
 
-            ////fld.find('.fa-link').addClass('fa-chain-broken').removeClass('fa-link vis-succes-clr');          
-            if (i == initialLength) {
-                DivCardField.append(fld);
-            } else {
-                DivCardField.find('.fieldLbl').eq(i + 1).after(fld);
-            }
+            //////fld.find('.fa-link').addClass('fa-chain-broken').removeClass('fa-link vis-succes-clr');          
+            //if (i == initialLength) {
+            //    DivCardField.append(fld);
+            //} else {
+            //    DivCardField.find('.fieldLbl').eq(i + 1).after(fld);
+            //}
+            DivCardField.find('[draggable="true"]').sort(Ascending_sort).appendTo(DivCardField);
+
             itm.remove();
             divTopNavigator.hide();
         }
@@ -3976,10 +3992,10 @@
                     DivCardField.find('.fieldLbl').eq(linkedLength).after(newitm);
                     applyLinkCss(blok);
                 }
-                isChange = true;
-                if (isChange && AD_HeaderLayout_ID != "0") {
-                    btn_BlockCancel.show();
-                }
+                //isChange = true;
+                //if (isChange && AD_HeaderLayout_ID != "0") {
+                //    btn_BlockCancel.show();
+                //}
             }
         }
 
