@@ -3388,8 +3388,16 @@ field, fieldvalue{
     top: -45px;
     position: relative;
 }
-    /* modify Ends */
-    /*Media query*/
+
+.vis-v-rowcol {
+    position: absolute;
+    z-index: 9;
+    display: none;
+    cursor:pointer;
+    font-size:1.1rem;
+}
+/* modify Ends */
+/*Media query*/
 @media screen and (max-width: 1500px) and (min-width: 1360px) {
     .vis-grid-select-one-input {
         width: 5rem !important;

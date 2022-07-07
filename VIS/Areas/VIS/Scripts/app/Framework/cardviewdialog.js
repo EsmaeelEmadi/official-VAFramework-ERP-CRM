@@ -241,6 +241,12 @@
                     DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');
                 }
 
+                isUndoRedo = false;
+                history = [];
+                s_history = true;
+                cur_history_index = 0;
+                templatechanges();
+
                 if (isCopy) {
                     setTimeout(function () {
                         btnFinesh.click();
@@ -625,7 +631,7 @@
             DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
                 // store a ref. on the dragged elem
                 dragged = $(event.target);
-                if (dragged.hasClass('grdDiv')) {
+                if (dragged.hasClass('grdDiv') || !(event.ctrlKey)) {
                     event.preventDefault();
                 } else {
                     divTopNavigator.hide();
@@ -644,18 +650,19 @@
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');               
                 var fldLbl = null;
                 var ev = $(event.target);
-                if (!dragged.hasClass('.fieldLbl')) {
-                    fldLbl = dragged.find('.fieldLbl');
-                } 
+                if (ev.hasClass('grdDiv')) {
+                    if (!dragged.hasClass('.fieldLbl')) {
+                        fldLbl = dragged.find('.fieldLbl');
+                    }
 
-                if (fldLbl.length>0) {
-                    ev.append(dragged);
-                } else {
-                    ev.addClass('vis-active-block');
-                    linkField(dragged);
+                    if (fldLbl.length > 0) {
+                        ev.append(dragged);
+                    } else {
+                        ev.addClass('vis-active-block');
+                        linkField(dragged);
+                    }
+                    templatechanges();
                 }
-                templatechanges();
-               
             });
 
             btnUndo.click(function (e) {
@@ -4216,17 +4223,19 @@
             if (cur_history_index < history.length - 1) {
                 history = history.slice(0, cur_history_index + 1);
                 cur_history_index++;
-                btnRedo.attr("disabled", "disabled");
+                //btnRedo.attr("disabled", "disabled");
             }
 
             var cur_canvas = JSON.stringify(Chtml);
             if (cur_canvas != history[cur_history_index] || force == 1) {
                 history.push(cur_canvas);
-                history.length > 5 ? history.shift() : null;
+                if (history.length > 6) {
+                    history.shift();
+                }
                 cur_history_index = history.length - 1;
             }
 
-            btnRedo.removeAttr("disabled");
+            //btnRedo.removeAttr("disabled");
         }
     };
 

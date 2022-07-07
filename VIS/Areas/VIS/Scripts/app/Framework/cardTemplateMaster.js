@@ -47,6 +47,10 @@
         var btnUndo =null;
         var btnRedo = null;
         var dragged = null;
+        var btnVaddrow = null;
+        var btnVaddCol = null;
+        var btnVdelrow =null;
+        var btnVdelCol = null;
         var force = 0;
         var gridObj = {
         };
@@ -405,6 +409,11 @@
                 btnaddBlankTemplate = root.find('#btnaddBlankTemplate_' + WindowNo);
                 btnUndo = root.find('#btnUndo_' + WindowNo);
                 btnRedo = root.find('#btnRedo_' + WindowNo);
+                btnVaddrow = root.find('#btnVaddrow_' + WindowNo);
+                btnVaddCol = root.find('#btnVaddCol_' + WindowNo);
+
+                btnVdelrow = root.find('#btnVdelrow_' + WindowNo);
+                btnVdelCol = root.find('#btnVdelCol_' + WindowNo);
                 btnTemplateBack.hide();
                 events();
                 getTemplateDesign();
@@ -453,7 +462,6 @@
             });
 
             btnLayoutSetting.click(function () {
-                buffer = [];
                 addSelectedTemplate();
                 count++;
                 fillcardLayoutfromTemplate();
@@ -465,8 +473,14 @@
                     DivGridSec.find('.addGridRow').click();
                 }
                 if (AD_HeaderLayout_ID == 0) {
-                    DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');
+                    DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');                    
                 }
+
+                isUndoRedo = false;
+                history = [];
+                s_history = true;
+                cur_history_index = 0;
+                templatechanges();
             });
 
             btnChangeTemplate.click(function () {
@@ -640,13 +654,16 @@
                         $(e.target).attr('contenteditable', true);
                     }
                 }
-
+                DivCradStep2.find('.vis-v-rowcol').hide();
                 if ($(e.target).hasClass('grdDiv')) {
+                    e.preventDefault();
                     btnAddField.removeClass("vis-disable-event");
                     btnAddImgField.removeClass("vis-disable-event");
                     btnAddImgTxtField.removeClass("vis-disable-event");
-                    e.preventDefault();
+                    ViewBlockAddDelRowCol(e);
+                    
                 } else {
+                    
                     btnAddField.addClass('vis-disable-event');
                     btnAddImgField.addClass('vis-disable-event');
                     btnAddImgTxtField.addClass('vis-disable-event');
@@ -983,6 +1000,31 @@
                
             });
 
+
+            btnVaddrow.click(function () {
+                var idx = DivViewBlock.find('.vis-active-block').index();
+                var rc = getRowColPostion(idx)
+                DivGridSec.find('.grdRowAdd').eq(rc.rowNo).click();
+            });
+
+            btnVdelrow.click(function () {
+                var idx = DivViewBlock.find('.vis-active-block').index();
+                var rc = getRowColPostion(idx)
+                DivGridSec.find('.grdRowDel').eq(rc.rowNo).click();
+            });
+
+            btnVaddCol.click(function () {
+                var idx = DivViewBlock.find('.vis-active-block').index();
+                var rc = getRowColPostion(idx)
+                DivGridSec.find('.grdColAdd').eq(rc.colNo).click();
+            });
+
+            btnVdelCol.click(function () {
+                var idx = DivViewBlock.find('.vis-active-block').index();
+                var rc = getRowColPostion(idx)
+                DivGridSec.find('.grdColDel').eq(rc.colNo).click();
+            });
+
             DivGridSec.find('.grdRowDel').click(function () {
                 var idx = $(this).closest('.rowBox').index();
                 rowIdx = idx;
@@ -1004,7 +1046,7 @@
                 //    btn_BlockCancel.show();
                 //}
                 templatechanges();
-            });
+            });          
 
             DivGridSec.find('.grdRowAdd').click(function () {
                 var idx = $(this).closest('.rowBox').index() - 1;
@@ -1151,7 +1193,7 @@
             DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
                 // store a ref. on the dragged elem 
                 dragged = $(event.target);
-                if (dragged.hasClass('grdDiv')) {
+                if (dragged.hasClass('grdDiv') || !(event.ctrlKey)) {
                     event.preventDefault();
                 } else {
                     divTopNavigator.hide();
@@ -1169,12 +1211,15 @@
                 event.preventDefault();
                 DivViewBlock.find('.vis-active-block').removeClass('vis-active-block');
                 var ev = $(event.target); 
-                ev.append(dragged);
-                templatechanges();
+                if (ev.hasClass('grdDiv')) {
+                    ev.append(dragged);
+                    templatechanges();
+                }
             });
 
             btnUndo.click(function (e) {
                 if (cur_history_index > 0) {
+                    isUndoRedo = true;
                     s_history = false;
                     canv_data = JSON.parse(history[cur_history_index - 1]);
                     DivViewBlock.find('.vis-viewBlock').html(canv_data);
@@ -1189,13 +1234,14 @@
                     });
                 }
                 else {
-                    btnUndo.attr("disabled","disabled");
+                    //btnUndo.attr("disabled","disabled");
                 }
-                isUndoRedo = true;
+                
             });
 
             btnRedo.click(function (e) {
                 if (history[cur_history_index + 1]) {
+                    isUndoRedo = true;
                     s_history = false;
                     canv_data = JSON.parse(history[cur_history_index + 1]);
                     DivViewBlock.find('.vis-viewBlock').html(canv_data);
@@ -1210,9 +1256,9 @@
                     });
                 }
                 else {
-                    btnRedo.attr("disabled", "disabled");
+                    //btnRedo.attr("disabled", "disabled");
                 } 
-                isUndoRedo = true;
+                
             });
 
         };
@@ -1893,8 +1939,6 @@
             });
         }
 
-
-
         function saveTemplate(e) {
             e.preventDefault();
             if (txtTemplateName.val() == "") {
@@ -2244,17 +2288,72 @@
             if (cur_history_index < history.length - 1) {
                 history = history.slice(0, cur_history_index + 1);
                 cur_history_index++;
-                btnRedo.attr("disabled", "disabled");
+                //btnRedo.attr("disabled", "disabled");
             }
 
             var cur_canvas = JSON.stringify(Chtml);
             if (cur_canvas != history[cur_history_index] || force == 1) {
                 history.push(cur_canvas);
-                history.length > 5 ? history.shift() : null;
+                if (history.length > 6) {
+                    history.shift();
+                }
                 cur_history_index = history.length - 1;
             }
 
-            btnRedo.removeAttr("disabled");
+            DivCradStep2.find('.vis-v-rowcol').hide();
+
+            //btnRedo.removeAttr("disabled");
+            //btnUndo.removeAttr("disabled");
+        }
+
+        function ViewBlockAddDelRowCol(e) {
+
+            //if ($(e.target).find('.vis-split-cell').length > 0) {
+            //    DivCradStep2.find('.vis-v-rowcol').hide();
+            //    return;
+            //}
+            DivCradStep2.find('.vis-v-rowcol').show();
+
+            var idx = $(e.target).index();           
+            var rc = getRowColPostion(idx);
+
+            if (rc.rowNo == 1) {
+                btnVdelrow.hide();
+            }
+
+            if (rc.colNo == 1) {
+                btnVdelCol.hide();
+            }
+           
+
+            btnVaddrow.css({
+                'left': $(e.target).closest('.vis-viewBlock')[0].offsetLeft - 38,
+                'top': $(e.target).height() + $(e.target)[0].offsetTop
+            });
+
+            btnVdelrow.css({
+                'left': $(e.target).closest('.vis-viewBlock')[0].offsetLeft - 20,
+                'top': $(e.target).height() + $(e.target)[0].offsetTop
+            });
+
+            btnVaddCol.css({
+                'top': $(e.target).closest('.vis-viewBlock')[0].offsetTop - 20,
+                'left': ($(e.target).width() - 8) + $(e.target)[0].offsetLeft
+            })
+            btnVdelCol.css({
+                'top': $(e.target).closest('.vis-viewBlock')[0].offsetTop - 20,
+                'left': ($(e.target).width() - 5) + $(e.target)[0].offsetLeft + 15
+            })
+        }
+
+        function getRowColPostion(idx) {
+            var totalCol = DivGridSec.find('.colBox').length - 1;
+            var rowPosition = (Math.floor(idx / totalCol)) + 1;
+            var colposition = (idx % totalCol) + 1;
+            return {
+                rowNo: rowPosition,
+                colNo: colposition
+            }
         }
 
         this.show = function (istext, isEdit) {
