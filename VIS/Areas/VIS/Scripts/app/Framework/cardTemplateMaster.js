@@ -61,6 +61,7 @@
         var cur_history_index = 0; 
 
         var measurment = ['px', '%', 'cm', 'mm', 'in', 'pc', 'pt', 'ch', 'em', 'rem', 'vh', 'vw', 'vmin', 'vmax'];
+        /* Editor Style property */
         var editorProp = {
             width: {
                 proprty: 'width',
@@ -86,6 +87,11 @@
                 proprty: 'font-size',
                 value: '',
                 measurment: true
+            },
+            fontFamily: {
+                proprty: 'font-family',
+                value: '',
+                measurment: false
             },
             color: {
                 proprty: 'color',
@@ -366,7 +372,10 @@
         var root = $('<div style="height:100%"></div>');
         var isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
         
-
+        /**
+         * Busy Indigater
+         * @param {any} isBusy
+         */
         function IsBusy(isBusy) {
             if (isBusy && isBusyRoot != null) {
                 isBusyRoot.css({ "display": "block" });
@@ -376,6 +385,7 @@
             }
         };
 
+        /** Load UI from Partial view */
         function loadUI() {
             root.load(VIS.Application.contextUrl + 'CardTemplateMaster/Index/?windowno=' + WindowNo, function (event) {
                 root.append(isBusyRoot);
@@ -475,7 +485,7 @@
                 if (AD_HeaderLayout_ID == 0) {
                     DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');                    
                 }
-
+                btnEditIcon.hide();
                 isUndoRedo = false;
                 history = [];
                 s_history = true;
@@ -638,6 +648,8 @@
 
             var viewBlock = DivViewBlock.find('.canvas *');
 
+            //View Block click action going here
+             
             viewBlock.mousedown(function (e) {
                
                 if (e.target.tagName == 'SQL' || $(e.target).hasClass('fieldGroup') || $(e.target).hasClass('vis-addRemoveRowCol')) {
@@ -791,6 +803,7 @@
                 fill($(e.target));
             });
 
+            // style input change command
             DivStyleSec1.find('[data-command]').on('change', function (e) {
                 $(this).removeClass('vis-editor-validate');
                 var commend = $(this).data('command');
@@ -823,6 +836,7 @@
                 applyCommend(commend, $(this).val());
             });
 
+            // Style clickable command
             DivStyleSec1.find('[data-command1]').on('click', function (e) {
 
                 var commend = $(this).data('command1');
@@ -833,7 +847,8 @@
                 } else {
                     isStyleExist = checkStyle(editorProp[commend].proprty, false, tag)
                 }
-                
+
+
 
                 if ((editorProp[commend].proprty == "justify-content" || editorProp[commend].proprty == "align-items") && checkStyle("display", "flex", tag)) {
                     //applyCommend("displayFlex", "");
@@ -845,13 +860,11 @@
                     applyCommend(commend, editorProp[commend].value);
                 }
 
-                if ($(this).parent().hasClass('vis-hr-elm-inn-active')) {
-                    $(this).parent().removeClass('vis-hr-elm-inn-active');
-                } else {
-                    $(this).parent().addClass('vis-hr-elm-inn-active');
-                }
+                $(this).closest('.vis-horz-align-d').find('.vis-hr-elm-inn-active').removeClass('vis-hr-elm-inn-active');                
+                $(this).parent().addClass('vis-hr-elm-inn-active');
             });
 
+            // style align image and text command
             DivStyleSec1.find('[data-command2]').on('click', function (e) {
                 divTopNavigator.hide();
                 var tag = activeSection.find('.vis-active-block').closest('.fieldGroup');
@@ -874,6 +887,7 @@
                 templatechanges();
             });
 
+            // apply custom css
             txtCustomStyle.change(function () {
                 var selectedItem = DivViewBlock.find('.vis-active-block');
                 selectedItem.attr("style", $(this).val());
@@ -1001,28 +1015,24 @@
             });
 
 
-            btnVaddrow.click(function () {
-                var idx = DivViewBlock.find('.vis-active-block').index();
-                var rc = getRowColPostion(idx)
-                DivGridSec.find('.grdRowAdd').eq(rc.rowNo).click();
+            btnVaddrow.click(function () {                
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdRowAdd').eq(Number(gridArea[2]) - 1).click();
             });
 
-            btnVdelrow.click(function () {
-                var idx = DivViewBlock.find('.vis-active-block').index();
-                var rc = getRowColPostion(idx)
-                DivGridSec.find('.grdRowDel').eq(rc.rowNo).click();
+            btnVdelrow.click(function () {                
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdRowDel').eq(Number(gridArea[2]) - 1).click();
             });
 
-            btnVaddCol.click(function () {
-                var idx = DivViewBlock.find('.vis-active-block').index();
-                var rc = getRowColPostion(idx)
-                DivGridSec.find('.grdColAdd').eq(rc.colNo).click();
+            btnVaddCol.click(function () {               
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdColAdd').eq(Number(gridArea[3])-1).click();
             });
 
-            btnVdelCol.click(function () {
-                var idx = DivViewBlock.find('.vis-active-block').index();
-                var rc = getRowColPostion(idx)
-                DivGridSec.find('.grdColDel').eq(rc.colNo).click();
+            btnVdelCol.click(function () {                
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdColDel').eq(Number(gridArea[3]) - 1).click();
             });
 
             DivGridSec.find('.grdRowDel').click(function () {
@@ -1061,7 +1071,7 @@
                 var pos = ((idx + 1) * totalCol);
                 rowIdx = (idx + 1);
                 for (var i = 0; i < totalCol; i++) {
-                    activeSection.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:10px;'></div>");
+                    activeSection.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:5px;'></div>");
                 }
 
                 grdsecMousehover();
@@ -1112,7 +1122,7 @@
                         if (j == idx) {
                             var pos = totalCol * i + j;
                             addedColPos.push(pos + 1);
-                            activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:10px;'></div>");
+                            activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:5px;'></div>");
                         }
                     }
                 }
@@ -1126,54 +1136,25 @@
                 templatechanges();
             });
 
-            txtColGap.change(function () {
-                //isChange = true;
-                //if (isChange && AD_HeaderLayout_ID != "0") {
-                //    btn_BlockCancel.show();
-                //}
+            txtColGap.change(function () {                
                 gridCss();
                 templatechanges();
             });
 
-            txtRowGap.change(function () {
-                //isChange = true;
-                //if (isChange && AD_HeaderLayout_ID != "0") {
-                //    btn_BlockCancel.show();
-                //}
+            txtRowGap.change(function () {                
                 gridCss();
                 templatechanges();
             });
 
-            DivGridSec.find('.rowBox input,select').change(function () {
-                //isChange = true;
-                //if (isChange && AD_HeaderLayout_ID != "0") {
-                //    btn_BlockCancel.show();
-                //}
+            DivGridSec.find('.rowBox input,select').change(function () {                
                 gridCss();
                 templatechanges();
             });
 
-            DivGridSec.find('.colBox input,select').change(function () {
-                //isChange = true;
-                //if (isChange && AD_HeaderLayout_ID != "0") {
-                //    btn_BlockCancel.show();
-                //}
+            DivGridSec.find('.colBox input,select').change(function () {                
                 gridCss();
                 templatechanges();
-            });
-
-            //DivCardField.find('.vis-grey-icon .fa-circle').click(function () {
-            //    if ($(this).hasClass('vis-succes-clr')) {
-            //        var fid = $(this).closest('.fieldLbl').attr('fieldid');
-            //        DivViewBlock.find('[fieldid="' + fid + '"]').mousedown().mouseup();
-            //        setTimeout(function () {
-            //            divTopNavigator.find('[command="Unlink"]').click();
-            //        }, 100);
-
-            //    } else {
-            //        linkField($(this).closest('.fieldLbl'));
-            //    }
-            //});
+            });            
 
             btn_BlockCancel.click(function () {
                 DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().click();
@@ -1263,6 +1244,11 @@
 
         };
 
+        /**
+         * Genrate Gradient Degree
+         * @param {any} id
+         * @param {any} e
+         */
         var getGradientDeg = function (id, e) {
             var radius = 9;
             var deg = 0;
@@ -1280,6 +1266,9 @@
             }
         }
 
+        /**
+         * Add Selected Template into viewport
+         * */
         function addSelectedTemplate() {
             var $this = DivTemplate.find('.vis-active-template').clone(true);
             if ($this.attr("lastupdated")) {
@@ -1328,20 +1317,13 @@
                         selectTo($(this));
                     }
                 });
-
-                //DivViewBlock.find('.vis-viewBlock')[0].addEventListener("dragstart", function (event) {
-                //    dragged = $(event.target);
-                //    if (dragged.hasClass('grdDiv')) {
-                //        event.preventDefault();
-                //    } else {
-                //        divTopNavigator.hide();
-                //        mdown = false;
-                //    }
-                //}, false);
             }
 
         }
 
+        /**
+         * Fill card property into section
+         * */
         var fillcardLayoutfromTemplate = function () {
             gridObj = {};
             var sClone = DivGridSec.find('.grid-Section:first').clone(true);
@@ -1420,6 +1402,11 @@
             });
         }
 
+        /**
+         * Apply row column grid css
+         * @param {any} r row
+         * @param {any} c column
+         */
         function gridCss(r, c) {
             if (!r) {
                 r = 0;
@@ -1584,6 +1571,9 @@
             colIdx = null;
         }
 
+        /**
+         * Create grid layout
+         * */
         function createGrid() {
             var rowBox = DivGridSec.find('.rowBox');
             var colBox = DivGridSec.find('.colBox');
@@ -1597,13 +1587,13 @@
                 if (oldcol != totalCol && !isNewSection) {
                     for (var r = 1; r <= oldrow; r++) {
                         var pos = (r * oldcol) + (r - 1);
-                        grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:10px;'></div>");
+                        grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:5px;'></div>");
                     }
 
                 } else {
                     var totalDiv = totalRow * totalCol - grSec.find('.grdDiv').length;
                     for (var i = 0; i < totalDiv; i++) {
-                        grSec.append("<div class='grdDiv' style='padding:10px;'></div>");
+                        grSec.append("<div class='grdDiv' style='padding:5px;'></div>");
                     }
                 }
 
@@ -1646,7 +1636,10 @@
             }
 
         }
-
+        /**
+         * Select Cell for merge
+         * @param {any} cell
+         */
         function selectTo(cell) {
             var totalCol = DivGridSec.find('.colBox').length - 1;
             var idx = activeSection.find(cell).index();
@@ -1692,6 +1685,9 @@
             }
         }
 
+        /**
+         * Merge Selected Cell
+         * */
         function mergeCell() {
             var rowStart = 0, rowEnd = 0, colStart = 0, colEnd = 1;
             var rowCount = 0;
@@ -1744,6 +1740,10 @@
             });
         }
 
+        /**
+         * Split merge Cell
+         * @param {any} e
+         */
         function applyunMerge(e) {
             var gArea = e.css('grid-area').split('/');
             var totalCol = DivGridSec.find('.colBox').length - 1;
@@ -1757,7 +1757,12 @@
             }
             gridCss();
         }
-
+        /**
+         * Check style weather Apply or not
+         * @param {any} prop
+         * @param {any} val
+         * @param {any} htm
+         */
         function checkStyle(prop, val, htm) {
             var styles = htm.attr('style'),
                 value = false;
@@ -1773,6 +1778,11 @@
             return value;
         }
 
+        /**
+         * Apply css style on viewblock
+         * @param {any} commend
+         * @param {any} styleValue
+         */
         function applyCommend(commend, styleValue) {
             DivViewBlock.css({
                 'width': DivCradStep2.find('.vis-cardViewTemplateHead')[0].offsetWidth,
@@ -1844,10 +1854,18 @@
                 }
             }
 
+            if (commend == 'width' || commend == 'height') {
+                styleValue = styleValue + ' !important';
+            }
+
             tag.css(editorProp[commend].proprty, $.trim(styleValue));
             templatechanges();
         }
 
+        /**
+         * Fill value back to style while select any block form viewport
+         * @param {any} htm
+         */
         function fill(htm) {
             DivStyleSec1.find('#master001_' + WindowNo + ' input').val('');
             DivStyleSec1.find('#master001_' + WindowNo + ' select').val('');
@@ -1860,9 +1878,7 @@
             } else {
                 txtSQLQuery.val('');
             }
-
-            //styles = styles.split(';');
-            //styles.join("\n\r");
+            
             txtCustomStyle.val(styles);
             styles && styles.split(";").forEach(function (e) {
                 var style = e.split(":");
@@ -1886,7 +1902,10 @@
                 }
             });
         }
-
+        /**
+         * Convert color from RGB To
+         * @param {any} rgb
+         */
         function rgb2hex(rgb) {
             if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
 
@@ -1898,12 +1917,18 @@
 
         }
 
+        /**
+         * Unlink field which is linked
+         * @param {any} fieldName
+         * @param {any} itm
+         */
         function unlinkField(fieldName, itm) {
             itm.closest('.fieldGroup').remove();            
             itm.remove();
             divTopNavigator.hide();
         }
-       
+
+        /** Get System Template */
         function getTemplateDesign() {
             IsBusy(true);
             var url = VIS.Application.contextUrl + "CardView/getSystemTemplateDesign";
@@ -1939,6 +1964,10 @@
             });
         }
 
+        /**
+         * Save Template
+         * @param {any} e
+         */
         function saveTemplate(e) {
             e.preventDefault();
             if (txtTemplateName.val() == "") {
@@ -2099,8 +2128,7 @@
                 cardSection: cardSection,
                 cardTempField: fieldObj,
                 isSystemTemplate:'Y'
-            }
-            
+            }            
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
             $.ajax({
                 type: "POST",
@@ -2137,6 +2165,7 @@
             return root;
         };
 
+        /**Scale Template to fit in block */
         function scaleTemplate() {
             DivTemplate.find('.vis-cardSingleViewTemplate').each(function () {
                 var pH = $(this).height();
@@ -2164,6 +2193,11 @@
             if ($.trim(InputIcon.val()).length > 0) {
                 if (!isEdit) {
                     if (isText) {
+                        var cls = "";
+                        if (InputIcon.val().indexOf('-') > 1) {
+                            cls += InputIcon.val().split('-')[0] + ' ';
+                        }
+                        cls += $.trim(InputIcon.val());
                         itm += '<i class="imgField ' + $.trim(InputIcon.val()) + '"></i>';
                         itm += '<span class="fieldValue" contenteditable="true">Value</span>';
                         itm += '</div>';
@@ -2307,11 +2341,7 @@
         }
 
         function ViewBlockAddDelRowCol(e) {
-
-            //if ($(e.target).find('.vis-split-cell').length > 0) {
-            //    DivCradStep2.find('.vis-v-rowcol').hide();
-            //    return;
-            //}
+            
             DivCradStep2.find('.vis-v-rowcol').show();
 
             var idx = $(e.target).index();           
@@ -2369,13 +2399,13 @@
             if (istext) {
                 var orDiv = $('<div class="mb-2"><center>OR</center></div>');
                 $root = $('<div class="input-group vis-input-wrap"></div>');
-                lbl = $('<label for="">' + VIS.Msg.getMsg("Icon") + '</label>');
+                lbl = $('<label style="left:10px" for="">' + VIS.Msg.getMsg("Icon") + '</label>');
                 control = $('<div class="vis-control-wrap"></div>');
                 
                 control.append(IconInput).append(lbl);
                 $root.append(control);
-                $root.append('<div class="input-group vis-input-wrap"><div class="vis-control-wrap"><label for="">' + VIS.Msg.getMsg("IconLinkMsg") + '</label></div></div>')
                 mainDiv.append(orDiv).append($root);
+                mainDiv.append('<div class="input-group vis-input-wrap "><div class="vis-control-wrap"><p style="word-break: break-all" for="">' + VIS.Msg.getMsg("IconLinkMsg") + '</p></div></div>')
             }
 
             input.change(function () {
@@ -2394,6 +2424,9 @@
                 } else {
                     input.removeAttr('disabled');
                 }
+
+                IconInput.val(IconInput.val().replace('fa ', ''));
+                IconInput.val(IconInput.val().replace('vis ', ''));
             })
 
 

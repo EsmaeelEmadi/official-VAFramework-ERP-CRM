@@ -111,7 +111,11 @@
         var colIdx = null;
         var addedColPos = [];
         var isNewSection = false;       
-        var isChangeTemplate = false;       
+        var isChangeTemplate = false;   
+        var btnVaddrow = null;
+        var btnVaddCol = null;
+        var btnVdelrow = null;
+        var btnVdelCol = null;
         var gridObj = {
         };
 
@@ -672,12 +676,12 @@
                     canv_data = JSON.parse(history[cur_history_index - 1]);
                     DivViewBlock.find('.vis-viewBlock').html(canv_data);
                     cur_history_index--;
-                    btnRedo.removeAttr("disabled");                   
+                    //btnRedo.removeAttr("disabled");                   
                     fillcardLayoutfromTemplate();
                     isUndoRedo = false;
                 }
                 else {
-                    btnUndo.attr("disabled", "disabled");
+                    //btnUndo.attr("disabled", "disabled");
                 }               
                 markfilledField();
             });
@@ -689,12 +693,12 @@
                     canv_data = JSON.parse(history[cur_history_index + 1]);
                     DivViewBlock.find('.vis-viewBlock').html(canv_data);
                     cur_history_index++;
-                    btnUndo.removeAttr("disabled");                    
+                    //btnUndo.removeAttr("disabled");                    
                     fillcardLayoutfromTemplate(); 
                     isUndoRedo = false;
                 }
                 else {
-                    btnRedo.attr("disabled", "disabled");
+                    //btnRedo.attr("disabled", "disabled");
                 }
                 
                 markfilledField();
@@ -841,6 +845,13 @@
                 divTopNavigator = DivCradStep2.find('.vis-topNavigator');
                 txtRowGap = DivGridSec.find('.rowGap');
                 txtColGap = DivGridSec.find('.colGap');
+
+                btnVaddrow = root.find('#btnVaddrow_' + WindowNo);
+                btnVaddCol = root.find('#btnVaddCol_' + WindowNo);
+
+                btnVdelrow = root.find('#btnVdelrow_' + WindowNo);
+                btnVdelCol = root.find('#btnVdelCol_' + WindowNo);
+
                 activeSection = DivViewBlock.find('.section1');
 
                 isEdit = true;
@@ -2312,6 +2323,11 @@
                 value: '',
                 measurment: true
             },
+            fontFamily: {
+                proprty: 'font-family',
+                value: '',
+                measurment: false
+            },
             color: {
                 proprty: 'color',
                 value: '',
@@ -2731,9 +2747,10 @@
                 if (e.ctrlKey) {
                     return;
                 }
-
+                DivCradStep2.find('.vis-v-rowcol').hide();
                 if ($(e.target).hasClass('grdDiv')) {
                     e.preventDefault();
+                    ViewBlockAddDelRowCol(e);
                 }
 
                 divTopNavigator.find('[command="Merge"]').parent().hide();
@@ -2923,11 +2940,8 @@
                     applyCommend(commend, editorProp[commend].value);
                 }
 
-                if ($(this).parent().hasClass('vis-hr-elm-inn-active')) {
-                    $(this).parent().removeClass('vis-hr-elm-inn-active');
-                } else {
-                    $(this).parent().addClass('vis-hr-elm-inn-active');
-                }
+                $(this).closest('.vis-horz-align-d').find('.vis-hr-elm-inn-active').removeClass('vis-hr-elm-inn-active');
+                $(this).parent().addClass('vis-hr-elm-inn-active');
             });
 
             DivGridSec.find('.addGridRow').click(function () {
@@ -3030,6 +3044,26 @@
 
             });
 
+            btnVaddrow.click(function () {
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdRowAdd').eq(Number(gridArea[2]) - 1).click();
+            });
+
+            btnVdelrow.click(function () {
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdRowDel').eq(Number(gridArea[2]) - 1).click();
+            });
+
+            btnVaddCol.click(function () {
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdColAdd').eq(Number(gridArea[3]) - 1).click();
+            });
+
+            btnVdelCol.click(function () {
+                var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
+                DivGridSec.find('.grdColDel').eq(Number(gridArea[3]) - 1).click();
+            });
+
             DivGridSec.find('.grdRowDel').click(function () {
                 var idx = $(this).closest('.rowBox').index();
                 rowIdx = idx;
@@ -3066,7 +3100,7 @@
                 var pos = ((idx + 1) * totalCol);
                 rowIdx = (idx+1);
                 for (var i = 0; i < totalCol; i++) {
-                    activeSection.find('.grdDiv').eq(pos-1).after("<div class='grdDiv' style='padding:10px;'></div>");
+                    activeSection.find('.grdDiv').eq(pos-1).after("<div class='grdDiv' style='padding:5px;'></div>");
                 }
 
                 gridCss(1,0);
@@ -3116,7 +3150,7 @@
                         if (j == idx) {
                             var pos = totalCol * i + j;
                             addedColPos.push(pos+1);
-                            activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:10px;'></div>");
+                            activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:5px;'></div>");
                         }
                     }
                 }
@@ -3373,13 +3407,13 @@
                 if (oldcol != totalCol && !isNewSection) {
                     for (var r = 1; r <= oldrow; r++) {
                         var pos = (r * oldcol) + (r - 1);
-                        grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:10px;'></div>");
+                        grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:5px;'></div>");
                     }
 
                 } else {
                     var totalDiv = totalRow * totalCol - grSec.find('.grdDiv').length;
                     for (var i = 0; i < totalDiv; i++) {
-                        grSec.append("<div class='grdDiv' style='padding:10px;'></div>");
+                        grSec.append("<div class='grdDiv' style='padding:5px;'></div>");
                     }
                 }
 
@@ -3621,6 +3655,10 @@
                 }
             }
 
+            if (commend == 'width' || commend == 'height') {
+                styleValue = styleValue + ' !important';
+            }
+
             tag.css(editorProp[commend].proprty, $.trim(styleValue));
             templatechanges();
         }
@@ -3842,7 +3880,7 @@
                 cardTempField: fieldObj,
                 isSystemTemplate:'N'
             }
-           
+
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
             $.ajax({
                 type: "POST",
@@ -4237,6 +4275,53 @@
 
             //btnRedo.removeAttr("disabled");
         }
+
+        function ViewBlockAddDelRowCol(e) {
+
+            DivCradStep2.find('.vis-v-rowcol').show();
+
+            var idx = $(e.target).index();
+            var rc = getRowColPostion(idx);
+
+            if (rc.rowNo == 1) {
+                btnVdelrow.hide();
+            }
+
+            if (rc.colNo == 1) {
+                btnVdelCol.hide();
+            }
+
+
+            btnVaddrow.css({
+                'left': $(e.target).closest('.vis-viewBlock')[0].offsetLeft - 38,
+                'top': $(e.target).height() + $(e.target)[0].offsetTop
+            });
+
+            btnVdelrow.css({
+                'left': $(e.target).closest('.vis-viewBlock')[0].offsetLeft - 20,
+                'top': $(e.target).height() + $(e.target)[0].offsetTop
+            });
+
+            btnVaddCol.css({
+                'top': $(e.target).closest('.vis-viewBlock')[0].offsetTop - 20,
+                'left': ($(e.target).width() - 8) + $(e.target)[0].offsetLeft
+            })
+            btnVdelCol.css({
+                'top': $(e.target).closest('.vis-viewBlock')[0].offsetTop - 20,
+                'left': ($(e.target).width() - 5) + $(e.target)[0].offsetLeft + 15
+            })
+        }
+
+        function getRowColPostion(idx) {
+            var totalCol = DivGridSec.find('.colBox').length - 1;
+            var rowPosition = (Math.floor(idx / totalCol)) + 1;
+            var colposition = (idx % totalCol) + 1;
+            return {
+                rowNo: rowPosition,
+                colNo: colposition
+            }
+        }
+
     };
 
 
