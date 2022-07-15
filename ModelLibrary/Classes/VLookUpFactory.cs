@@ -310,12 +310,12 @@ namespace VAdvantage.Classes
             String displayCol = "AD_Ref_List.Name";
             if (Utility.Env.IsBaseLanguage(language, "AD_Ref_List"))
             {
-                realSQL.Append(displayCol + ", AD_Ref_List.IsActive, (SELECT COALESCE(FontName,ImageURL)||'|'|| FontStyle FROM AD_Image WHERE AD_Image_ID=AD_Ref_List.AD_Image_ID) AS Image,(SELECT ListDisplayOption FROM AD_Reference WHERE AD_Reference_ID=AD_Ref_List.AD_Reference_ID) AS ListDisplayOption FROM AD_Ref_List AD_Ref_List");
+                realSQL.Append(displayCol + ", AD_Ref_List.IsActive, (SELECT  NVL(FontName,ImageURL)||'|'|| NVL(FontStyle,'')  FROM AD_Image WHERE AD_Image_ID=AD_Ref_List.AD_Image_ID) AS Image,(SELECT ListDisplayOption FROM AD_Reference WHERE AD_Reference_ID=AD_Ref_List.AD_Reference_ID) AS ListDisplayOption FROM AD_Ref_List AD_Ref_List");
             }
             else
             {
                 displayCol = "trl.Name";
-                realSQL.Append(displayCol + ", AD_Ref_List.IsActive, (SELECT COALESCE(FontName,ImageURL)||'|'|| FontStyle FROM AD_Image WHERE AD_Image_ID=AD_Ref_List.AD_Image_ID) AS Image, (SELECT ListDisplayOption FROM AD_Reference WHERE AD_Reference_ID=AD_Ref_List.AD_Reference_ID) AS ListDisplayOption "
+                realSQL.Append(displayCol + ", AD_Ref_List.IsActive, (SELECT  NVL(FontName,ImageURL)||'|'|| NVL(FontStyle,'')  FROM AD_Image WHERE AD_Image_ID=AD_Ref_List.AD_Image_ID) AS Image, (SELECT ListDisplayOption FROM AD_Reference WHERE AD_Reference_ID=AD_Ref_List.AD_Reference_ID) AS ListDisplayOption "
                     + " FROM AD_Ref_List AD_Ref_List INNER JOIN AD_Ref_List_Trl trl "
                     + " ON (AD_Ref_List.AD_Ref_List_ID=trl.AD_Ref_List_ID AND trl.AD_Language='")
                         .Append(language.GetAD_Language()).Append("')");
@@ -422,7 +422,7 @@ namespace VAdvantage.Classes
             StringBuilder realSQL = new StringBuilder("SELECT ");
             realSQL.Append(tableName).Append(".").Append(keyColumn).Append(",NULL,");
             bool hasImageIdentifier = false;
-            StringBuilder displayColumn = GetLookup_DisplayColumn(language, tableName,out hasImageIdentifier);
+            StringBuilder displayColumn = GetLookup_DisplayColumn(language, tableName, out hasImageIdentifier);
 
 
             realSQL.Append((displayColumn == null) ? "NULL" : displayColumn.ToString());
@@ -744,11 +744,11 @@ namespace VAdvantage.Classes
                 //    displayColumn.Append("COALESCE(CONVERT(VARCHAR,");
                 displayColumn.Append("NVL(");
                 //  translated
-                if (ldc.ColumnName.ToLower().Equals("ad_image_id"))
+                if (ldc.ColumnName.ToLower().Equals("ad_image_id") || ldc.DisplayType == DisplayType.Image)
                 {
-                    string embeddedSQL = "SELECT NVL(ImageURL,'') ||'^^' FROM AD_Image WHERE " + tableName + ".AD_Image_ID=AD_Image.AD_Image_ID";
+                    string embeddedSQL = "SELECT NVL(FontName,ImageURL) ||'^^ ***'||fontstyle||'***' FROM AD_Image WHERE " + tableName + ".AD_Image_ID=AD_Image.AD_Image_ID";
                     displayColumn.Append("(").Append(embeddedSQL).Append(")");
-                    
+
                 }
                 else if (ldc.IsTranslated && !Env.IsBaseLanguage(language, tableName))//  DataBase.GlobalVariable.IsBaseLanguage())
                     displayColumn.Append(tableName).Append("_Trl.").Append(ldc.ColumnName);
@@ -806,7 +806,7 @@ namespace VAdvantage.Classes
                 }
 
                 //jz EDB || problem
-                if (ldc.ColumnName.ToLower().Equals("ad_image_id"))
+                if (ldc.ColumnName.ToLower().Equals("ad_image_id") || ldc.DisplayType == DisplayType.Image)
                     displayColumn.Append(",'Images/nothing.png^^')");
                 else
                     displayColumn.Append(",'')");
@@ -823,7 +823,7 @@ namespace VAdvantage.Classes
         /// <param name="tableName">table name</param>
         /// <param name="language">language object </param>
         /// <returns></returns>
-        public static StringBuilder GetLookup_DisplayColumn(Language language, string tableName,out bool hasImagIdentifier)
+        public static StringBuilder GetLookup_DisplayColumn(Language language, string tableName, out bool hasImagIdentifier)
         {
             //	get display column names
             String sql0 = "SELECT c.ColumnName,c.IsTranslated,c.AD_Reference_ID,"
@@ -883,7 +883,7 @@ namespace VAdvantage.Classes
 
                 if (i > 0)
                 {
-                    if (ldc.ColumnName.ToLower().Equals("ad_image_id") || ldc.DisplayType==DisplayType.Image)
+                    if (ldc.ColumnName.ToLower().Equals("ad_image_id") || ldc.DisplayType == DisplayType.Image)
                     {
                         displayColumn.Append(" ||'^^'|| ");
                     }
@@ -903,7 +903,7 @@ namespace VAdvantage.Classes
                 //  translated
                 if (ldc.ColumnName.ToLower().Equals("ad_image_id") || ldc.DisplayType == DisplayType.Image)
                 {
-                    string embeddedSQL = "SELECT NVL(ImageURL,'') ||'^^' FROM AD_Image WHERE CAST(" + tableName + "."+ ldc.ColumnName+ " AS Integer)=AD_Image.AD_Image_ID";
+                    string embeddedSQL = "SELECT NVL(FontName,ImageURL) ||'^^ ***'||fontstyle||'***' FROM AD_Image WHERE CAST(" + tableName + "." + ldc.ColumnName + " AS Integer)=AD_Image.AD_Image_ID";
                     displayColumn.Append("(").Append(embeddedSQL).Append(")");
                     hasImagIdentifier = true;
 
@@ -1052,7 +1052,7 @@ namespace VAdvantage.Classes
             bool hasImageIdentifier = false;
             if (isDisplayIdentifiers)
             {
-                displayColumn1 = GetLookup_DisplayColumn(language, tableName,out hasImageIdentifier) ;
+                displayColumn1 = GetLookup_DisplayColumn(language, tableName, out hasImageIdentifier);
                 //if (displayColumn1 == null)
                 //{
                 //    displayColumn1 = new StringBuilder("NULL");
@@ -1174,7 +1174,7 @@ namespace VAdvantage.Classes
         }
 
 
-        private static VLookUpInfo GetLookup_List(Ctx ctx,Language language, int windowNum, int AD_Reference_Value_ID)
+        private static VLookUpInfo GetLookup_List(Ctx ctx, Language language, int windowNum, int AD_Reference_Value_ID)
         {
             string key = AD_Reference_Value_ID.ToString();
             VLookUpInfo retValue = null;
@@ -1417,7 +1417,7 @@ namespace VAdvantage.Classes
             return embedSQL.ToString();
         }   //	getLookup_TableEmbed
 
-        static public string GetLookup_ListEmbed(Language language, string BaseColumn,string BaseTable, int AD_Reference_Value_ID)
+        static public string GetLookup_ListEmbed(Language language, string BaseColumn, string BaseTable, int AD_Reference_Value_ID)
         {
             string sql = "SELECT t.tableName,ck.ColumnName AS keyColumn,"
                 + "cd.ColumnName AS DisplayColumn,rt.IsValueDisplayed,cd.IsTranslated "
@@ -1430,12 +1430,12 @@ namespace VAdvantage.Classes
             //
             string keyColumn = "", DisplayColumn = "", tableName = "";
             bool isTranslated = false, isValueDisplayed = false;
-           
-                    tableName = "AD_Ref_List";
+
+            tableName = "AD_Ref_List";
             keyColumn = "AD_Ref_List_ID";
-                    DisplayColumn = "Name";
-                    isTranslated = true;
-               
+            DisplayColumn = "Name";
+            isTranslated = true;
+
             StringBuilder embedSQL = new StringBuilder("SELECT ");
             //	Translated
             if (isTranslated && !Env.IsBaseLanguage(language, tableName))// GlobalVariable.IsBaseLanguage())

@@ -1571,8 +1571,8 @@ li.vis-page-item-select {
 .vis-w-p-card-Label-f {
     /*display: flex;
     flex-direction: column;*/
-    height:100%;
-    padding:5px;
+   /* height:100%;
+    padding:5px;*/
 
 }
 

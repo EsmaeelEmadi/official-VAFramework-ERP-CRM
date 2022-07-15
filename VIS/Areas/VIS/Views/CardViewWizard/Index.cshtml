@@ -26,12 +26,12 @@
                     </a>
                 </span>
                 @* <span class="mr-2" id="@("btnEdit_" + ViewBag.WindowNumber)">
-            <a href="#" class="vis-font-weight-semibold">
-                <i class="fa fa-pencil-square-o vis-font-size-lg vis-change-to-secondary"
-                   aria-hidden="true"></i>
-            </a>
-        </span>*@
-                <span  class="mr-2" id="@("btnDelete_" + ViewBag.WindowNumber)">
+                        <a href="#" class="vis-font-weight-semibold">
+                            <i class="fa fa-pencil-square-o vis-font-size-lg vis-change-to-secondary"
+                               aria-hidden="true"></i>
+                        </a>
+                    </span>*@
+                <span class="mr-2" id="@("btnDelete_" + ViewBag.WindowNumber)">
                     <a href="#"
                        class="vis-font-weight-semibold vis-change-to-secondary">
                         <i class="fa fa-trash-o vis-font-size-lg"
@@ -253,8 +253,11 @@
                     </div>
                     <!--Right-->
                     <div class="vis-submit-win-btn d-flex align-items-center justify-content-end">
+                        <button class="vis-save-cont mr-2" id="@("btnApplyStep1_" + ViewBag.WindowNumber)">
+                            @GetText("BtnSaveCard")
+                        </button>
                         <button class="vis-save-cont mr-2" id="@("btnSaveCloseStep1_" + ViewBag.WindowNumber)">
-                            @GetText("VIS_SaveChanges")
+                            @GetText("SaveAndApply")
                         </button>
                         <button class="vis-save-cont" id="@("btnCardCustomization_" + ViewBag.WindowNumber)">
                             @GetText("cardCustomization")
@@ -278,16 +281,27 @@
 
     <div class="vis-two-sec-one pl-2" id="@("DivCardFieldSec_" + ViewBag.WindowNumber)" style="display:none">
         <div class="vis-header-ttl d-flex align-items-center justify-content-between">
-            <span class="vis-font-weight-600 mb-2 d-inline-block">@GetText("CardFeild")</span>
+            <div>
+                <span class="vis-font-weight-600 mb-2 d-inline-block">@GetText("CardFeild")</span>
+
+            </div>
+            <div class="vis-filterInputFeild position-relative">
+                <div class='vis-clearInputFeild'>
+                    <input type="text" id="@("txtFilterField_" + ViewBag.WindowNumber)" placeholder="Filter..." class="vis-filterFeildText" />
+                </div>
+                <div class="vis-clearFilter">
+                    <span class="vis vis-cross" id="@("btnClearFilter_" + ViewBag.WindowNumber)"></span>
+                </div>
+            </div>
+
         </div>
         <div class="vis-two-sec-content pr-2" id="@("DivCardField_" + ViewBag.WindowNumber)">
             <span class="displayNone fieldLbl" title="" draggable="true">
                 <a class="vis-grey-icon" href="#"><i class="fa fa-circle" aria-hidden="true"></i></a>
             </span>
         </div>
-        <label>Preview</label> 
-        <div class="vis-templatePreview">
-
+        <label class="vis-previewCard">@GetText("SelectedTemplate")</label>
+        <div class="vis-templatePreview vis-previewCard d-flex align-items-center justify-content-center">
         </div>
     </div>
 
@@ -367,7 +381,7 @@
                                class="bg-white border-none vis-removeBorder"
                                placeholder=" "
                                data-placeholder="" />
-                        <label class="m-0" for="Rating" style="left:10px">@GetText("CardViewName")</label>
+                        <label class="m-0" for="Rating" style="left:10px">@GetText("CardViewName")<sub style="top: -0.5em;">*</sub></label>
                     </div>
                 </div>
                 <span id="@("spnLastSaved_" + ViewBag.WindowNumber)"></span>
@@ -390,8 +404,8 @@
             <i class="vis-v-rowcol fa fa-minus-circle" id="@("btnVdelCol_" + ViewBag.WindowNumber)"></i>
             <div class="vis-card-tw-disply d-flex align-items-center justify-content-center vis-bg-light-level-four " id="@("DivViewBlock_" + ViewBag.WindowNumber)">
                 @*<button class="vis-cancel-btn vis-cancelButtonPosition" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)" style="display:none">
-                @GetText("Cancel")  <i class="fa fa-times-circle" aria-hidden="true"></i>
-            </button>*@
+                        @GetText("Cancel")  <i class="fa fa-times-circle" aria-hidden="true"></i>
+                    </button>*@
                 <a href="javascript:;" class="vis-cancelButtonPosition" style="display:none" id="@("Btn_BlockCancel_" + ViewBag.WindowNumber)">@GetText("Resettolastsaved") <i class="fa fa-undo" aria-hidden="true"></i></a>
                 <button class="vis-undo" title="Undo" id="@("btnUndo_" + ViewBag.WindowNumber)">
                     <i class="fa fa-undo"></i>
@@ -411,20 +425,20 @@
             <div class="vis-footr-sec-two d-flex align-items-center justify-content-between mt-3 mb-1">
                 <div class="vis-footr-sec-left">
                     @*<div class="vis-slider-action d-flex align-items-center justify-content-center">
-                    <div class="mr-2 mt-2">
-                        <a href="#" class="d-inline-block vis-fc-color-535353">
-                            <i class="fa fa-minus" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                    <div>
-                        <input id="@("txtZoomInOut_" + ViewBag.WindowNumber)" type="range" min="0.25" step="0.25" max="2" value="1" class="vis-opacity-slider mt-1">
-                    </div>
-                    <div class="ml-2 mt-2">
-                        <a href="#" class="d-inline-block vis-fc-color-535353">
-                            <i class="fa fa-plus" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                </div>*@
+                            <div class="mr-2 mt-2">
+                                <a href="#" class="d-inline-block vis-fc-color-535353">
+                                    <i class="fa fa-minus" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <input id="@("txtZoomInOut_" + ViewBag.WindowNumber)" type="range" min="0.25" step="0.25" max="2" value="1" class="vis-opacity-slider mt-1">
+                            </div>
+                            <div class="ml-2 mt-2">
+                                <a href="#" class="d-inline-block vis-fc-color-535353">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>*@
                 </div>
 
                 <div class="vis-footr-sec-rgt">
@@ -437,12 +451,12 @@
                         @GetText("ChangeTemplate")
                     </button>
                     @*<button class="vis-blue-theme-btn" id="@("BtnLayoutSetting_" + ViewBag.WindowNumber)">
-                    @GetText("LayoutSettings")
+                            @GetText("LayoutSettings")
 
-                    <i class="fa fa-chevron-right ml-1 mt-1" aria-hidden="true"></i>
-                </button>*@
+                            <i class="fa fa-chevron-right ml-1 mt-1" aria-hidden="true"></i>
+                        </button>*@
                     <button class="vis-blue-theme-btn" id="@("BtnFinesh_" + ViewBag.WindowNumber)">
-                        @GetText("SaveCard")
+                        @GetText("SaveAndApply")
                         <i class="fa fa-chevron-right ml-1 mt-1" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -505,6 +519,7 @@
                                                         <option value="auto">auto</option>
                                                         <option value="fr">fr</option>
                                                         <option value="rem">rem</option>
+                                                        <option value="px">px</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -530,6 +545,7 @@
                                                             <option value="auto">auto</option>
                                                             <option value="fr">fr</option>
                                                             <option value="rem">rem</option>
+                                                            <option value="px">px</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -955,11 +971,11 @@
                                                                 <input type="text" data-command="opacity" class="vis-check-select vis-sm-input-feild vis-input-under-line" placeholder="0px" />
                                                             </div>
                                                             @*<div class="mt-1 ml-3">
-                    <input type="range" data-command="opacity" min="0" max="100" value="0" class="vis-slider-fontsz-ran-input w-100" />
-                </div>*@
+                                                                    <input type="range" data-command="opacity" min="0" max="100" value="0" class="vis-slider-fontsz-ran-input w-100" />
+                                                                </div>*@
                                                         </div>
                                                     </div>
-                                                    
+
                                                 </div>
                                             </div>
                                         </div>
@@ -1023,11 +1039,11 @@
 
 
                                                         @*<div class="vis-background-fld-ctrl d-flex align-items-center">
-                    <div class="vis-background-grad-clr">
-                        <input type="color" data-command="color" class="vis-opn-clr-plt" />
-                    </div>
-                    <div class="vis-background-grad-clr-icn"><i class="fa fa-paint-brush vis-change-to-blue vis-change-to-pointer" aria-hidden="true"></i></div>
-                </div>*@
+                                                                <div class="vis-background-grad-clr">
+                                                                    <input type="color" data-command="color" class="vis-opn-clr-plt" />
+                                                                </div>
+                                                                <div class="vis-background-grad-clr-icn"><i class="fa fa-paint-brush vis-change-to-blue vis-change-to-pointer" aria-hidden="true"></i></div>
+                                                            </div>*@
                                                     </div>
                                                 </div>
                                                 <div class="vis-txt-stl-cont-p4 mb-1">
@@ -1044,10 +1060,10 @@
                                                                 <div class="vis-font-weight-sectf-emt"><i class="fa fa-underline" data-command1="underline" aria-hidden="true"></i></div>
                                                             </div>
                                                             @*<div class="vis-font-weight-sectf">
-                        <div class="vis-font-weight-sectf-emt vis-text-align-sectf-last">
-                            <i class="fa fa-strikethrough" data-command1="strikethrough" aria-hidden="true"></i>
-                        </div>
-                    </div>*@
+                                                                    <div class="vis-font-weight-sectf-emt vis-text-align-sectf-last">
+                                                                        <i class="fa fa-strikethrough" data-command1="strikethrough" aria-hidden="true"></i>
+                                                                    </div>
+                                                                </div>*@
                                                         </div>
                                                         <div class="vis-letter-case-sectf d-flex mb-1">
                                                             <div class="vis-letter-case-sectf-emt vis-font-weight-sectf-emt-fst">
@@ -1067,22 +1083,22 @@
                                                     </div>
                                                 </div>
                                                 @*<div class="vis-rad-box">
-            <span class="vis-cll-sy-p2-title vis-font-size-sm d-block m">@GetText("TextOverflow") </span>
-            <div class="vis-rad-blo9ck d-flex">
-                <div class="vis-rad-sgl-elm mr-2 d-flex align-items-center">
-                    <input type="radio" id="Ellipsis" name="Ellipsis" value="Ellipsis" />
-                    <label for="Ellipsis" class="vis-font-size-sm mb-0 ml-1">@GetText("Ellipsis") </label><br />
-                </div>
-                <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
-                    <input type="radio" id="scroll" name="scroll" value="scroll" />
-                    <label for="scroll" class="vis-font-size-sm m-0 ml-1">@GetText("Scroll") </label><br />
-                </div>
-                <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
-                    <input type="radio" id="auto" name="auto" value="auto" />
-                    <label for="auto" class="vis-font-size-sm m-0 ml-1">@GetText("Auto")</label>
-                </div>
-            </div>
-        </div>*@
+                                                        <span class="vis-cll-sy-p2-title vis-font-size-sm d-block m">@GetText("TextOverflow") </span>
+                                                        <div class="vis-rad-blo9ck d-flex">
+                                                            <div class="vis-rad-sgl-elm mr-2 d-flex align-items-center">
+                                                                <input type="radio" id="Ellipsis" name="Ellipsis" value="Ellipsis" />
+                                                                <label for="Ellipsis" class="vis-font-size-sm mb-0 ml-1">@GetText("Ellipsis") </label><br />
+                                                            </div>
+                                                            <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
+                                                                <input type="radio" id="scroll" name="scroll" value="scroll" />
+                                                                <label for="scroll" class="vis-font-size-sm m-0 ml-1">@GetText("Scroll") </label><br />
+                                                            </div>
+                                                            <div class="vis-rad-sgl-el mr-2 d-flex align-items-center">
+                                                                <input type="radio" id="auto" name="auto" value="auto" />
+                                                                <label for="auto" class="vis-font-size-sm m-0 ml-1">@GetText("Auto")</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>*@
                                             </div>
                                         </div>
                                     </div>
@@ -1103,7 +1119,7 @@
                                                         </div>
                                                     </div>*@
                                                 <div class="d-flex align-items-center justify-content-between d-block mb-1">
-                                                    <span for="" class="m-0 vis-font-size-sm vis-font-weight-regular">@GetText("FlexDirection")</span>
+                                                    <span for="" class="m-0 vis-font-size-sm vis-font-weight-600">@GetText("FlexDirection")</span>
                                                     <div class="">
                                                         <select name="" id="" data-command="flexDirection" class="vis-check-textal-select vis-selectFeild vis-input-under-line">
                                                             <option value="">Select...</option>
@@ -1169,7 +1185,7 @@
                                                     <div class="vis-vertical-slide mr-3">
                                                         <span class="vis-cll-sy-p2-title mb-2 mt-3 vis-font-size-sm vis-borderBottomH pb-1 vis-font-weight-600 d-block">@GetText("AlignItems") </span>
                                                         <div class="vis-horz-align-d d-flex mb-2">
-                                                            <div class="vis-vl-elm vis-vl-elm-fst" >
+                                                            <div class="vis-vl-elm vis-vl-elm-fst">
                                                                 <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignStart">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
@@ -1187,7 +1203,7 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="vis-vl-elm vis-hr-elm-lst" >
+                                                            <div class="vis-vl-elm vis-hr-elm-lst">
                                                                 <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignEnd">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex align-items-end justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
@@ -1253,6 +1269,19 @@
                                                             </div>
                                                         </div>
 
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between d-block mt-3">
+                                                    <span for="" class="m-0 vis-font-size-sm vis-font-weight-600">@GetText("ImageFit")</span>
+                                                    <div class="">
+                                                        <select name="" id="" data-command="objectFit" class="vis-check-textal-select vis-selectFeild vis-input-under-line">
+                                                            <option value="">Select...</option>
+                                                            <option value="contain">contain</option>
+                                                            <option value="cover">cover</option>
+                                                            <option value="fill">fill</option>
+                                                            <option value="none">none</option>
+                                                            <option value="scale-down">scale-down</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>

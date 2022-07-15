@@ -237,7 +237,7 @@
             marginTop: {
                 proprty: 'margin-top',
                 value: '',
-                measurment: false
+                measurment: true
             },
             marginRight: {
                 proprty: 'margin-right',
@@ -295,75 +295,80 @@
             justifyLeft: {
                 proprty: 'text-align',
                 value: 'left',
-                measurment: true
+                measurment: false
             },
             justifyRight: {
                 proprty: 'text-align',
                 value: 'right',
-                measurment: true
+                measurment: false
             },
             justifyCenter: {
                 proprty: 'text-align',
                 value: 'center',
-                measurment: true
+                measurment: false
             },
             upperCase: {
                 proprty: 'text-transform',
                 value: 'uppercase',
-                measurment: true
+                measurment: false
             },
             capitalize: {
                 proprty: 'text-transform',
                 value: 'capitalize',
-                measurment: true
+                measurment: false
             },
             lowerCase: {
                 proprty: 'text-transform',
                 value: 'lowercase',
-                measurment: true
+                measurment: false
             },
             flexJustifyCenter: {
                 proprty: 'justify-content',
                 value: 'center',
-                measurment: true
+                measurment: false
             },
             flexJustifyStart: {
                 proprty: 'justify-content',
                 value: 'flex-start',
-                measurment: true
+                measurment: false
             },
             flexJustifyEnd: {
                 proprty: 'justify-content',
                 value: 'flex-end',
-                measurment: true
+                measurment: false
             },
             flexJustifySpaceBetween: {
                 proprty: 'justify-content',
                 value: 'space-between',
-                measurment: true
+                measurment: false
             },
             flexJustifySpaceAround: {
                 proprty: 'justify-content',
                 value: 'space-around',
-                measurment: true
+                measurment: false
             },
             flexAlignCenter: {
                 proprty: 'align-items',
                 value: 'center',
-                measurment: true
+                measurment: false
             },
             flexAlignEnd: {
                 proprty: 'align-items',
                 value: 'flex-end',
-                measurment: true
+                measurment: false
             },
             flexAlignStart: {
                 proprty: 'align-items',
                 value: 'flex-start',
-                measurment: true
+                measurment: false
             },
             maxTextmultiline: {
                 proprty: '-webkit-line-clamp',
+                value: '',
+                measurment: false
+            },
+            objectFit: {
+                proprty: 'object-fit',
                 value: '',
                 measurment: false
             }
@@ -439,8 +444,8 @@
             btnAddField.click(function () {
                 divTopNavigator.hide();
                 var itm = $('<div class="fieldGroup" draggable="true">'
-                    + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>'
-                    + '<span class="fieldValue" contenteditable="true">Value</span>'
+                    + '<span class="fieldLbl" title="Label" contenteditable="true">Label</span>'
+                    + '<span class="fieldValue" contenteditable="true">:Value</span>'
                     + '</div>');
                 var blok = DivViewBlock.find('.vis-active-block');
                 if (blok.hasClass('grdDiv')) {
@@ -461,7 +466,13 @@
 
             btnEditIcon.click(function () {
                 divTopNavigator.hide();
-                self.show(true,true);
+                var activeblok = DivViewBlock.find('.vis-active-block').closest('.fieldGroup');
+                if (activeblok.find('.imgField').length > 0 && activeblok.find('.fieldValue').length > 0) {
+                    self.show(true, true);
+                } else {
+                    self.show(false, true);
+                }
+                
             });
 
             btnTemplateBack.click(function (e) {
@@ -491,6 +502,11 @@
                 s_history = true;
                 cur_history_index = 0;
                 templatechanges();
+                isUndoRedo = false;
+                history = [];
+                s_history = true;
+                cur_history_index = 0;
+                btnUndo.attr("disabled","disabled");
             });
 
             btnChangeTemplate.click(function () {
@@ -573,7 +589,7 @@
                 //isChange = true;
                 var f = blok.closest('.fieldGroup').find('.fieldLbl');
                 if (cmd == 'Show') {
-                    if (blok.prop('tagName') == 'I') {
+                    if (blok.prop('tagName') == 'I' && !blok.hasClass('imgField')) {
                         blok.attr("class", "fa fa-star");
                         blok.next().attr('showFieldIcon', false);
                     } else {
@@ -586,7 +602,7 @@
                     divTopNavigator.hide();
                     templatechanges();
                 } else if (cmd == 'Hide') {
-                    if (blok.prop('tagName') == 'I') {
+                    if (blok.prop('tagName') == 'I' && !blok.hasClass('imgField')) {
                         blok.attr("class", "");
                         blok.next().attr('showFieldIcon', true);
                     } else if (blok.hasClass('imgField')) {
@@ -666,6 +682,8 @@
                         $(e.target).attr('contenteditable', true);
                     }
                 }
+               
+
                 DivCradStep2.find('.vis-v-rowcol').hide();
                 if ($(e.target).hasClass('grdDiv')) {
                     e.preventDefault();
@@ -716,8 +734,9 @@
                         btnEditIcon.hide();
                     }
 
+                    var isIcon = false;
                     if ($(e.target).closest('.fieldGroup').length > 0) {
-                        divTopNavigator.find('[command="Unlink"]').parent().show();
+                        divTopNavigator.find('[command="Unlink"]').parent().show();                       
                     } else {
                         divTopNavigator.find('[command="Unlink"]').parent().hide();
                     }
@@ -733,7 +752,7 @@
                             divTopNavigator.find('[command="Show"]').parent().hide();
                             divTopNavigator.find('[command="Hide"]').parent().show();
                         }
-                    } else if (e.target.tagName == 'I') {
+                    } else if (e.target.tagName == 'I' && $(e.target).closest('.fieldGroup').find('.imgField').length == 0) {
                         var isTrue = $(e.target).next().attr('showFieldIcon') == 'true' ? true : false;
                         if ($(e.target).next().attr('showFieldIcon') && isTrue) {
                             divTopNavigator.find('[command="Hide"]').parent().hide();
@@ -776,9 +795,11 @@
 
                     if ($(e.target).find('.vis-split-cell').length == 0) {
                         divTopNavigator.find('[command="Separate"]').parent().hide();
-                        mdown = true;
-                        var totalCol = DivGridSec.find('.colBox').length - 1;
+                        if ($(e.target).hasClass('grdDiv')) {
+                            mdown = true;
+                        }
                         activeSection.find('.grdDiv').each(function (e) {
+                        var totalCol = DivGridSec.find('.colBox').length - 1;
                             var currentRow = Math.ceil((e + 1) / totalCol);
                             if ($(this).hasClass('vis-active-block')) {
                                 startRowIndex = currentRow - 1;
@@ -840,7 +861,7 @@
             DivStyleSec1.find('[data-command1]').on('click', function (e) {
 
                 var commend = $(this).data('command1');
-                var tag = activeSection.find('.vis-active-block');
+                var tag = DivViewBlock.find('.vis-active-block');
                 var isStyleExist = false;
                 if (editorProp[commend].measurment) {
                     isStyleExist = checkStyle(editorProp[commend].proprty, editorProp[commend].value, tag)
@@ -849,19 +870,25 @@
                 }
 
 
-
+                var activ = $(this).closest('.vis-horz-align-d').find('.vis-hr-elm-inn-active');
+                activ.removeClass('vis-hr-elm-inn-active');
                 if ((editorProp[commend].proprty == "justify-content" || editorProp[commend].proprty == "align-items") && checkStyle("display", "flex", tag)) {
                     //applyCommend("displayFlex", "");
-                    tag[0].style.removeProperty("display");                    
-                }
-                if (isStyleExist) {
+                    tag[0].style.removeProperty("display");
                     applyCommend(commend, "");
-                } else {
-                    applyCommend(commend, editorProp[commend].value);
+                    if (activ.find('[data-command1]').attr('data-command1') != commend) {
+                        $(this).parent().addClass('vis-hr-elm-inn-active');
+                        applyCommend(commend, editorProp[commend].value);
+                    }
+                } else {                    
+                    if (isStyleExist) {   
+                        $(this).parent().removeClass('vis-hr-elm-inn-active');
+                        applyCommend(commend, "");
+                    } else {
+                        $(this).parent().addClass('vis-hr-elm-inn-active');
+                        applyCommend(commend, editorProp[commend].value);
+                    }
                 }
-
-                $(this).closest('.vis-horz-align-d').find('.vis-hr-elm-inn-active').removeClass('vis-hr-elm-inn-active');                
-                $(this).parent().addClass('vis-hr-elm-inn-active');
             });
 
             // style align image and text command
@@ -1206,6 +1233,9 @@
                     DivViewBlock.find('.vis-viewBlock').html(canv_data);
                     cur_history_index--;                    
                     btnRedo.removeAttr("disabled");
+                    if (cur_history_index <= 0) {
+                        btnUndo.attr("disabled", "disabled");
+                    }
                     fillcardLayoutfromTemplate();
                     DivViewBlock.find('.grdDiv').unbind('mouseover');
                     DivViewBlock.find('.grdDiv').mouseover(function (e) {
@@ -1215,7 +1245,7 @@
                     });
                 }
                 else {
-                    //btnUndo.attr("disabled","disabled");
+                    btnUndo.attr("disabled","disabled");
                 }
                 
             });
@@ -1229,6 +1259,9 @@
                     cur_history_index++;   
                     btnUndo.removeAttr("disabled");
                     fillcardLayoutfromTemplate();
+                    if (cur_history_index >= 5) {
+                        btnRedo.attr("disabled", "disabled");
+                    }
                     DivViewBlock.find('.grdDiv').unbind('mouseover');
                     DivViewBlock.find('.grdDiv').mouseover(function (e) {
                         if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
@@ -1237,7 +1270,7 @@
                     });
                 }
                 else {
-                    //btnRedo.attr("disabled", "disabled");
+                    btnRedo.attr("disabled", "disabled");
                 } 
                 
             });
@@ -1303,6 +1336,7 @@
                             $(this).append('<span class="vis-split-cell"></span>');
                         }
                         arr[idx] = $(this)[0].outerHTML;
+
                     });
                     $(this).html(arr.join(" "));
                 });
@@ -1311,6 +1345,14 @@
                 DivViewBlock.find('.vis-viewBlock').html($this.find('.mainTemplate').html());
                 DivViewBlock.find('.vis-viewBlock').find('.fieldValue').attr("contenteditable", true);
                 DivViewBlock.find('.vis-viewBlock').find('.fieldLbl').attr("contenteditable", true);
+                DivViewBlock.find('.fieldGroup').each(function () {
+                    if ($(this).find('.imgField').length > 0 && ($(this).find('.fieldValue').length > 0)) {
+                        $(this).find('.fieldLbl').attr('title', 'Image+Text');
+                    } else if ($(this).find('.imgField').length > 0) {
+                        $(this).find('.fieldLbl').attr('title', 'Image');
+                    }
+                });
+
                 DivViewBlock.find('.grdDiv').unbind('mouseover');
                 DivViewBlock.find('.grdDiv').mouseover(function (e) {
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
@@ -1345,18 +1387,36 @@
                 if (!gridObj["section" + secNo]) {
                     var totalRow = $(this).attr('row');
                     var totalCol = $(this).attr('col');
+                    var grdAreaCol = $(this)[0].style.gridTemplateColumns.split(' ');
+                    var grdAreaRow = $(this)[0].style.gridTemplateRows.split(' ');
                     var Obj = {};
                     for (var i = 0; i < totalRow; i++) {
-                        Obj['row_' + i] = {
-                            val: 1,
-                            msr: 'auto'
+                        if (grdAreaRow.length > 0 && grdAreaRow[i] != 'auto') {
+                            var v = grdAreaRow[i].replace(/\'/g, '').split(/(\d+)/).filter(Boolean);                            
+                            Obj['row_' + i] = {
+                                val: v[0],
+                                msr: v[1]
+                            }
+                        } else {
+                            Obj['row_' + i] = {
+                                val: 1,
+                                msr: 'auto'
+                            }
                         }
                     };
 
                     for (var j = 0; j < totalCol; j++) {
-                        Obj['col_' + j] = {
-                            val: 1,
-                            msr: 'auto'
+                        if (grdAreaCol.length > 0 && grdAreaCol[j] != 'auto') {
+                            var c = grdAreaCol[j].replace(/\'/g, '').split(/(\d+)/).filter(Boolean);                            
+                            Obj['col_' + j] = {
+                                val: c[0],
+                                msr: c[1]
+                            }
+                        } else {
+                            Obj['col_' + j] = {
+                                val: 1,
+                                msr: 'auto'
+                            }
                         }
                     }
 
@@ -1819,7 +1879,7 @@
                 tag[0].style.removeProperty(editorProp[commend].proprty);
                 return;
             }
-            
+
 
 
             if (commend == 'gradient') {
@@ -1854,11 +1914,20 @@
                 }
             }
 
-            if (commend == 'width' || commend == 'height') {
-                styleValue = styleValue + ' !important';
+            if (styleValue == 'column' || styleValue == 'column-reverse') {
+                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').addClass('vis-disable-event');
+            } else {
+                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').removeClass('vis-disable-event');
             }
 
-            tag.css(editorProp[commend].proprty, $.trim(styleValue));
+            if (commend == 'width' || commend == 'height') {
+                var sty = tag.attr('style') + ';' + editorProp[commend].proprty + ':' + $.trim(styleValue) + ' !important';
+                tag.attr('style', sty);
+            } else {
+                tag.css(editorProp[commend].proprty, $.trim(styleValue));
+            }
+
+
             templatechanges();
         }
 
@@ -1867,6 +1936,9 @@
          * @param {any} htm
          */
         function fill(htm) {
+
+            DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').removeClass('vis-disable-event');
+
             DivStyleSec1.find('#master001_' + WindowNo + ' input').val('');
             DivStyleSec1.find('#master001_' + WindowNo + ' select').val('');
             DivStyleSec1.find('.gradient1').val('#833ab4');
@@ -1886,13 +1958,48 @@
                     if ($.trim(style[0]) == $.trim(editorProp[a].proprty)) {
                         var v = $.trim(style[1]);
                         if (editorProp[a].value == '') {
-                            DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            if (a == 'fontFamily') {
+                                v = v.replaceAll('"','');
+                            }
+                            if (a == 'padding' && $.trim(v).split(' ').length > 1) {
+                                chkAllPadding.prop('checked', false);
+                                DivStyleSec1.find('.allPadding').addClass('displayNone');
+                                DivStyleSec1.find('.singlePadding').removeClass('displayNone');
+                                DivStyleSec1.find("[data-command='paddingLeft']").val(htm.css('padding-left'));
+                                DivStyleSec1.find("[data-command='paddingTop']").val(htm.css('padding-top'));
+                                DivStyleSec1.find("[data-command='paddingRight']").val(htm.css('padding-right'));
+                                DivStyleSec1.find("[data-command='paddingBottom']").val(htm.css('padding-bottom'));
+                            } else if (a == 'padding') {
+                                chkAllPadding.prop('checked', true);
+                                DivStyleSec1.find('.allPadding').removeClass('displayNone');
+                                DivStyleSec1.find('.singlePadding').addClass('displayNone');
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            } else if (a == 'margin' && $.trim(v).split(' ').length > 1) {
+                                chkAllMargin.prop('checked', true);
+                                DivStyleSec1.find('.allMargin').addClass('displayNone');
+                                DivStyleSec1.find('.singleMargin').removeClass('displayNone');
+                                DivStyleSec1.find("[data-command='marginLeft']").val(htm.css('margin-left'));
+                                DivStyleSec1.find("[data-command='marginTop']").val(htm.css('margin-top'));
+                                DivStyleSec1.find("[data-command='marginRight']").val(htm.css('margin-right'));
+                                DivStyleSec1.find("[data-command='marginBottom']").val(htm.css('margin-bottom'));
+                            } else if (a == 'margin') {
+                                chkAllMargin.prop('checked', true);
+                                DivStyleSec1.find('.allMargin').removeClass('displayNone');
+                                DivStyleSec1.find('.singleMargin').addClass('displayNone');
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            } else {
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            }
+
                             if (a == 'backgroundColor') {
                                 DivStyleSec1.find('.vis-zero-BTopLeftBLeft:first').css('background-color', v);
                                 DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
                             } else if (a == 'color') {
                                 DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
                                 DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
+                            }
+                            else if (a == 'flexDirection' && (v == 'column' || v == 'column-reverse')) {
+                                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').addClass('vis-disable-event');
                             }
                         } else {
                             DivStyleSec1.find("[data-command1='" + a + "']").parent().addClass('vis-hr-elm-inn-active');
@@ -2014,7 +2121,7 @@
                             } else {
                                 var cls = $(this).find('.imgField').attr('class');
                                 cls = cls.replace('vis-active-block', '');
-                                contentValue = '<i class="' + cls+'" style="' + $(this).find('.imgField').attr('style') + '"></i>'
+                                contentValue = '<i class="imgField ' + cls+'" style="' + $(this).find('.imgField').attr('style') + '"></i>'
                             }
                             contentValue += ' |' + $(this).find('.fieldValue').text();
                             var isBR = $(this).find('br').length;
@@ -2187,19 +2294,15 @@
         }
 
         function addImgValue(element, isText, isEdit, InputIcon) {
-            var itm = '<div class="fieldGroup" draggable="true">'
-                + '<span class="fieldLbl" title="Label" contenteditable="true">Label:</span>';
+            var itm = '<div class="fieldGroup" draggable="true">';
+                
 
             if ($.trim(InputIcon.val()).length > 0) {
                 if (!isEdit) {
                     if (isText) {
-                        var cls = "";
-                        if (InputIcon.val().indexOf('-') > 1) {
-                            cls += InputIcon.val().split('-')[0] + ' ';
-                        }
-                        cls += $.trim(InputIcon.val());
+                        itm +='<span class="fieldLbl" title="Image+Text" contenteditable="true">Label</span>';                        
                         itm += '<i class="imgField ' + $.trim(InputIcon.val()) + '"></i>';
-                        itm += '<span class="fieldValue" contenteditable="true">Value</span>';
+                        itm += '<span class="fieldValue" contenteditable="true">:Value</span>';
                         itm += '</div>';
                         var blok = DivViewBlock.find('.vis-active-block');
                         if (blok.hasClass('grdDiv')) {
@@ -2207,7 +2310,7 @@
                         }
                         templatechanges();
                     }
-                } else {
+                } else {                    
                     var dvb = DivViewBlock.find('.vis-active-block');
                     dvb.removeAttr('class');
                     dvb.addClass('imgField vis-active-block');
@@ -2251,9 +2354,11 @@
                 if (!isEdit) {
                    
                     if (isText) {
+                        itm += '<span class="fieldLbl" title="Image" contenteditable="true">Label</span>';
                         itm += '<img class="imgField" style="width:30px; height:30px" src="' + canvas.toDataURL() + '">';
-                        itm += '<span class="fieldValue" contenteditable="true">Value</span>';
+                        itm += '<span class="fieldValue" contenteditable="true">:Value</span>';
                     } else {
+                        itm += '<span class="fieldLbl" title="Image" contenteditable="true">Label</span>';  
                         itm += '<img class="imgField" style="width:100px; height:100px" src="' + canvas.toDataURL() + '">';
                     }
                     itm += '</div>';
@@ -2336,8 +2441,8 @@
 
             DivCradStep2.find('.vis-v-rowcol').hide();
 
-            //btnRedo.removeAttr("disabled");
-            //btnUndo.removeAttr("disabled");
+            btnRedo.attr("disabled", "disabled");
+            btnUndo.removeAttr("disabled");
         }
 
         function ViewBlockAddDelRowCol(e) {
@@ -2425,8 +2530,13 @@
                     input.removeAttr('disabled');
                 }
 
-                IconInput.val(IconInput.val().replace('fa ', ''));
-                IconInput.val(IconInput.val().replace('vis ', ''));
+                if (IconInput.val().indexOf('fa-') != -1 && IconInput.val().indexOf('fa ') == -1) {
+                    IconInput.val('fa ' + IconInput.val());
+                } else if (IconInput.val().indexOf('vis-') != -1 && IconInput.val().indexOf('vis ') == -1) {
+                    IconInput.val('vis ' + IconInput.val())
+                }
+                //IconInput.val(IconInput.val().replace('fa ', ''));
+                //IconInput.val(IconInput.val().replace('vis ', ''));
             })
 
 

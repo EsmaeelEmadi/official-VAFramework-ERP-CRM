@@ -484,10 +484,25 @@
          */
         getIdentifierDisplayVal: function (Name) {
             var val = "";
-            if (Name && Name.indexOf("Images/") > -1) {
-                val = Name.replace("^^" + Name.substring(Name.indexOf("Images/"), Name.lastIndexOf("^^") + 3), "_")
-                if (val.indexOf("Images/") > -1) {
-                    val = val.replace(val.substring(val.indexOf("Images/"), val.lastIndexOf("^^") + 3), "_")
+
+            if (Name && (Name.indexOf("Images/") > -1 || Name.indexOf('vis vis-') > -1 || Name.indexOf('fa fa-') > -1 || Name.indexOf("^^") > -1)) {
+                if (Name.indexOf("***") > -1)
+                    Name = Name.replace(Name.substring(Name.indexOf("***"), Name.lastIndexOf("***") + 3), "");
+                if (Name.indexOf("Images/") > -1) {
+                    val = Name.replace("^^" + Name.substring(Name.indexOf("Images/"), Name.lastIndexOf("^^") + 3), "_")
+                    if (val.indexOf("Images/") > -1) {
+                        val = val.replace(val.substring(val.indexOf("Images/"), val.lastIndexOf("^^") + 3), "_")
+                    }
+                }
+                else {
+                    val = Name.replace("^^" + Name.substring(Name.indexOf("^^"), Name.lastIndexOf("^^") + 2), "_");
+                    if (val.indexOf('vis vis-') > -1) {
+                        val = val.replace(val.substring(val.indexOf('vis vis-'), val.lastIndexOf("^^") + 3), "_")
+                    }
+                    if (val.indexOf('fa fa-') > -1) {
+                        val = val.replace(val.substring(val.indexOf('fa fa-'), val.lastIndexOf("^^") + 3), "_")
+                    }
+                    val = val.replace("^^", "").trim()
                 }
                 if (val.endsWith("_")) {
                     val = val.substring(0, val.length - 1);

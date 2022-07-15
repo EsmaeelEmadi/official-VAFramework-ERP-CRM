@@ -1258,12 +1258,12 @@
                             lblflxstyle = 'display:flex; ' + backgroundColor.substring(fIdx, cIdx);
                         }
 
-                        $divLabel = $('<div class="vis-w-p-card-Label-f" style="' + lblflxstyle+'"></div>');
+                        $divLabel = $('<div class="vis-w-p-card-Label-f" style="' + lblflxstyle + '"></div>');
 
                         $divDBIconSpan = $('<div class="vis-w-p-card-icon-f"></div>');
                         $divDBImgSpan = $('<div class="vis-w-p-card-img-f"></div>');
 
-                        $divDBLevel = $('<div class="vis-w-p-card-Label-f" style="' + lblflxstyle +'"></div>');
+                        $divDBLevel = $('<div class="vis-w-p-card-Label-f" style="' + lblflxstyle + '"></div>');
                         // If Referenceof field is Image then added extra class to align image and Label in center.
                         //if (mField.getDisplayType() == VIS.DisplayType.Image) {
                         //    $divLabel.addClass('vis-w-p-card-Label-center-f');
@@ -1337,15 +1337,17 @@
 
                         var $image = $('<img>');
                         var $imageSpan = $('<span>');
+
                         objctrls["img"] = $image;
                         var lType = null;
 
                         if (mField.lookup && mField.lookup.gethasImageIdentifier()) {
                             objctrls["imgspan"] = $imageSpan;
-                            $divLabel = $('<div class="vis-w-p-card-DivLabel-f"></div>');
+                           // $divLabel = $('<div class="vis-w-p-card-DivLabel-f"></div>');
                             var img = null;
                             var imgSpan = null;
                             var styleArr = null;
+                            this.iconStyle = null;
                             if (VIS.DisplayType.List == mField.lookup.displayType) {
                                 lType = mField.lookup.getLovIconType(record[mField.getColumnName().toLower()], true);
                                 img = mField.lookup.getLOVIconElement(record[mField.getColumnName().toLower()], true);
@@ -1359,16 +1361,29 @@
                                 img = getIdentifierImage(mField, record);
                             }
 
-                            if (img && !img.contains("Images/")) {
+                            if (img && !img.contains("Images/") && img.indexOf('fa fa-') == -1 && img.indexOf('vis vis-') == -1) {
                                 imgSpan = img;//img contains First charater of Name or Identifier text
                                 $imageSpan.append(imgSpan);
+                                icon = null;
                             }
                             else {
                                 if (VIS.DisplayType.List == mField.lookup.displayType) {
-                                    $image.attr('src', $(img).attr('src'));
+                                    if (img && !img.contains("Images/") && (img.indexOf('fa fa-') != -1 || img.indexOf('vis vis-') != -1)) {
+                                        imgSpan = img;
+                                        $(img).attr('style', this.iconStyle);
+                                        $imageSpan.append(img);
+                                    } else {
+                                        $image.attr('src', $(img).attr('src'));
+                                    }
                                 }
                                 else {
-                                    $image.attr('src', img);
+                                    if (img.indexOf('fa fa-') == -1 && img.indexOf('vis vis-') == -1)
+                                        $image.attr('src', img);
+                                    else {
+                                        imgSpan = $('<i style="' + this.iconStyle + '" class="' + img + '"></i>');
+                                        $imageSpan.append(imgSpan);
+                                        icon = null;
+                                    }
                                 }
 
                             }
@@ -1379,16 +1394,28 @@
 
                             $spanIcon.addClass('vis-w-p-card-icon-fixed');
                             objctrls["imgspan"] = $spanIcon;
-                            $divIcon.append($spanIcon.append(icon));
+                            
+                                if (icon != null) {
+                                    setFieldLayout(fieldValueStyle, $spanIcon, $(icon), $divDBLevel, true);
+                                    $divIcon.append($spanIcon);
+                                } else {
+                                    setFieldLayout(fieldValueStyle, $divLabel, $imageSpan, iControl.getControl(), true);
+                                }
+                            
+
+                            //$divIcon.append($imageSpan);
+                            //$divIcon.append($image);
 
                             //if ($lblControl && $lblControl.length > 0)
                             //    $divLabel.append($lblControl);
 
                             /*Set what do you want to show? Icon OR Label OR Both OR None*/
                             setFieldVisibility(mField, imgSpan, $image, $imageSpan, $lblControl, $divLabel, $divIcon);
-                            $divIconContainer.append($divIcon);
+                            //$divIconContainer.append($divIcon);
                             $divLabelValueContainer.append($divLabel);
-                            $divDBLevel.append(iControl.getControl());
+                            if (VIS.DisplayType.List != mField.lookup.displayType) {
+                                $divLabel.append(iControl.getControl());
+                            }
 
                             $div.append($divIconContainer).append($divLabelValueContainer);
 
@@ -1396,37 +1423,38 @@
                             //$div.append($divDBIconSpan);
                             $containerDiv.append($div);
                             if (VIS.DisplayType.List == mField.lookup.displayType) {
-                                if (lType == "B") {
-                                    //if ($divIcon.parent().length > 0)
-                                    //$divIcon.append($divDBIconSpan);
-                                    //else {
-                                    //    $divIcon.empty();
-                                    //    $div.append($divIcon);
-                                    //    $divIcon.append($divDBIconSpan);
-                                    //}
-                                    $divDBIconSpan.append($imageSpan).append($image)
+                                //if (lType == "B") {
+                                //    //if ($divIcon.parent().length > 0)
+                                //    //$divIcon.append($divDBIconSpan);
+                                //    //else {
+                                //    //    $divIcon.empty();
+                                //    //    $div.append($divIcon);
+                                //    //    $divIcon.append($divDBIconSpan);
+                                //    //}
+                                //    $divDBIconSpan.append($imageSpan).append($image)
 
-                                    setValue(colValue, iControl, mField);
-                                    $divLabelValueContainer.append($divDBIconSpan);
-                                    $divLabelValueContainer.append($divDBLevel);
-                                }
-                                else if (lType == "T") {
+                                setValue(colValue, iControl, mField);
+                                //    $divLabelValueContainer.append($divDBIconSpan);
+                                //    $divLabelValueContainer.append($divDBLevel);
+                                //}
+                                //else if (lType == "T") {
 
-                                    $divLabelValueContainer.append($divDBLevel);
-                                    setValue(colValue, iControl, mField);
-                                }
-                                else if (lType == "I") {
-                                    $divDBIconSpan.append($imageSpan).append($image)
-                                    $divLabelValueContainer.append($divDBIconSpan);
-                                    //if ($divIcon.parent().length > 0)
-                                    //$divIcon.append($divDBIconSpan);
-                                    //else {
-                                    //    $divIcon.empty();
-                                    //    $div.append($divIcon);
-                                    //    $divIcon.append($divDBIconSpan);
-                                    //}
-                                }
-                                setFieldLayout(fieldValueStyle, $divLabelValueContainer, $divDBIconSpan, $divDBLevel, true);
+                                //    $divLabelValueContainer.append($divDBLevel);
+                                //    setValue(colValue, iControl, mField);
+                                //}
+                                //else if (lType == "I") {
+                                //    $divDBIconSpan.append($imageSpan).append($image)
+                                //    $divLabelValueContainer.append($divDBIconSpan);
+                                //    $divDBLevel = null;
+                                //    //if ($divIcon.parent().length > 0)
+                                //    //$divIcon.append($divDBIconSpan);
+                                //    //else {
+                                //    //    $divIcon.empty();
+                                //    //    $div.append($divIcon);
+                                //    //    $divIcon.append($divDBIconSpan);
+                                //    //}
+                                //}
+                                //setFieldLayout(fieldValueStyle, $divLabelValueContainer, $divDBIconSpan, $divDBLevel, true);
                             }
                             else {
                                 setValue(colValue, iControl, mField);
@@ -1436,11 +1464,11 @@
                             setValue(colValue, iControl, mField);
                             var imgCtrl = iControl.getControl().find('img');
                             if (!mField.isCardTextHide()) {
-                                var lblcontrol = $('<label for="' + mField.getColumnName()+'" class="vis-w-p-card-data-label">' + mField.getHeader() + '</label>');
+                                var lblcontrol = $('<label for="' + mField.getColumnName() + '" class="vis-w-p-card-data-label">' + mField.getHeader() + '</label>');
                                 lblcontrol.addClass(this.dynamicLabelValue);
                                 $divLabel.append(lblcontrol);
                             }
-                                                        
+
                             $divDBLevel = null;
                             setFieldLayout(fieldValueStyle, $divLabel, imgCtrl, $divDBLevel, true);
                             $div.append($divLabel);
@@ -1756,7 +1784,7 @@
                 var displayType = mField.getDisplayType();
 
                 if (mField.lookup) {
-                    colValue = mField.lookup.getDisplay(colValue, true, true);
+                    colValue = mField.lookup.getDisplay(colValue, true, false);
                 }
                 //	Date
                 else if (VIS.DisplayType.IsDate(displayType)) {
@@ -1809,35 +1837,54 @@
          * @param {any} mField
          * @param {any} record
          */
-        var getIdentifierImage = function (mField, record) {
+        this.iconStyle = null;
+        var $self = this;
+        var getIdentifierImage = function (mField, record, iconStyle) {
             var value = record[mField.getColumnName().toLowerCase()];
             value = mField.lookup.getDisplay(value, true, true);
 
-            if (value != null && value && value.indexOf("Images/") > -1) {// Based on sequence of image in idenitifer, perform logic and display image with text
+            if (value == null || value == "")
+                return "";
 
-                var img = value.substring(value.indexOf("Images/") + 7, value.lastIndexOf("^^"));
-                img = VIS.Application.contextUrl + "Images/Thumb32x32/" + img;
+            var imgIndex = value.indexOf("Images/");
+            var capIndex = value.indexOf("^^");
+            var style;
+            if (value != null && value && (imgIndex > -1 || capIndex > -1)) { // Based on sequence of image in idenitifer, perform logic and display image with text
 
-                if (c == 0 || img.indexOf("nothing.png") > -1) {
-
-                    value = value.replace("^^" + value.substring(value.indexOf("Images/"), value.lastIndexOf("^^") + 2), "^^^")
-                    if (value.indexOf("Images/") > -1)
-                        value = value.replace(value.substring(value.indexOf("Images/"), value.lastIndexOf("^^") + 2), "^^^");
-
-                    value = value.split("^^^");
-                    var highlightChar = '';
-                    for (var c = 0; c < value.length; c++) {
-                        if (value[c].trim().length > 0) {
-                            if (highlightChar.length == 0)
-                                highlightChar = value[c].trim().substring(0, 1).toUpper();
-                            return highlightChar;
-                        }
-
-                    }
+                if (imgIndex > -1) {
+                    var img = value.substring(value.indexOf("Images/") + 7, value.lastIndexOf("^^"));
+                    img = VIS.Application.contextUrl + "Images/Thumb32x32/" + img;
                 }
-                else
-                    return img;
+                else if (imgIndex == -1 && capIndex > -1) {
+                    style = value.substring(value.indexOf("***"), value.lastIndexOf("***") + 3);
+                    style = style.replace("***", "").replace("***", "");
+                    value = value.replace(value.substring(value.indexOf("***"), value.lastIndexOf("***") + 3), "");
+                    imgIndex = value.indexOf("vis vis-");
+                    if (imgIndex == -1)
+                        imgIndex = value.indexOf("fa fa-");
+                    img = value.substring(imgIndex, value.lastIndexOf("^^"));
+                    $self.iconStyle = style;
+                }
             }
+            if (c == 0 || (img.indexOf("nothing.png") > -1 && !style)) {
+
+                value = value.replace("^^" + value.substring(value.indexOf("Images/"), value.lastIndexOf("^^") + 2), "^^^")
+                if (value.indexOf("Images/") > -1)
+                    value = value.replace(value.substring(value.indexOf("Images/"), value.lastIndexOf("^^") + 2), "^^^");
+
+                value = value.split("^^^");
+                var highlightChar = '';
+                for (var c = 0; c < value.length; c++) {
+                    if (value[c].trim().length > 0) {
+                        if (highlightChar.length == 0)
+                            highlightChar = value[c].trim().substring(0, 1).toUpper();
+                        return highlightChar;
+                    }
+
+                }
+
+            }
+            return img;
 
         };
 

@@ -590,8 +590,8 @@ namespace VIS.Models
                             int totalCol = Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["TotalColumns"]);
                             if (gridStyle.IndexOf("grid-template-rows") == -1 || gridStyle.IndexOf("grid-template-columns") == -1)
                             {
-                                gridStyle += ";grid-template-rows:repeat(" + totalRow + ",1fr)";
-                                gridStyle += ";grid-template-columns:repeat(" + totalCol + ",1fr)";
+                                gridStyle += ";grid-template-rows:repeat(" + totalRow + ",auto)";
+                                gridStyle += ";grid-template-columns:repeat(" + totalCol + ",auto)";
                             }
 
                             design += "<div name='" + Util.GetValueOfString(dsSec.Tables[0].Rows[j]["Name"]) + "' row='" + totalRow + "' col='" + totalCol + "' sectionID='" + Util.GetValueOfInt(dsSec.Tables[0].Rows[j]["AD_GridLayout_ID"]) + "' sectionCount='" + (j + 1) + "' class='section" + (j + 1) + " vis-wizard-section' style='" + gridStyle + "'>";
@@ -650,13 +650,13 @@ namespace VIS.Models
                                             }
                                         }
 
-                                        if(brPos !=null && brPos.Length > 0)
+                                        if(brPos !=null && brPos.Length > 1)
                                         {
-                                            if (stylearr[0].IndexOf("@img::") > -1)
+                                            if (stylearr[0].IndexOf("@img::") > -1 && stylearr[1].IndexOf("@value::") > -1)
                                             {
                                                 brStart = 1;
                                             }
-                                            else
+                                            else if (stylearr[1].IndexOf("@img::") > -1 && stylearr[0].IndexOf("@value::") > -1)
                                             {
                                                 brStart = 2;
                                             }
@@ -685,50 +685,79 @@ namespace VIS.Models
 
                                         directionStyle = "display:flex;" + style.Substring(index, (index2 - index));
                                     }
+                                    
+                                        design += "<div class='fieldGroup' draggable='true' style='" + directionStyle + "'>";
+                                        string spn = "";
+                                        string img = "";
+                                        string isFieldTextHide = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y" ? "true" : "false";
+                                        if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
+                                        {
+                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
+                                        }
+                                        else
+                                        {
+                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl' title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
+                                        }
+                                        if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1 || contentFieldValue.IndexOf("<i") > -1)
+                                        {
+                                            string cvv = "";
+                                            string cvi = "";
+                                            if (contentFieldValue.IndexOf("|") > -1)
+                                            {
+                                                string[] cv = contentFieldValue.Split('|');
+                                                cvi = cv[0];
+                                                cvv = cv[1];
+                                                if (contentFieldValue.IndexOf("<img") > -1)
+                                                {
+                                                    img = cvi.Replace("<img", "<img style='" + imgStyle + "' ");
+                                                }
+                                                else if (contentFieldValue.IndexOf("<svg") > -1)
+                                                {
+                                                    img = cvi.Replace("<svg", "<svg style='" + imgStyle + "' ");
+                                                }
+                                                else
+                                                {
+                                                    img = cvi.Replace("<i", "<i style='" + imgStyle + "' ");
+                                                }
+                                                if (brStart == 0)
+                                                {
+                                                    spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "</span>";
+                                                }
+                                                else if (brStart == 1)
+                                                {
+                                                    spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + cvv + "</span>";
+                                                }
+                                                else if (brStart == 2)
+                                                {
+                                                    spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "<br></span>";
+                                                }
 
-                                    design += "<div class='fieldGroup' draggable='true' style='" + directionStyle + "'>";
-                                    string spn = "";
-                                    string img = "";
-                                    string isFieldTextHide = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y" ? "true" : "false";
-                                    if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
-                                    {
-                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
-                                    }
-                                    else
-                                    {
-                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl' title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
-                                    }
-                                    if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1)
-                                    {
-                                        contentFieldValue = contentFieldValue.Replace("<img", "<img style='" + imgStyle + "' ");
-                                        img += contentFieldValue;
-                                    }
-                                    else
-                                    {
-                                        if (brStart==0)
+                                            }
+                                            else
+                                            {
+
+                                                contentFieldValue = contentFieldValue.Replace("<img", "<img style='" + imgStyle + "' ");
+                                                img += contentFieldValue;
+                                            }
+                                        }
+                                        else
                                         {
                                             spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "</span>";
-                                        }else if(brStart == 1)
-                                        {
-                                            spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + contentFieldValue + "</span>";
-                                        }else if(brStart == 2)
-                                        {
-                                            spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "<br></span>";
                                         }
-                                      
-                                    }
-                                    if (firstImg)
-                                    {
-                                        design += img;
-                                        design += spn;
-                                    }
-                                    else
-                                    {
-                                        design += spn;
-                                        design += img;
-                                    }
 
-                                    design += "</div>";
+                                        if (firstImg)
+                                        {
+                                            design += img;
+                                            design += spn;
+                                        }
+                                        else
+                                        {
+                                            design += spn;
+                                            design += img;
+                                        }
+
+                                        design += "</div>";
+                                    
                                     design += "</div>";
                                 }
                             }
@@ -871,78 +900,82 @@ namespace VIS.Models
                                         directionStyle = "display:flex;"+ style.Substring(index, (index2 - index));
                                     }
 
-                                    design += "<div class='fieldGroup' draggable='true' style='" + directionStyle + "'>";
-                                    string spn = "";
-                                    string img = "";
-                                    string isFieldTextHide = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y" ? "true" : "false";
-                                    if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
+                                    if (!string.IsNullOrEmpty(contentFieldLable) && !string.IsNullOrEmpty(contentFieldValue))
                                     {
-                                       
-                                        design += "<span style='"+ Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='"+ isFieldTextHide + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
-                                    }
-                                    else
-                                    {
-                                        design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl'  title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
-                                    }
-
-                                    if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1 || contentFieldValue.IndexOf("<i")>-1)
-                                    {
-                                        string cvv = "";
-                                        string cvi = "";
-                                        if (contentFieldValue.IndexOf("|") > -1)
+                                        design += "<div class='fieldGroup' draggable='true' style='" + directionStyle + "'>";
+                                        string spn = "";
+                                        string img = "";
+                                        string isFieldTextHide = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y" ? "true" : "false";
+                                        if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
                                         {
-                                            string[] cv = contentFieldValue.Split('|');
-                                            cvi = cv[0];
-                                            cvv = cv[1];
-                                            if (contentFieldValue.IndexOf("<img") > -1)
-                                            {
-                                                img = cvi.Replace("<img", "<img style='" + imgStyle + "' ");
-                                            }
-                                            else if (contentFieldValue.IndexOf("<svg") > -1) {
-                                                img = cvi.Replace("<svg", "<svg style='" + imgStyle + "' ");
-                                            }
-                                            else
-                                            {
-                                                img = cvi.Replace("<i", "<i style='" + imgStyle + "' ");
-                                            }
-                                            if (brStart == 0)
-                                            {
-                                                spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "</span>";
-                                            }
-                                            else if (brStart == 1)
-                                            {
-                                                spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + cvv + "</span>";
-                                            }
-                                            else if (brStart == 2)
-                                            {
-                                                spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "<br></span>";
-                                            }
-                                            
+
+                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
                                         }
                                         else
                                         {
-
-                                            contentFieldValue = contentFieldValue.Replace("<img", "<img style='" + imgStyle + "' ");
-                                            img += contentFieldValue;
+                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl'  title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
                                         }
-                                    }
-                                    else
-                                    {
-                                        spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "</span>";
-                                    }
-                                   
-                                    if (firstImg)
-                                    {
-                                        design += img;
-                                        design += spn;
-                                    }
-                                    else
-                                    {
-                                        design += spn;
-                                        design += img;
-                                    }
 
-                                    design += "</div>";
+                                        if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1 || contentFieldValue.IndexOf("<i") > -1)
+                                        {
+                                            string cvv = "";
+                                            string cvi = "";
+                                            if (contentFieldValue.IndexOf("|") > -1)
+                                            {
+                                                string[] cv = contentFieldValue.Split('|');
+                                                cvi = cv[0];
+                                                cvv = cv[1];
+                                                if (contentFieldValue.IndexOf("<img") > -1)
+                                                {
+                                                    img = cvi.Replace("<img", "<img style='" + imgStyle + "' ");
+                                                }
+                                                else if (contentFieldValue.IndexOf("<svg") > -1)
+                                                {
+                                                    img = cvi.Replace("<svg", "<svg style='" + imgStyle + "' ");
+                                                }
+                                                else
+                                                {
+                                                    img = cvi.Replace("<i", "<i style='" + imgStyle + "' ");
+                                                }
+                                                if (brStart == 0)
+                                                {
+                                                    spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "</span>";
+                                                }
+                                                else if (brStart == 1)
+                                                {
+                                                    spn += "<span class='fieldValue' style='" + valueStyle + "'><br>" + cvv + "</span>";
+                                                }
+                                                else if (brStart == 2)
+                                                {
+                                                    spn += "<span class='fieldValue' style='" + valueStyle + "'>" + cvv + "<br></span>";
+                                                }
+
+                                            }
+                                            else
+                                            {
+
+                                                contentFieldValue = contentFieldValue.Replace("<img", "<img style='" + imgStyle + "' ");
+                                                img += contentFieldValue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            spn += "<span class='fieldValue' style='" + valueStyle + "'>" + contentFieldValue + "</span>";
+                                        }
+
+                                        if (firstImg)
+                                        {
+                                            design += img;
+                                            design += spn;
+                                        }
+                                        else
+                                        {
+                                            design += spn;
+                                            design += img;
+                                        }
+
+                                        design += "</div>";
+                                    }
                                     design += "</div>";
                                 }
                             }

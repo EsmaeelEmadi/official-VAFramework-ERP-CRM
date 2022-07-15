@@ -693,20 +693,43 @@
                             // Based on sequence of image in idenitifer, perform logic and display image with text
                             if (l && l.gethasImageIdentifier()) {
                                 var imgIndex = d.indexOf("Images/");
+                                var capindex = d.indexOf("^^");
 
-                                if (imgIndex == -1)
+                                if (imgIndex == -1 && capindex == -1) {
                                     return d;
+                                }
+                                var img;
+                                var style = "";
+                                if (imgIndex == -1 && capindex > -1) {
+                                    style = d.substring(d.indexOf("***"), d.lastIndexOf("***") + 3);
+                                    style = style.replace("***", "").replace("***", "");
+                                    d = d.replace(d.substring(d.indexOf("***"), d.lastIndexOf("***") + 3), "");
+                                    imgIndex = d.indexOf("vis vis-");
+                                    if (imgIndex == -1)
+                                        imgIndex = d.indexOf("fa fa-");
+                                    img = d.substring(imgIndex, d.lastIndexOf("^^"));
+                                    /* img = "<i class='"+img+"'></i>"*/
+                                    //Replace Image string with ^^^, so that ^^^ can be used to split Rest of identifer value
+                                    d = d.replace("^^" + d.substring(imgIndex, d.lastIndexOf("^^") + 2), "^^^");
 
-                                //Find Image from Identifier string 
-                                var img = d.substring(imgIndex + 7, d.lastIndexOf("^^"));
-                                img = VIS.Application.contextUrl + "Images/Thumb32x32/" + img;
+                                    if (d.indexOf("vis vis-") > -1 || d.indexOf("fa fa-") > -1) {
+                                        d = d.replace(d.substring(imgIndex, d.lastIndexOf("^^") + 2), "^^^");
+                                    }
+                                    d = d.split("^^^");
+                                }
 
-                                //Replace Image string with ^^^, so that ^^^ can be used to split Rest of identifer value
-                                d = d.replace("^^" + d.substring(imgIndex, d.lastIndexOf("^^") + 2), "^^^")
-                                if (d.indexOf("Images/") > -1)
-                                    d = d.replace(d.substring(imgIndex, d.lastIndexOf("^^") + 2), "^^^");
+                                else {
+                                    //Find Image from Identifier string 
+                                    img = d.substring(imgIndex + 7, d.lastIndexOf("^^"));
+                                    img = VIS.Application.contextUrl + "Images/Thumb32x32/" + img;
 
-                                d = d.split("^^^");
+                                    //Replace Image string with ^^, so that ^^^ can be used to split Rest of identifer value
+                                    d = d.replace("^^" + d.substring(imgIndex, d.lastIndexOf("^^") + 2), "^^^")
+                                    if (d.indexOf("Images/") > -1)
+                                        d = d.replace(d.substring(imgIndex, d.lastIndexOf("^^") + 2), "^^^");
+
+                                    d = d.split("^^^");
+                                }
 
                                 //Start HTMl string to be rendered inside Cell
                                 strDiv = "<div class='vis-grid-td-icon-grp'>";
@@ -728,9 +751,16 @@
                                     //If image found, then display that image.
                                     if (c == 0 || img.indexOf("nothing.png") > -1) {
                                         if (img.indexOf("nothing.png") == -1) {
-                                            strDiv += "<div class='" + oColumns[colIndex]['customClass'] + " vis-grid-row-td-icon'"
-                                                + " > <img src='" + img +
-                                                "'></div > ";
+                                            if (img.indexOf("Images/") > -1) {
+                                                strDiv += "<div class='" + oColumns[colIndex]['customClass'] + " vis-grid-row-td-icon'"
+                                                    + " > <img src='" + img +
+                                                    "'></div > ";
+                                            }
+                                            else {
+                                                strDiv += "<div class='" + oColumns[colIndex]['customClass'] + " vis-grid-row-td-icon'"
+                                                    + " > <i style='" + style + "' class='" + img +
+                                                    "'></i></div > ";
+                                            }
                                             // "' onerror='this.style.display=\"none\"' ></img></div > ";
                                         }
 
@@ -1271,7 +1301,7 @@
                 id = args.recid; // row to select
                 this.grid.refresh(); //refresh Grid
                 this.blockSelect = true; // forcefully block select changed event
-              
+
             }
 
             else if (action === VIS.VTable.prototype.ROW_DELETE) {
@@ -1308,7 +1338,7 @@
 
     //Set Default Focus for grid... Not in use Yet.
     VTable.prototype.setDefaultFocus = function (colName) {
-       
+
         if (!this.mTab.defaultFocusField)
             return;
         if (!colName)

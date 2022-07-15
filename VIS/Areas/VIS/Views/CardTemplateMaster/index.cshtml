@@ -73,7 +73,7 @@
                                class="bg-white border-none vis-removeBorder"
                                placeholder=" "
                                data-placeholder="" />
-                        <label class="m-0" for="Rating" style="left:10px">@GetText("CardViewName")</label>
+                        <label class="m-0" for="Rating" style="left:10px">@GetText("CardViewName")<sub style="top: -0.5em;">*</sub></label>
                     </div>
                 </div>
                 <span id="@("spnLastSaved_" + ViewBag.WindowNumber)"></span>
@@ -216,6 +216,7 @@
                                                         <option value="auto">auto</option>
                                                         <option value="fr">fr</option>
                                                         <option value="rem">rem</option>
+                                                        <option value="px">px</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -241,6 +242,7 @@
                                                             <option value="auto">auto</option>
                                                             <option value="fr">fr</option>
                                                             <option value="rem">rem</option>
+                                                            <option value="px">px</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -813,7 +815,7 @@
             </div>
         </div>*@
                                                 <div class="d-flex align-items-center justify-content-between d-block mb-1">
-                                                    <span for="" class="m-0 vis-font-size-sm vis-font-weight-regular">@GetText("FlexDirection")</span>
+                                                    <span for="" class="m-0 vis-font-size-sm vis-font-weight-600">@GetText("FlexDirection")</span>
                                                     <div class="">
                                                         <select name="" id="" data-command="flexDirection" class="vis-check-textal-select vis-selectFeild vis-input-under-line">
                                                             <option value="">Select...</option>
@@ -879,7 +881,7 @@
                                                     <div class="vis-vertical-slide mr-3">
                                                         <span class="vis-cll-sy-p2-title mb-2 mt-3 vis-font-size-sm vis-borderBottomH pb-1 vis-font-weight-600 d-block">@GetText("AlignItems") </span>
                                                         <div class="vis-horz-align-d d-flex mb-2">
-                                                            <div class="vis-vl-elm vis-vl-elm-fst" >
+                                                            <div class="vis-vl-elm vis-vl-elm-fst">
                                                                 <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignStart">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
@@ -897,7 +899,7 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="vis-vl-elm vis-hr-elm-lst" >
+                                                            <div class="vis-vl-elm vis-hr-elm-lst">
                                                                 <div class="vis-cllsty2-single-elTwo" data-command1="flexAlignEnd">
                                                                     <div class="vis-box-sin0colr-vl-wrap d-flex align-items-end justify-content-between">
                                                                         <div class="vis-box-sin0colr"></div>
@@ -963,6 +965,19 @@
                                                             </div>
                                                         </div>
 
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between d-block mt-3">
+                                                    <span for="" class="m-0 vis-font-size-sm vis-font-weight-600">@GetText("ImageFit")</span>
+                                                    <div class="">
+                                                        <select name="" id="" data-command="objectFit" class="vis-check-textal-select vis-selectFeild vis-input-under-line">
+                                                            <option value="">Select...</option>
+                                                            <option value="contain">contain</option>
+                                                            <option value="cover">cover</option>
+                                                            <option value="fill">fill</option>
+                                                            <option value="none">none</option>
+                                                            <option value="scale-down">scale-down</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
