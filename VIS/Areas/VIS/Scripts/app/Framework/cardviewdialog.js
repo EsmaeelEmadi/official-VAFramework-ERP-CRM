@@ -247,9 +247,8 @@
                 if (AD_HeaderLayout_ID == 0 && !isCopy) {
                     DivViewBlock.find('.vis-viewBlock').css('backgroundColor', '#fff');
                 }
-
                               
-                templatechanges();
+                
 
                 if (isCopy) {
                     setTimeout(function () {
@@ -281,6 +280,7 @@
                 history = [];
                 s_history = true;
                 cur_history_index = 0; 
+                templatechanges();
                 btnUndo.attr("disabled", "disabled");
                 //FillFields(true, false);
             });
@@ -705,7 +705,7 @@
                     btnUndo.removeAttr("disabled");                    
                     fillcardLayoutfromTemplate(); 
                     isUndoRedo = false;
-                    if (cur_history_index >= 5) {
+                    if (cur_history_index >= history.length - 1) {
                         btnRedo.attr("disabled", "disabled");
                     }
                 }
@@ -3183,7 +3183,7 @@
                 var pos = ((idx + 1) * totalCol);
                 rowIdx = (idx+1);
                 for (var i = 0; i < totalCol; i++) {
-                    activeSection.find('.grdDiv').eq(pos-1).after("<div class='grdDiv' style='padding:5px;'></div>");
+                    activeSection.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:5px;display: flex; flex-direction: row;'></div>");
                 }
 
                 gridCss(1,0);
@@ -3233,7 +3233,7 @@
                         if (j == idx) {
                             var pos = totalCol * i + j;
                             addedColPos.push(pos+1);
-                            activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:5px;'></div>");
+                            activeSection.find('.grdDiv').eq(pos).after("<div class='grdDiv' style='padding:5px;display: flex; flex-direction: row;'></div>");
                         }
                     }
                 }
@@ -3424,9 +3424,9 @@
                         $(this).css('grid-area', r_start + '/' + c_start + '/' + r_end + '/' + (c_end+c));
                         isEnter = true;
                         grSec.find('.grdDiv').eq(ps[cc]).css('display', 'none');
-                        cc++;
+                       
                     }
-
+                    cc++;
                     if (isEnter && c > 0) {
                         for (var i = 0; i < addedColPos.length; i++) {
                             var rowPos = Math.floor(addedColPos[i] / totalCol) + 1;
@@ -3490,13 +3490,13 @@
                 if (oldcol != totalCol && !isNewSection) {
                     for (var r = 1; r <= oldrow; r++) {
                         var pos = (r * oldcol) + (r - 1);
-                        grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:5px;'></div>");
+                        grSec.find('.grdDiv').eq(pos - 1).after("<div class='grdDiv' style='padding:5px;display: flex; flex-direction: row;'></div>");
                     }
 
                 } else {
                     var totalDiv = totalRow * totalCol - grSec.find('.grdDiv').length;
                     for (var i = 0; i < totalDiv; i++) {
-                        grSec.append("<div class='grdDiv' style='padding:5px;'></div>");
+                        grSec.append("<div class='grdDiv' style='padding:5px;display: flex; flex-direction: row;'></div>");
                     }
                 }
 
@@ -3891,6 +3891,16 @@
                         fieldObj.push(obj1);
                     });
                 } else {
+                    var hideTxt = false;
+                    if ($(this).attr("showfieldtext")) {
+                        hideTxt = $(this).attr("showfieldtext") == 'Y' ? true : false;
+                    }
+
+                    var hideIcon = false;
+                    if ($(this).attr("showfieldicon")) {
+                        hideIcon = $(this).attr("showfieldicon") == 'Y' ? true : false;
+                    }
+
                     var obj1 = {
                         cardFieldID: null,
                         sectionNo: sectionSeq,
@@ -3901,10 +3911,10 @@
                         seq: seq,
                         style: $(this).attr('style'),
                         fieldID: null,
-                        valueStyle: "",
-                        fieldStyle: '',
-                        hideFieldIcon: false,
-                        hideFieldText:false,
+                        valueStyle: $(this).attr("fieldValuestyle"),
+                        fieldStyle: $(this).attr("fieldValueLabel"),
+                        hideFieldIcon: hideIcon,
+                        hideFieldText: hideTxt,
                         columnSQL: "",
                         contentFieldValue: null,
                         contentFieldLable: null
@@ -3969,9 +3979,10 @@
                 style: DivViewBlock.find('.vis-viewBlock').attr('style'),
                 cardSection: cardSection,
                 cardTempField: fieldObj,
-                isSystemTemplate:'N'
+                isSystemTemplate: 'N',
+                refTempID: Number(DivTemplate.find('.vis-active-template .mainTemplate').attr('templateid'))
             }
-            console.log(finalobj);
+            
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
             $.ajax({
                 type: "POST",
@@ -4266,7 +4277,7 @@
         function saveCopyCard(copyCardName) {
             for (var a = 0; a < cardViewInfo.length; a++) {
                 if (cardViewInfo[a].CardViewName.trim() == copyCardName.trim()) {
-                    VIS.ADialog.error("cardAlreadyExist", true, "");
+                   // VIS.ADialog.error("cardAlreadyExist", true, "");
                     IsBusy(false);
                     return false;
                 }

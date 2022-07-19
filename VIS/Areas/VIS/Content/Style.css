@@ -1822,7 +1822,7 @@ center {
     display:flex;
     flex-direction:column;
     height:100%;
-    width: 20%;
+    width: 22%;
 
 }
 
@@ -3304,6 +3304,8 @@ field, fieldvalue{
 .fieldGroup {
     width: fit-content;
     height: fit-content;
+    display: flex;
+    flex-direction: row;
 }
 
 .vis-fieldImgPosition {   
@@ -3386,8 +3388,8 @@ field, fieldvalue{
     padding-right: 5px !important;
 }
 .vis-templatePreview {
-    width: 260px;
-    height: 146px;
+    width: 290px;
+    height: 164px;
     border: 1px solid rgba(var(--v-c-on-secondary), 0.3);
     padding: 5px;
 }
@@ -3422,6 +3424,10 @@ field, fieldvalue{
 .vis-clearFilter:hover {
     color: rgba(var(--v-c-primary), 1);
 }
+.vis-refreshBtn i{
+    font-size: 1.2rem;
+    cursor:pointer;
+}
 /* modify Ends */
 /*Media query*/
 @media screen and (max-width: 1500px) and (min-width: 1360px) {
@@ -3438,8 +3444,8 @@ field, fieldvalue{
     }
 
     .vis-templatePreview {
-        width: 230px !important;
-        height: 129px !important;
+        width: 252px !important;
+        height: 142px !important
     }
 }
 

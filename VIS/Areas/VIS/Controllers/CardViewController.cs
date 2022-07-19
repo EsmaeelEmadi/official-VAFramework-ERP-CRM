@@ -205,7 +205,7 @@ namespace VIS.Controllers
         /// <param name="cardSection"></param>
         /// <param name="cardTempField"></param>
         /// <returns></returns>
-        public JsonResult saveCardTemplate(int CardViewID, int templateID, string templateName,string style, List<CardSection> cardSection,List<CardTempField> cardTempField,string isSystemTemplate)
+        public JsonResult saveCardTemplate(int CardViewID, int templateID, string templateName,string style, List<CardSection> cardSection,List<CardTempField> cardTempField,string isSystemTemplate,int refTempID)
         {
             Ctx ctx = Session["ctx"] as Ctx;
             CardViewModel objCardViewModel = new CardViewModel();
@@ -213,7 +213,7 @@ namespace VIS.Controllers
             {
                 objCardViewModel.DeleteAllCardViewColumns(CardViewID, ctx);
             }
-            return Json(JsonConvert.SerializeObject(objCardViewModel.saveCardTemplate(ctx, CardViewID, templateID, templateName, style, cardSection, cardTempField, isSystemTemplate)));
+            return Json(JsonConvert.SerializeObject(objCardViewModel.saveCardTemplate(ctx, CardViewID, templateID, templateName, style, cardSection, cardTempField, isSystemTemplate, refTempID)));
         }
 
     }

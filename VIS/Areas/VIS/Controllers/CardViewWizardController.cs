@@ -19,7 +19,19 @@ namespace VIS.Areas.VIS.Controllers
                 ViewBag.lang = ctx.GetAD_Language();
             }
 
-            return PartialView();
+            return PartialView("index");
+        }
+
+        public ActionResult GetCardTemplate(string windowno)
+        {
+            ViewBag.WindowNumber = windowno;
+            if (Session["Ctx"] != null)
+            {
+                var ctx = Session["ctx"] as Ctx;
+                ViewBag.lang = ctx.GetAD_Language();
+            }
+
+            return PartialView("CardTemplateMaster");
         }
     }
 }
