@@ -30,7 +30,7 @@
 
         //aPanel.fromCardDialogBtn = false;
 
-        var root, ch;
+        var root, ch, chCopy;
         var btnCardCustomization = null;
         var btnChangeTemplate = null;
         var btnSaveClose = null;
@@ -65,6 +65,8 @@
         var txtGrdntColor1 = null;
         var txtGrdntColor2 = null;
         var txtGrdntPrcnt = null;
+        var txtGrdntPrcnt2 = null;
+        var cmbGrdntDirection = null;
         var btnAddCondition = null;
         var isEdit = false;
         var isNewRecord = false;
@@ -91,6 +93,7 @@
         //var txtTemplateName = null;
         var sectionCount = 2;
         var AD_HeaderLayout_ID = 0;
+        var refTempID = 0;
         var templateID = 0;
         var templateName = null;
         var txtCustomStyle = null;
@@ -124,17 +127,20 @@
         var btnUndo = null;
         var btnRedo = null;
         var btnApply = null;
+        var cmbTemplateCategory = null;
 
         var isUndoRedo = false;
         var history = [];
         var s_history = true;
         var cur_history_index = 0; 
         var force = 0;
+        var newCopyCard = null;
 
         function init() {
-            root = $('<div style="height:100%"></div>');
-            isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
+            root = $('<div style="height:100%"><div class="vis-apanel-busy vis-cardviewmainbusy" style="display:block"></div></div>');
+            isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");           
             CardViewUI();
+            
         }
 
         function IsBusy(isBusy) {
@@ -198,7 +204,12 @@
                 btnOnlySave.removeClass('vis-disable-event');
                 btnChangeTemplate.removeClass('vis-disable-event');               
                 AD_HeaderLayout_ID = 0;
+                refTempID = 0;
                 AD_CardView_ID = "undefined";
+
+                cmbTemplateCategory.val('');
+                DivTemplate.find('[issystemtemplate="Y"]').removeClass('displayNone');
+
                 btnTemplateBack.text(VIS.Msg.getMsg("Back"));
                 btnLayoutSetting.text(VIS.Msg.getMsg("NextLayout"));                
                 btnCardCustomization.click();
@@ -211,15 +222,20 @@
             });
 
             btnCopy.click(function () {
-                var newCopyCard = new cardCopyDialog();
+                newCopyCard = new cardCopyDialog();
                 newCopyCard.show();
-                newCopyCard.onSave = function () {
+                newCopyCard.btnCopySave.click(function () {
                     var newcardname = newCopyCard.getName();
                     if (newcardname && newcardname.length > 0) {
                         IsBusy(true);
-                        saveCopyCard(newcardname);                       
+                        saveCopyCard(newcardname);
                     }
-                }
+                });
+
+                newCopyCard.btnCopyCancle.click(function () {
+                    newCopyCard.close();
+                });
+                
             });
 
             btnCancle.click(function () {
@@ -296,6 +312,8 @@
                 DivCradStep2.find('.vis-two-sec-two').hide();
                 scaleTemplate();
                 isChangeTemplate = true;
+                cmbTemplateCategory.val('');
+                DivTemplate.find('[issystemtemplate="Y"]').removeClass('displayNone');
             });
 
             btnFinesh.click(function (e) {
@@ -391,19 +409,26 @@
             txtGrdntPrcnt.on('input', function () {
                 updateGradientColor();
             });
-
-            DivGrdntBlock.find('.vis-circular-slider-circle').mousedown(function (e) {
-                mdown = true;
-            }).mousemove(function (e) {
-                if (mdown) {
-                    var $slider = DivGrdntBlock.find('.vis-circular-slider-dot')
-                    var deg = getGradientDeg($slider, e);
-                    $slider.css({ WebkitTransform: 'rotate(' + deg + 'deg)' });
-                    $slider.css({ '-moz-transform': 'rotate(' + deg + 'deg)' });
-                    $slider.attr("deg", deg);
-                    updateGradientColor();
-                }
+                
+            txtGrdntPrcnt2.on('input', function () {
+                updateGradientColor();
             });
+            cmbGrdntDirection.on('change', function () {
+                updateGradientColor();
+            });
+
+            //DivGrdntBlock.find('.vis-circular-slider-circle').mousedown(function (e) {
+            //    mdown = true;
+            //}).mousemove(function (e) {
+            //    if (mdown) {
+            //        var $slider = DivGrdntBlock.find('.vis-circular-slider-dot')
+            //        var deg = getGradientDeg($slider, e);
+            //        $slider.css({ WebkitTransform: 'rotate(' + deg + 'deg)' });
+            //        $slider.css({ '-moz-transform': 'rotate(' + deg + 'deg)' });
+            //        $slider.attr("deg", deg);
+            //        updateGradientColor();
+            //    }
+            //});
 
             $('body').mouseup(function (e) {
                 mdown = false;
@@ -413,12 +438,18 @@
                 if (cmbColumn.find(":selected").val() == -1) {
                     return;
                 }
+
+                if (control1.isMandatory && (getControlValue(true) == null || getControlValue(true) == '')) {
+                    VIS.ADialog.error("FillMandatory", true, control1.colName);
+                    return;
+                }
+
                 var condition = {};
                 cvConditionArray = {};
 
                 var colorValue = "";
                 if (chkGradient.is(':checked')) {
-                    colorValue = DivGrdntBlock.css('background');
+                    colorValue = DivGrdntBlock.find('.grd-preview').css('background');
                 } else {
                     if (!Modernizr.inputtypes.color) {
                         colorValue = ctrColor.spectrum('get');
@@ -457,11 +488,17 @@
                     cardviewCondition[index[0]].Condition.push(condition);
                 }
                 AddRow(cardviewCondition);
-                cmbColumn.find("[value='" + -1 + "']").attr("selected", "selected");
+                cmbColumn.val('-1');
                 drpOp[0].SelectedIndex = -1;
                 SetControlValue(true);
                 SetControlText(true);
-                divValue1.empty();
+                txtGrdntColor1.val('#000');
+                txtGrdntColor2.val('#000');
+                txtGrdntPrcnt.val(0);
+                txtGrdntPrcnt2.val(0);
+                cmbGrdntDirection.val('to bottom');
+                DivGrdntBlock.find('.grd-preview').css('background','#000');
+                //divValue1.empty();
             });
 
             btnAddOrder.on("click", function (e) {
@@ -725,9 +762,25 @@
                     DivCardField.find('.fieldLbl:contains(' + value+')').show();
                 }
             });
+
             btnClearFilter.click(function () {
                 txtFilterField.val('');
                 DivCardField.find('.fieldLbl:not(:first)').show();
+            });
+
+            cmbTemplateCategory.change(function () {
+                if ($(this).val() != "") {
+                    DivTemplate.find('[issystemtemplate="Y"]').not('.blankTemp').addClass('displayNone');
+                    DivTemplate.find('[issystemtemplate="Y"][category="' + $(this).val() + '"]').removeClass('displayNone');
+                } else {
+                    DivTemplate.find('[issystemtemplate="Y"]').removeClass('displayNone');
+                }
+
+                if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
+                    DivTemplate.find('.vis-noTemplateIcon').show();
+                } else {
+                    DivTemplate.find('.vis-noTemplateIcon').hide();
+                }
             });
 
             jQuery.expr[':'].contains = function (a, i, m) {
@@ -764,6 +817,7 @@
         }
 
         function addCardListEvent() {
+            cardsList.find('div').unbind('click');
             cardsList.find('div').click(function () {
                 cardsList.find('.crd-active').removeClass('crd-active');
                 $(this).addClass('crd-active');
@@ -799,7 +853,7 @@
                     }
                     FillGroupFields();
 
-                }
+                } 
 
             });
         }
@@ -845,6 +899,9 @@
                 txtGrdntColor1 = root.find('#txtGrdntColor1_' + WindowNo);
                 txtGrdntColor2 = root.find('#txtGrdntColor2_' + WindowNo);
                 txtGrdntPrcnt = root.find('#txtGrdntPrcnt_' + WindowNo);
+                txtGrdntPrcnt2 = root.find('#txtGrdntPrcnt2_' + WindowNo);
+                cmbGrdntDirection = root.find('#cmbGrdntDirection_' + WindowNo);
+
                 btnAddCondition = root.find('#btnAddCondition_' + WindowNo);
                 btnCardAsc = root.find('#btnCardAsc_' + WindowNo);
                 btnCardDesc = root.find('#btnCardDesc_' + WindowNo);
@@ -885,6 +942,7 @@
 
                 btnVdelrow = root.find('#btnVdelrow_' + WindowNo);
                 btnVdelCol = root.find('#btnVdelCol_' + WindowNo);
+                cmbTemplateCategory = root.find('#CmbTemplateCategory_' + WindowNo);
 
                 activeSection = DivViewBlock.find('.section1');
 
@@ -894,14 +952,16 @@
                 /*END Step 2*/
 
                 ArrayTotalTabFields();
+                getTemplateDesign();
                 GetCards();
+                getTemplateCategory();
                 FillFields(true, false);
                 FillGroupFields();
                 FillCVConditionCmbColumn();
                 events();
                 events2();
                 updateGradientColor();
-                getTemplateDesign();
+               
                 totalTabFileds.sort(function (a, b) {
                     var n1 = a.getHeader().toUpperCase();
                     if (n1 == null || n1.length == 0) {
@@ -933,6 +993,7 @@
                 if (cardViewInfo && cardViewInfo.length == 0) {
                     isSameUser = true;
                     btnNewCard.click();
+                    btnDelete.addClass('vis-disable-event');
                     btnCancle.addClass('vis-disable-event');
                     btnCopy.addClass('vis-disable-event');
                 }
@@ -948,11 +1009,10 @@
             var color1 = txtGrdntColor1.val();
             var color2 = txtGrdntColor2.val();
             var prct = txtGrdntPrcnt.val();
-            var deg = DivGrdntBlock.find('.vis-circular-slider-dot').attr('deg');
-            var style = 'linear-gradient(' + deg + 'deg,' + color1 + ' ' + prct + '%,  ' + color2 + ')';
-            DivGrdntBlock.find('.vis-left-grad-side').css('background-color', color1);
-            DivGrdntBlock.find('.vis-right-grad-side').css('background-color', color2);
-            DivGrdntBlock.css('background', style);
+            var prct2 = txtGrdntPrcnt2.val();
+            var deg = cmbGrdntDirection.find('option:selected').val();
+            var style = 'linear-gradient(' + deg + ',' + color1 + ' ' + prct + '%,  ' + color2 + ' ' + prct2 + '%)';
+            DivGrdntBlock.find('.grd-preview').css('background', style);
         }
         /**
          * Gradient degree
@@ -1008,6 +1068,7 @@
                     LstCardViewCondition = dbResult[0].lstCardViewConditonData;
 
                     if (cardViewInfo != null && cardViewInfo.length > 0) {
+                        btnDelete.removeClass('vis-disable-event');
                         var isDefaultcard = false;
                         for (var i = 0; i < cardViewInfo.length; i++) {
                             var template = "";
@@ -1058,11 +1119,12 @@
                             clearOrderByClause();
                         }
                     } else {
+                         btnDelete.addClass('vis-disable-event');
                         cardViewInfo = [];
                     }
-                    if (isReload) {                        
+                    //if (isReload) {                        
                         addCardListEvent();
-                    }
+                    //}
 
                     cardsList.scrollTop(cardsList.find('.crd-active').offset().top - cardsList.find('.crd-active').height() - 100); // focus selected card
                 }, error: function (errorThrown) {
@@ -1072,6 +1134,31 @@
 
 
         };
+
+        function getTemplateCategory() {
+            cmbTemplateCategory.find('option').remove();           
+            cmbTemplateCategory.append('<option value="">All</option>');
+            $.ajax({
+                type: "POST",
+                url: VIS.Application.contextUrl + "CardView/GetTemplateCategory",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: {},
+                success: function (data) {
+                    var result = JSON.parse(data);
+                    if (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            cmbTemplateCategory.append('<option value="' + result[i].TemplateCategoryID + '">' + result[i].Name + '</option>');
+                        }
+                    }
+                    IsBusy(false);
+
+                }, error: function (errorThrown) {
+                    alert(errorThrown.statusText);
+                    IsBusy(false);
+                }
+            });
+        }
 
         /**
          *  Fill selected card template Layout
@@ -1247,7 +1334,7 @@
                             } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List || displayType == VIS.DisplayType.Search) {
 
                                 var fldlbl = '<span style="' + fidItm.attr("fieldValueLabel") + '" class="fieldLbl ' + cls + '" draggable="false" showFieldText="' + hideTxt + '" showFieldIcon="' + hideIcon + '" ondragstart="drag(event)" title="' + vlu + '" fieldid="' + fID + '" id="' + $(this).attr('id') + '">' + vlu + '</span>';
-
+                                src = "data:image/svg+xml,%3Csvg width='30' height='30' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpath id='a' d='m23,31l-3.97,-2.9l-0.03,-0.1l-0.24,-0.09l0.19,0.13l-5.95,4.96l0,2l24,0l0,-2l-3,-9l-5,-3l-6,10zm-2,-12c0,-1.66 -1.34,-3 -3,-3s-3,1.34 -3,3s1.34,3 3,3s3,-1.34 3,-3zm-11,-8c-0.55,0 -1,0.45 -1,1l0,26c0,0.55 0.45,1 1,1l30,0c0.55,0 1,-0.45 1,-1l0,-26c0,-0.55 -0.45,-1 -1,-1l-30,0zm28,26l-26,0c-0.55,0 -1,-0.45 -1,-1l0,-22c0,-0.55 0.45,-1 1,-1l26,0c0.55,0 1,0.45 1,1l0,22c-0.3,0.67 -0.63,1 -1,1z'/%3E%3C/defs%3E%3Cg%3E%3Cuse transform='matrix(0.567292 0 0 0.499809 0.901418 2.3385)' x='0' y='0' stroke='null' id='svg_1' fill='%23fff' xlink:href='%23a'/%3E%3C/g%3E%3C/svg%3E";
                                 var img = '<img class="vis-colorInvert imgField" style="' + imgStyle + '" src="' + src + '"/>';
                                 var spn = '';
                                 if (brStart == 0) {
@@ -1280,6 +1367,11 @@
                         }
                     }
                 });
+                DivViewBlock.find('.canvas [query]').each(function () {
+                    if ($(this).attr('query') != "" && $(this).attr('query') != null && $(this).attr('query') != undefined) {
+                        $(this).append('<sql>SQL</sql>');
+                    }
+                })
             } else {
                 isChangeTemplate = false;
                 if (isUndoRedo) {
@@ -1318,7 +1410,9 @@
                 if (a1 == b1) return 0;
                 return a1 > b1 ? 1 : -1;
             });
+
             FillIncluded(isReload);
+
             if (mTab != null && mTab.getFields().length > 0) {
 
                 var iClone = DivCardField.find('.fieldLbl:first').clone(true);
@@ -1784,6 +1878,7 @@
                 btnDelete.removeClass('vis-disable-event');
 
                 btnSaveClose.removeClass('vis-disable-event');
+                btnApply.removeClass('vis-disable-event');
                 btnFinesh.removeClass('vis-disable-event');
                 btnOnlySave.removeClass('vis-disable-event');
                 btnChangeTemplate.removeClass('vis-disable-event');
@@ -1794,6 +1889,7 @@
                 btnDelete.addClass('vis-disable-event');
 
                 btnSaveClose.addClass('vis-disable-event');
+                btnApply.addClass('vis-disable-event');
                 btnFinesh.addClass('vis-disable-event');
                 btnOnlySave.addClass('vis-disable-event');
                 btnChangeTemplate.addClass('vis-disable-event');
@@ -2304,6 +2400,7 @@
             isSystemTemplate = $this.attr("isSystemTemplate");           
 
             AD_HeaderLayout_ID = $this.find('.mainTemplate').attr('templateid');
+            refTempID = Number(AD_HeaderLayout_ID);
             templateName = $this.find('.mainTemplate').attr('name');
             if (AD_HeaderLayout_ID == "0") {
 
@@ -2330,7 +2427,7 @@
                     $(this).find('.grdDiv').each(function () {
                         var areagrid = $(this).css('grid-area').split('/');
                         var idx = col * ($.trim(areagrid[0]) - 1) + ($.trim(areagrid[1]) - 1);
-                        if ($.trim(areagrid[0]) != ($.trim(areagrid[2]) - 1) || $.trim(areagrid[1]) != ($.trim(areagrid[3]) - 1)) {
+                        if ($.trim(areagrid[0]) != ($.trim(areagrid[2]) - 1) || $.trim(areagrid[1]) != ($.trim(areagrid[3]) - 1)) {-
                             $(this).append('<span class="vis-split-cell"></span>');
                         }
                         arr[idx] = $(this)[0].outerHTML;
@@ -2487,7 +2584,7 @@
             borderTopRightRadius: {
                 proprty: 'border-top-right-radius',
                 value: '',
-                measurment: false
+                measurment: true
             },
             borderBottomRightRadius: {
                 proprty: 'border-bottom-right-radius',
@@ -2592,19 +2689,24 @@
                 value: 'underline',
                 measurment: false
             },
-            justifyLeft: {
+            textLeft: {
                 proprty: 'text-align',
                 value: 'left',
                 measurment: false
             },
-            justifyRight: {
-                proprty: 'text-align',
-                value: 'right',
-                measurment: false
-            },
-            justifyCenter: {
+            textCenter: {
                 proprty: 'text-align',
                 value: 'center',
+                measurment: false
+            },
+            textJustify: {
+                proprty: 'text-align',
+                value: 'justify',
+                measurment: false
+            },
+            textRight: {
+                proprty: 'text-align',
+                value: 'right',
                 measurment: false
             },
             upperCase: {
@@ -2946,6 +3048,10 @@
                 $(this).removeClass('vis-editor-validate');
                 var commend = $(this).data('command');
                 var styleValue = $(this).val();
+                var isNegativeNumber = false;
+                if (commend.indexOf('margin') != -1 && styleValue.indexOf('-') != -1) {
+                    isNegativeNumber = true;
+                }
                 var mtext = styleValue.replace(/\d+/g, "").replace('.', '');
                 var mvalue = styleValue.replace(styleValue.replace(/\d+/g, ""), "");
                 if (editorProp[commend] && editorProp[commend].measurment && styleValue != "" && $(this).attr('type') != 'color') {
@@ -2954,7 +3060,11 @@
                             $(this).addClass('vis-editor-validate');
                             return;
                         }
-                        $(this).val(mvalue + "px");
+                        if (isNegativeNumber) {
+                            $(this).val("-" + mvalue + "px");
+                        } else {
+                            $(this).val(mvalue + "px");
+                        }
                     } else if (isNaN(Number(mvalue))) {
                         $(this).addClass('vis-editor-validate');
                         return;
@@ -2968,6 +3078,9 @@
                 } else if (commend == 'color') {
                     DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', styleValue);
                     DivStyleSec1.find('[data-command="color"]').val(styleValue);
+                } else if (commend == 'borderColor' || commend == 'borderLeftColor' || commend == 'borderRightColor' || commend == 'borderTopColor' || commend == 'borderBottomColor') {
+                    var bdrDiv = DivStyleSec1.find("[data-command='" + commend + "']").closest('.vis-prop-pan-cont');
+                    bdrDiv.find(".vis-back-color03").css('background-color', styleValue);
                 }
 
                 applyCommend(commend, $(this).val());
@@ -2992,6 +3105,7 @@
                     tag.find('.fieldValue').append('<br>');
                 }
             });
+
             DivStyleSec1.find('[data-command1]').on('click', function (e) {
 
                 var commend = $(this).data('command1');
@@ -3014,6 +3128,12 @@
                         $(this).parent().addClass('vis-hr-elm-inn-active');
                         applyCommend(commend, editorProp[commend].value);
                     }
+                } else if (editorProp[commend].proprty == 'text-align' || editorProp[commend].proprty == 'text-transform') {
+                    applyCommend(commend, "");
+                    if (activ.find('[data-command1]').attr('data-command1') != commend) {
+                        $(this).parent().addClass('vis-hr-elm-inn-active');
+                        applyCommend(commend, editorProp[commend].value);
+                    }
                 } else {
                     if (isStyleExist) {
                         $(this).parent().removeClass('vis-hr-elm-inn-active');
@@ -3023,8 +3143,10 @@
                         applyCommend(commend, editorProp[commend].value);
                     }
                 }
-
                
+                if (tag.attr('style').indexOf('justify-content') != -1 || tag.attr('style').indexOf('align-items') != -1 || tag.attr('style').indexOf('flex-direction') != -1) {
+                    tag.css("display", "flex");
+                }
             });
 
             DivGridSec.find('.addGridRow').click(function () {
@@ -3453,11 +3575,11 @@
                 } else if (c != 0) {
                     if (c > 0) {
                         if (colposition > ci) {
-                            $(this).css('grid-area', rowPosition + '/' + (c_start + c) + '/' + (rowPosition + 1) + '/' + (c_end + c));
+                            $(this).css('grid-area', r_start + '/' + (c_start + c) + '/' + (r_end) + '/' + (c_end + c));
                         }
                     } else {
                         if (colposition > ci) {
-                            $(this).css('grid-area', rowPosition + '/' + (c_start - 1) + '/' + (rowPosition + 1) + '/' + (c_end - 1));
+                            $(this).css('grid-area', r_start + '/' + (c_start - 1) + '/' + (r_end) + '/' + (c_end - 1));
                         }
                     }
                 } else if (r != 0) {
@@ -3503,7 +3625,6 @@
                 grSec.find('.grdDiv').unbind('mouseover');
                 grSec.find('.grdDiv').mouseover(function (e) {
                     e.preventDefault();
-                    console.log(mdown, $(this).find('.vis-split-cell').length);
                     if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
                         selectTo($(this));
                     }
@@ -3709,11 +3830,12 @@
             if (commend == 'gradient') {
                 var color1 = DivStyleSec1.find('.' + commend + '1').val();
                 var color2 = DivStyleSec1.find('.' + commend + '2').val();
-                var prcnt = DivStyleSec1.find('.vis-percentage-slidr').val();
-                var deg = DivStyleSec1.find('.vis-circular-slider-dot').attr('deg');
-                styleValue = 'linear-gradient(' + deg + 'deg,' + color1 + ' ' + prcnt + '%,  ' + color2 + ')';
-                DivStyleSec1.find('.vis-gradient-comp').css('background', styleValue);
-                DivStyleSec1.find('[data-command="gradientInput"]').val('(' + deg + 'deg,' + color1 + ' ' + prcnt + '%,  ' + color2 + ')');
+                var prcnt = DivStyleSec1.find('.percent1').val();
+                var prcnt2 = DivStyleSec1.find('.percent2').val();
+                var deg = DivStyleSec1.find('.grdDirection option:selected').val();
+                styleValue = 'linear-gradient(' + deg + ',' + color1 + ' ' + prcnt + '%,  ' + color2 + ' ' + prcnt2 + '%)';
+                //DivStyleSec1.find('.vis-gradient-comp').css('background', styleValue);
+                DivStyleSec1.find('[data-command="gradientInput"]').val('(' + deg + ',' + color1 + ' ' + prcnt + '%,  ' + color2 + ' ' + prcnt2 + '%)');
             }
 
             if (commend == 'gradientInput') {
@@ -3750,7 +3872,8 @@
                 var sty = tag.attr('style'); //+ ';' + editorProp[commend].proprty + ':' + $.trim(styleValue) + ' !important';
                 sty = sty.replace(editorProp[commend].proprty + ': ' + $.trim(styleValue), editorProp[commend].proprty + ':' + $.trim(styleValue) + '!important');
                 tag.attr('style', sty);
-            } 
+            }            
+
             templatechanges();
         }
 
@@ -3769,9 +3892,14 @@
                 data: JSON.stringify(obj),
                 success: function (data) {
                     var result = JSON.parse(data);
-                    DivTemplate.find('.vis-cardTemplateContainer').append($(result));                    
-                    IsBusy(false);
+                    DivTemplate.find('.vis-cardTemplateContainer').append($(result)); 
                     scaleTemplate();
+                    IsBusy(false);
+                    if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
+                        DivTemplate.find('.vis-noTemplateIcon').show();
+                    } else {
+                        DivTemplate.find('.vis-noTemplateIcon').hide();
+                    }
 
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
@@ -3824,7 +3952,10 @@
                 var sectionSeq = ($(this).closest('.vis-wizard-section').index() + 1) * 10;
                 gridObj['section' + secNo]["sectionSeq"] = sectionSeq;
                 gridObj['section' + secNo]["sectionName"] = $(this).closest('.vis-wizard-section').attr("name");
-
+                var columnSQL = null;
+                if ($(this).find('sql').length > 0) {
+                    columnSQL = $(this).attr('query') || null;
+                }
                 if ($(this).find('.fieldGroup:not(:hidden)').length > 0) {
                     $(this).find('.fieldGroup:not(:hidden)').each(function (index) {
                         isFieldLinked = true;
@@ -3851,10 +3982,7 @@
                         }
 
 
-                        var columnSQL = null;
-                        if ($(this).find('sql').length > 0) {
-                            columnSQL = $(this).attr('query') || null;
-                        }
+                        
                         var hideFieldIcon = true;
                         if ($(this).find('.fa-star').length == 0) {
                             hideFieldIcon = true;
@@ -3915,7 +4043,7 @@
                         fieldStyle: $(this).attr("fieldValueLabel"),
                         hideFieldIcon: hideIcon,
                         hideFieldText: hideTxt,
-                        columnSQL: "",
+                        columnSQL: columnSQL,
                         contentFieldValue: null,
                         contentFieldLable: null
                     }
@@ -3976,11 +4104,12 @@
                 CardViewID: cardID,
                 templateID: AD_HeaderLayout_ID || 0,
                 templateName: templateName,
+                templateCategory: 0,
                 style: DivViewBlock.find('.vis-viewBlock').attr('style'),
                 cardSection: cardSection,
                 cardTempField: fieldObj,
                 isSystemTemplate: 'N',
-                refTempID: Number(DivTemplate.find('.vis-active-template .mainTemplate').attr('templateid'))
+                refTempID: refTempID || 0
             }
             
             var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
@@ -4020,8 +4149,12 @@
             DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').removeClass('vis-disable-event');
             DivStyleSec1.find('#master001_' + WindowNo + ' input').val('');
             DivStyleSec1.find('#master001_' + WindowNo + ' select').val('');
+            DivStyleSec1.find('.vis-back-color03').css('background-color','teal');
             DivStyleSec1.find('.gradient1').val('#833ab4');
             DivStyleSec1.find('.gradient2').val('#fcb045');
+            chkAllBorderRadius.prop('checked', true);
+            DivStyleSec1.find('.allBorderRadius').removeClass('displayNone');
+            DivStyleSec1.find('.singleBorderRadius').addClass('displayNone');
             DivStyleSec1.find("[data-command1]").parent().removeClass('vis-hr-elm-inn-active');
             var styles = htm.attr('style');
             if (htm.find('sql').length > 0) {
@@ -4036,9 +4169,18 @@
             styles && styles.split(";").forEach(function (e) {
                 var style = e.split(":");
                 for (const a in editorProp) {
+                    if ($.trim(style[0]) == 'border-left' || $.trim(style[0]) == 'border-right' || $.trim(style[0]) == 'border-top' || $.trim(style[0]) == 'border-bottom') {
+                        style[0] = style[0] + '-width';
+                    }
+
                     if ($.trim(style[0]) == $.trim(editorProp[a].proprty)) {
                         var v = $.trim(style[1]);
                         if (editorProp[a].value == '') {
+
+                            if (a == 'width' || a == 'height') {
+                                v = v.replaceAll('!important', '');
+                            }
+
                             if (a == 'fontFamily') {
                                 v = v.replaceAll('"', '');
                             }
@@ -4079,8 +4221,41 @@
                             } else if (a == 'color') {
                                 DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
                                 DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
-                            } else if (a == 'flexDirection' && (v == 'column' || v == 'column-reverse')) {
-                                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').addClass('vis-disable-event');
+                            } else if (a != 'borderRadius' && a.indexOf('Radius') != -1) {
+                                chkAllBorderRadius.prop('checked', false);
+                                DivStyleSec1.find('.allBorderRadius').addClass('displayNone');
+                                DivStyleSec1.find('.singleBorderRadius').removeClass('displayNone');
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            }
+
+                            else if (a.indexOf('border') != -1 && a.indexOf('radius') == -1) {
+                                var rgb = v.split('rgb');
+                                if (rgb.length > 1) {
+                                    v = v.replace('rgb' + rgb[1], rgb2hex('rgb' + rgb[1]));
+                                }
+                                v = v.split(' ');
+                                var bdrDiv = DivStyleSec1.find("[data-command='" + a + "']").closest('.vis-prop-pan-cont');
+                                if (v.length == 1) {
+                                    DivStyleSec1.find("[data-command='" + a + "']").val(v[0]);
+                                } else if (v.length == 2) {
+                                    DivStyleSec1.find("[data-command='" + a + "']").val(v[0]);
+                                    bdrDiv.find("select").val(v[1]);
+                                } else if (v.length == 3) {
+                                    DivStyleSec1.find("[data-command='" + a + "']").val(v[0]);
+                                    bdrDiv.find("select").val(v[1]);
+                                    bdrDiv.find("[type='color']").val(v[2]);
+                                    bdrDiv.find(".vis-back-color03").css('background-color',v[2]);
+                                }
+
+                                if (style[0].indexOf('-width') != -1) {
+                                    chkAllBorder.prop('checked', false);
+                                    DivStyleSec1.find('.allBorder').addClass('displayNone');
+                                    DivStyleSec1.find('.singleBorder').removeClass('displayNone');
+                                } else {
+                                    chkAllBorder.prop('checked', true);
+                                    DivStyleSec1.find('.allBorder').removeClass('displayNone');
+                                    DivStyleSec1.find('.singleBorder').addClass('displayNone');
+                                }
                             }
                             break;
                         } else {
@@ -4093,6 +4268,11 @@
                     }
                 }
             });
+
+            if (DivStyleSec1.find("[data-command='flexDirection'] option:selected").val() == 'column' || DivStyleSec1.find("[data-command='flexDirection'] option:selected").val() == 'column-reverse') {
+                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').addClass('vis-disable-event');
+            }
+
         }
 
         function rgb2hex(rgb) {
@@ -4112,30 +4292,8 @@
             fld.find('.linked').removeClass('linked vis-succes-clr');
             fld.removeAttr('seqNo');
 
-            fld.prop("draggable", true);
-            //var listItem = DivCardField.find('.fieldLbl:not(.displayNone)').not('[seqNo]');
-            //var sortedList = [];
-            //listItem.each(function (i, item) {
-            //    sortedList.push($.trim($(this).text().toLowerCase()));
-            //});
-
-            //var initialLength = sortedList.length;
-            //sortedList.push($.trim(fieldName.toLowerCase()));
-            //sortedList.sort();
-
-            //////var iclone = DivCardField.find('fields:first').clone(true);
-            //var i = $.inArray($.trim(fieldName.toLowerCase()), sortedList);
-            //var linkedLength = DivCardField.find('.linked').length;
-            //i += linkedLength;
-
-
-            //////fld.find('.fa-link').addClass('fa-chain-broken').removeClass('fa-link vis-succes-clr');          
-            //if (i == initialLength) {
-            //    DivCardField.append(fld);
-            //} else {
-            //    DivCardField.find('.fieldLbl').eq(i + 1).after(fld);
-            //}
-            DivCardField.find('[draggable="true"]').sort(Ascending_sort).appendTo(DivCardField);
+            fld.prop("draggable", true);            
+            DivCardField.find('[draggable="true"]:not(:first)').sort(Ascending_sort).appendTo(DivCardField);
 
             itm.remove();
             divTopNavigator.hide();
@@ -4164,6 +4322,7 @@
                     if (displayType == VIS.DisplayType.Image) {
                         fieldHtml.append($('<img class="vis-colorInvert imgField" style="width:100px;height:100px" src="' + src + '"/>'));
                     } else if (displayType == VIS.DisplayType.TableDir || displayType == VIS.DisplayType.Table || displayType == VIS.DisplayType.List || displayType == VIS.DisplayType.Search) {
+                        src = "data:image/svg+xml,%3Csvg width='30' height='30' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpath id='a' d='m23,31l-3.97,-2.9l-0.03,-0.1l-0.24,-0.09l0.19,0.13l-5.95,4.96l0,2l24,0l0,-2l-3,-9l-5,-3l-6,10zm-2,-12c0,-1.66 -1.34,-3 -3,-3s-3,1.34 -3,3s1.34,3 3,3s3,-1.34 3,-3zm-11,-8c-0.55,0 -1,0.45 -1,1l0,26c0,0.55 0.45,1 1,1l30,0c0.55,0 1,-0.45 1,-1l0,-26c0,-0.55 -0.45,-1 -1,-1l-30,0zm28,26l-26,0c-0.55,0 -1,-0.45 -1,-1l0,-22c0,-0.55 0.45,-1 1,-1l26,0c0.55,0 1,0.45 1,1l0,22c-0.3,0.67 -0.63,1 -1,1z'/%3E%3C/defs%3E%3Cg%3E%3Cuse transform='matrix(0.567292 0 0 0.499809 0.901418 2.3385)' x='0' y='0' stroke='null' id='svg_1' fill='%23fff' xlink:href='%23a'/%3E%3C/g%3E%3C/svg%3E";
                         fieldHtml.append($('<img class="vis-colorInvert imgField" style="width:30px;height:30px" style="display:none" src="' + src + '"/>'));
                         fieldHtml.append($('<span class="fieldValue">:Value</span>'));
                     } else {
@@ -4269,15 +4428,20 @@
                 fidItm.find('.fieldGroup').attr("style", lblflxstyle);
             }
 
-            if (fidItm.attr("fieldValuestyle").indexOf('@img::') == -1 && fidItm.find('.fieldGroup .fieldValue').length > 0 && fidItm.find('.fieldGroup .imgField').length > 0) {
+            if (fidItm.attr("fieldValuestyle") && fidItm.attr("fieldValuestyle").indexOf('@img::') == -1 && fidItm.find('.fieldGroup .fieldValue').length > 0 && fidItm.find('.fieldGroup .imgField').length > 0) {
                 fidItm.find('.fieldGroup .imgField').css('display','none');
             }
         }
         
         function saveCopyCard(copyCardName) {
+            if (copyCardName == null || copyCardName == "") {
+                VIS.ADialog.info("FileNameMendatory");
+                return false;
+            }
+
             for (var a = 0; a < cardViewInfo.length; a++) {
                 if (cardViewInfo[a].CardViewName.trim() == copyCardName.trim()) {
-                   // VIS.ADialog.error("cardAlreadyExist", true, "");
+                    VIS.ADialog.error("cardAlreadyExist", true, "");
                     IsBusy(false);
                     return false;
                 }
@@ -4286,6 +4450,7 @@
             txtCardName.val(copyCardName);
             isCopy = true;
             btnCardCustomization.click();
+            newCopyCard.close();
             //setTimeout(function () {
             //    btnFinesh.click();
             //}, 1000);
@@ -4372,9 +4537,7 @@
             });
         } else {
             init();
-        }
-
-       
+        }       
 
         this.getRoot = function () {
             return root;
@@ -4413,7 +4576,7 @@
             var cur_canvas = JSON.stringify(Chtml);
             if (cur_canvas != history[cur_history_index] || force == 1) {
                 history.push(cur_canvas);
-                if (history.length > 6) {
+                if (history.length > 11) {
                     history.shift();
                 }
                 cur_history_index = history.length - 1;
@@ -4469,6 +4632,12 @@
             }
         }
 
+        this.disposeComponent = function () {
+            self = null;
+            root.remove();
+            root = null;
+        };
+
     };
 
 
@@ -4486,29 +4655,43 @@
     cvd.prototype.sizeChanged = function (height, width) {
         console.log(height, width);
     }
+
+    cvd.prototype.dispose = function () {
+        this.disposeComponent();
+    };
+
     VIS.CVDialog = cvd;
 
+    /**
+     * Open dialog for copy any card
+     * */
     function cardCopyDialog() {
-        var $root = $('<div class="input-group vis-input-wrap mb-0" >');
+        var self = this;
+        var $root = $('<div>');
+            var $inputText= $('<div class="input-group vis-input-wrap mb-0" >');
         var $controlBlock = $('<div class="vis-control-wrap d-block mt-1" >');
         var txtDescription = $('<span style="display:block;margin-bottom:5px;">' + VIS.Msg.getMsg('NewCardInfo') + '</span>');
-        $root.append(txtDescription).append($controlBlock);
+        $inputText.append(txtDescription).append($controlBlock);
         var $txtName = $('<input type="text">');
         var $lblName = $('<label>' + VIS.Msg.getMsg('EnterName') + '</label>');
-        $controlBlock.append($txtName).append($lblName);  
+        $controlBlock.append($txtName).append($lblName);
+        var btnDiv = $('<div class="d-flex align-items-center justify-content-end mt-2">');
+        self.btnCopySave = $('<button class="vis-save-cont mr-2">' + VIS.Msg.getMsg('Ok') + '</button>');
+        self.btnCopyCancle = $('<button class="vis-save-cont mr-2">' + VIS.Msg.getMsg('Cancle') + '</button>');
+        btnDiv.append(self.btnCopySave).append(self.btnCopyCancle);
+        $root.append($inputText).append(btnDiv);
        
-        var self = this;
         this.show = function () {
-
-            ch = new VIS.ChildDialog();
-            ch.setTitle(VIS.Msg.getMsg("CardName"));
-            ch.setModal(true);
-            ch.setContent($root);
-            ch.setWidth("50%");
-            ch.show();
-            ch.onOkClick = ok;
-            ch.onCancelClick = cancel;
-            ch.onClose = cancel;
+            chCopy = new VIS.ChildDialog();
+            chCopy.setTitle(VIS.Msg.getMsg("CardName"));
+            chCopy.setModal(true);
+            chCopy.setContent($root);
+            chCopy.setWidth("50%");
+            chCopy.show();
+            chCopy.onOkClick = ok;
+            chCopy.onCancelClick = cancel;
+            chCopy.onClose = cancel;
+            chCopy.hideButtons();
         };
 
         this.getName = function () {
@@ -4524,9 +4707,13 @@
             return true;
         };
 
+        self.close = function () {
+            chCopy.close();
+        }
+
         function cancel() {
-            ch.close();
-            aPanel.fromCardDialogBtn = false;
+            chCopy.close();
+           // aPanel.fromCardDialogBtn = false;
             return true;
         };
 
@@ -4536,11 +4723,13 @@
             $txtName = null;
             txtDescription.remove();
             txtDescription = null;
+            self.btnCopyCancle = null;
+            self.btnCopyCancle = null;
             $lblName.remove();
             $lblName = null;
             $root.remove();
             $root = null;
-            ch = null;
+            chCopy = null;
         };
     };
 

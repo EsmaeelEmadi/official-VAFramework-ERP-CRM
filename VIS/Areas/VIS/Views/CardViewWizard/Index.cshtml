@@ -151,26 +151,35 @@
                                 <input type="color" class="vis-inputColorFirstm" id="@("txtBgColor_" + ViewBag.WindowNumber)">
 
 
-                                <div class="vis-gradient-comp mr-3" style="display:none" id="@("DivGrdntBlock_" + ViewBag.WindowNumber)">
-                                    <div>
-                                        <div class="vis-left-grad-side">
-                                            <input type="color" value="#833ab4" class="vis-grad-color-fst" id="@("txtGrdntColor1_" + ViewBag.WindowNumber)">
-                                        </div>
-                                        <!-- Input copy -->
-                                        <input type="range" min="0" max="100" value="50" class="vis-percentage-slidr" id="@("txtGrdntPrcnt_" + ViewBag.WindowNumber)">
-                                        <!-- Input copy -->
-                                        <div class="vis-right-grad-side">
-                                            <input type="color" value="#fcb045" class="vis-grad-color-fst" id="@("txtGrdntColor2_" + ViewBag.WindowNumber)">
-                                        </div>
+                                <div style="display:none;margin-top:-5px" id="@("DivGrdntBlock_" + ViewBag.WindowNumber)">
+                                  
+                                    <div class="d-flex">
+                                        <input type="color" class="p-0 grd-color" id="@("txtGrdntColor1_" + ViewBag.WindowNumber)">
+                                        <input type="number" class="grd-number"  min="0" max="100" value="0" id="@("txtGrdntPrcnt_" + ViewBag.WindowNumber)">
+                                        <input type="color" class="p-0 grd-color" id="@("txtGrdntColor2_" + ViewBag.WindowNumber)">
+                                        <input type="number" class="grd-number" min="0" max="100" value="100" id="@("txtGrdntPrcnt2_" + ViewBag.WindowNumber)">
+                                        <select id="@("cmbGrdntDirection_" + ViewBag.WindowNumber)" style="height: 25px; min-height: 25px !important;">
+                                        <option value="to bottom">↓</option>
+                                        <option value="to top">↑</option>
+                                        <option value="to right">→</option>
+                                        <option value="to left">←</option>
+                                        <option value="to top left">↖</option>
+                                        <option value="to top right">↗</option>
+                                        <option value="to bottom left">↙</option>
+                                        <option value="to bottom right">↘</option>
+                                        </select>
                                     </div>
-                                    <div class="vis-grad-selector">
-                                        <div class="vis-main-circular-slider">
+                                    <div style="" class="grd-preview"></div>
+                                      
+                                   
+                                    <!--<div class="vis-grad-selector">
+                                        <div class="vis-main-circular-slider">-->
                                             <!-- <div class="vis-circular-slider-debug">0deg</div> -->
-                                            <div class="vis-circular-slider-circle vis-conition-slider">
+                                            <!--<div class="vis-circular-slider-circle vis-conition-slider">
                                                 <div class="vis-circular-slider-dot" deg="90" style="transform: rotate(90deg);"></div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
 
 
                                     @*<div class="vis-deg-circle pull-right">
@@ -328,16 +337,12 @@
                 </span>
             </div>
             <div class="vis-headerDropdownrgh">
-                @*<div class="dropdown">
-                        <span class="dropdown-toggle" data-toggle="dropdown">
-                            Sort By <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
-                        </span>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Recently Added</a>
-                            <a class="dropdown-item" href="#">Custom Template</a>
-                            <a class="dropdown-item" href="#">Theme Template</a>
-                        </div>
-                    </div>*@
+                <div class="dropdown">
+                    <label class="mr-2">@GetText("FilterCategory")</label>
+                    <select style="min-height: 25px; height: 25px;" class="mr-2" id="@("CmbTemplateCategory_" + ViewBag.WindowNumber)">
+                        <option>ALL</option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="vis-cardTemplateContainer py-1 px-2 mb-2">
@@ -352,8 +357,11 @@
                     </svg>
 
                 </div>
+                
             </div>
-
+            <div class="vis-noTemplateIcon">
+                <img src="~/Areas/VIS/Images/icon.png" alt="Alternate Text" />
+            </div>
         </div>
         <div class="vis-cardTwoFooterAr py-2 mb-2">
             <div class="vis-footrButton px-2 d-flex align-items-center justify-content-end">

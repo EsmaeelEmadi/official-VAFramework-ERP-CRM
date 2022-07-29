@@ -442,22 +442,38 @@
                                             </div>
                                             <div class="vis-prop-pan-cont d-flex align-items-center mt-1 mb-2 flex-columm">
                                                 <div class="vis-grad-styl d-flex align-items-center">
-                                                    <div class="vis-gradient-comp mr-1">
-                                                        <div class="vis-left-grad-side">
-                                                            <input type="color" value="#833ab4" data-command="gradient" onchange="$(this).parent().css('background-color',$(this).val())" class="gradient1 vis-grad-color-fst" />
-                                                        </div>
-                                                        <input type="range" data-command="gradient" min="0" max="100" value="50" class="vis-percentage-slidr" />
-                                                        <div class="vis-right-grad-side">
-                                                            <input type="color" value="#fcb045" data-command="gradient" onchange="$(this).parent().css('background-color',$(this).val())" class="gradient2 vis-grad-color-fst" />
-                                                        </div>
+                                                    <div class="d-flex">
+                                                        <input type="color" class="p-0 grd-color gradient1" data-command="gradient">
+                                                        <input type="number" class="grd-number percent1" min="0" max="100" value="0" data-command="gradient">
+                                                        <input type="color" class="p-0 grd-color gradient2" data-command="gradient">
+                                                        <input type="number" class="grd-number percent2" min="0" max="100" value="100" data-command="gradient">
+                                                        <select style="height: 25px; min-height: 25px !important;" class="grdDirection" data-command="gradient">
+                                                            <option value="to bottom">↓</option>
+                                                            <option value="to top">↑</option>
+                                                            <option value="to right">→</option>
+                                                            <option value="to left">←</option>
+                                                            <option value="to top left">↖</option>
+                                                            <option value="to top right">↗</option>
+                                                            <option value="to bottom left">↙</option>
+                                                            <option value="to bottom right">↘</option>
+                                                        </select>
                                                     </div>
-                                                    <div class="vis-grad-selector">
-                                                        <div class="vis-main-circular-slider">
-                                                            <div class="vis-circular-slider-circle">
-                                                                <div class="vis-circular-slider-dot" data-command="gradient" deg="90" style="transform: rotate(90deg);"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    @*<div class="vis-gradient-comp mr-1">
+            <div class="vis-left-grad-side">
+                <input type="color" value="#833ab4" data-command="gradient" onchange="$(this).parent().css('background-color',$(this).val())" class="gradient1 vis-grad-color-fst" />
+            </div>
+            <input type="range" data-command="gradient" min="0" max="100" value="50" class="vis-percentage-slidr" />
+            <div class="vis-right-grad-side">
+                <input type="color" value="#fcb045" data-command="gradient" onchange="$(this).parent().css('background-color',$(this).val())" class="gradient2 vis-grad-color-fst" />
+            </div>
+        </div>
+        <div class="vis-grad-selector">
+            <div class="vis-main-circular-slider">
+                <div class="vis-circular-slider-circle">
+                    <div class="vis-circular-slider-dot" data-command="gradient" deg="90" style="transform: rotate(90deg);"></div>
+                </div>
+            </div>
+        </div>*@
                                                 </div>
                                                 <input type="text" style="width: 100%;" data-command="gradientInput" class="vis-color-textbox" placeholder="Color..." />
                                             </div>
@@ -601,13 +617,22 @@
                                                     <div class="vis-font-weight-sectf">
                                                         <div class="vis-font-weight-sectf-emt"><i class="fa fa-underline" data-command1="underline" aria-hidden="true"></i></div>
                                                     </div>
-                                                    @*<div class="vis-font-weight-sectf">
-                                                            <div class="vis-font-weight-sectf-emt vis-text-align-sectf-last">
-                                                                <i class="fa fa-strikethrough" data-command1="strikethrough" aria-hidden="true"></i>
-                                                            </div>
-                                                        </div>*@
                                                 </div>
-                                                <div class="vis-letter-case-sectf d-flex mb-1">
+                                                <div class="vis-horz-align-d vis-font-weight-sectf d-flex mb-1 d-block">
+                                                    <div class="vis-font-weight-sectf-emt vis-font-weight-sectf-emt-fst">
+                                                        <i class="fa fa-align-left" data-command1="textLeft" aria-hidden="true"></i>
+                                                    </div>
+                                                    <div class="vis-font-weight-sectf">
+                                                        <div class="vis-font-weight-sectf-emt"><i class="fa fa-align-center" data-command1="textCenter" aria-hidden="true"></i></div>
+                                                    </div>
+                                                    <div class="vis-font-weight-sectf">
+                                                        <div class="vis-font-weight-sectf-emt"><i class="fa fa-align-justify" data-command1="textJustify" aria-hidden="true"></i></div>
+                                                    </div>
+                                                    <div class="vis-font-weight-sectf">
+                                                        <div class="vis-font-weight-sectf-emt"><i class="fa fa-align-right" data-command1="textRight" aria-hidden="true"></i></div>
+                                                    </div>
+                                                </div>
+                                                <div class="vis-horz-align-d vis-letter-case-sectf d-flex mb-1">
                                                     <div class="vis-letter-case-sectf-emt vis-font-weight-sectf-emt-fst">
                                                         <span class="vis-font-weight-600 vis-font-size-sm" data-command1="upperCase">TT</span>
                                                     </div>

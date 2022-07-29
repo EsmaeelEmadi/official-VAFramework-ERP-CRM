@@ -1198,8 +1198,12 @@
                 if (headerItem.ColSql.length > 0) {
                     var controls = {};
                     $divLabel = $('<div class="vis-w-p-header-Label-f"></div>');
-                    iControl = new VIS.Controls.VKeyText(headerItem.ColSql, this.windowNo,
-                        this.windowNo + "_" + headerSeqNo);
+                    var parseStr = headerItem.ColSql;
+                    if (parseStr.contains('@')) {
+                        parseStr = parseSQL(headerItem.ColSql, record);
+                    }
+                    iControl = new VIS.Controls.VKeyText(parseStr, this.windowNo,
+                        this.windowNo + "_" + headerSeqNo, false, null, headerItem.AD_GridLayoutItems_ID);
 
                     if (iControl == null) {
                         continue;
@@ -1974,6 +1978,60 @@
                 $divIcon.remove();
             }
         };
+
+        /**
+         * Parse SQL query
+         * @param {any} value
+         * @param {any} record
+         */
+        var parseSQL = function (value, record) {
+            var token = "";;
+            var outStr = new String("");
+            var i = value.indexOf('@');
+            // Check whether the @ is not the last in line (i.e. in EMailAdress or with wrong entries)
+            while (i != -1 && i != value.lastIndexOf("@")) {
+                var getValue = value.substring(0, i);
+                outStr += value.substring(0, i);			// up to @
+                value = value.substring(i + 1, value.length);	// from first @
+
+                var j = value.indexOf('@');						// next @
+                if (j < 0) {
+                    //_log.log(Level.SEVERE, "No second tag: " + inStr);
+                    return "";						//	no second tag
+                }
+
+                var ctxInfo = "";
+                var ctxInfo1 = "";
+
+                token = value.substring(0, j);
+
+                if (token.contains(".")) {
+                    token = token.substring(0, token.indexOf("."));
+                    //txInfo = ctx.getWindowContext(WindowNo, tabNo, token.substring(0, token.indexOf(".")), onlyWindow);	// get context
+                }
+
+                ctxInfo = record[token.toLowerCase()]; //ctx.getWindowContext(windowNo, tabNo, token, onlyWindow);	// get context
+
+                if (ctxInfo.length == 0 && (token.startsWith("#") || token.startsWith("$")))
+                    ctxInfo = ctx.getContext(token);	// get global context
+                if (ctxInfo.length == 0) {
+                    //_log.config("No Context Win=" + WindowNo + " for: " + token);
+                    if (!ignoreUnparsable)
+                        return "";
+
+                    outStr += ' NULL ';
+                    //						//	token not found
+                }
+                else {
+                    outStr += ctxInfo;				// replace context with Context
+                }
+
+                value = value.substring(j + 1, value.length);	// from second @
+                i = value.indexOf('@');
+            }
+            outStr += value;						// add the rest of the string
+            return outStr;
+        }
 
         this.setHeader();
 

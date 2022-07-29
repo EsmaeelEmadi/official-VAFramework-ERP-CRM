@@ -53,6 +53,8 @@
         var btnVdelCol = null;
         var btnRefreshTemplate = null;
         var force = 0;
+        var cmbTemplateCategory = null;
+        var cmbViwBlockTemplateCategory = null;
         var gridObj = {
         };
 
@@ -188,7 +190,7 @@
             borderTopRightRadius: {
                 proprty: 'border-top-right-radius',
                 value: '',
-                measurment: false
+                measurment: true
             },
             borderBottomRightRadius: {
                 proprty: 'border-bottom-right-radius',
@@ -293,21 +295,6 @@
                 value: 'underline',
                 measurment: false
             },
-            justifyLeft: {
-                proprty: 'text-align',
-                value: 'left',
-                measurment: false
-            },
-            justifyRight: {
-                proprty: 'text-align',
-                value: 'right',
-                measurment: false
-            },
-            justifyCenter: {
-                proprty: 'text-align',
-                value: 'center',
-                measurment: false
-            },
             upperCase: {
                 proprty: 'text-transform',
                 value: 'uppercase',
@@ -316,6 +303,26 @@
             capitalize: {
                 proprty: 'text-transform',
                 value: 'capitalize',
+                measurment: false
+            },
+            textLeft: {
+                proprty: 'text-align',
+                value: 'left',
+                measurment: false
+            },
+            textCenter: {
+                proprty: 'text-align',
+                value: 'center',
+                measurment: false
+            },
+            textJustify: {
+                proprty: 'text-align',
+                value: 'justify',
+                measurment: false
+            },
+            textRight: {
+                proprty: 'text-align',
+                value: 'right',
                 measurment: false
             },
             lowerCase: {
@@ -375,7 +382,7 @@
             }
         }
 
-        var root = $('<div style="height:100%"></div>');
+        var root = $('<div style="height:100%"><div class="vis-apanel-busy vis-cardviewmainbusy" style="display:block"></div></div>');
         var isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");
         
         /**
@@ -385,7 +392,7 @@
         function IsBusy(isBusy) {
             if (isBusy && isBusyRoot != null) {
                 isBusyRoot.css({ "display": "block" });
-            }
+            }                                                                                                                                                                                                            
             if (!isBusy && isBusyRoot != null) {
                 isBusyRoot.css({ "display": "none" });
             }
@@ -431,9 +438,13 @@
                 btnVdelrow = root.find('#btnVdelrow_' + WindowNo);
                 btnVdelCol = root.find('#btnVdelCol_' + WindowNo);
                 btnRefreshTemplate = root.find('#BtnRefreshTemplate_' + WindowNo);
+                cmbTemplateCategory = root.find('#CmbTemplateCategory_' + WindowNo);
+                cmbViwBlockTemplateCategory = root.find('#CmbViwBlockTemplateCategory_' + WindowNo);
+                DivStyleSec1.find('.nav-tabs li:last').hide();
                 btnTemplateBack.hide();
                 events();
                 getTemplateDesign();
+                getTemplateCategory();
             });
         }
 
@@ -516,6 +527,8 @@
                 DivCradStep2.find('.vis-two-sec-two').hide();
                 DivTemplate.find('[templateid="' + lastSelectedID + '"]').click();
                 scaleTemplate();
+                cmbTemplateCategory.val('');
+                DivTemplate.find('[issystemtemplate="Y"]').removeClass('displayNone');
             });
 
             btnFinesh.click(function (e) {
@@ -823,7 +836,7 @@
                 //$(e.target).not('.ui-resizable-handle').addClass("vis-active-block");
                 //$(this).resizable();
             }).mouseup(function (e) {
-                fill($(e.target));
+               fill($(e.target));
             });
 
             // style input change command
@@ -831,6 +844,11 @@
                 $(this).removeClass('vis-editor-validate');
                 var commend = $(this).data('command');
                 var styleValue = $(this).val();
+                var isNegativeNumber = false;
+                if (commend.indexOf('margin')!=-1 && styleValue.indexOf('-') != -1) {
+                    isNegativeNumber = true;
+                }
+
                 var mtext = styleValue.replace(/\d+/g, "").replace('.', '');
                 var mvalue = styleValue.replace(styleValue.replace(/\d+/g, ""), "");
                 if (editorProp[commend] && editorProp[commend].measurment && styleValue != "" && $(this).attr('type') != 'color') {
@@ -839,7 +857,11 @@
                             $(this).addClass('vis-editor-validate');
                             return;
                         }
-                        $(this).val(mvalue + "px");
+                        if (isNegativeNumber) {
+                            $(this).val("-"+mvalue + "px");
+                        } else {
+                            $(this).val(mvalue + "px");
+                        }
                     } else if (isNaN(Number(mvalue))) {
                         $(this).addClass('vis-editor-validate');
                         return;
@@ -854,6 +876,9 @@
                 } else if (commend == 'color') {
                     DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', styleValue);
                     DivStyleSec1.find('[data-command="color"]').val(styleValue);
+                } else if (commend == 'borderColor' || commend == 'borderLeftColor' || commend == 'borderRightColor' || commend == 'borderTopColor' || commend == 'borderBottomColor') {
+                    var bdrDiv = DivStyleSec1.find("[data-command='" + commend + "']").closest('.vis-prop-pan-cont');
+                    bdrDiv.find(".vis-back-color03").css('background-color', styleValue);
                 }
 
                 applyCommend(commend, $(this).val());
@@ -882,15 +907,28 @@
                         $(this).parent().addClass('vis-hr-elm-inn-active');
                         applyCommend(commend, editorProp[commend].value);
                     }
-                } else {                    
+                } else if (editorProp[commend].proprty == 'text-align' || editorProp[commend].proprty == 'text-transform') {
+                    applyCommend(commend, "");
+                    if (activ.find('[data-command1]').attr('data-command1') != commend) {
+                        $(this).parent().addClass('vis-hr-elm-inn-active');
+                        applyCommend(commend, editorProp[commend].value);
+                    }
+                }
+                else {                    
                     if (isStyleExist) {   
                         $(this).parent().removeClass('vis-hr-elm-inn-active');
                         applyCommend(commend, "");
+                        
                     } else {
                         $(this).parent().addClass('vis-hr-elm-inn-active');
                         applyCommend(commend, editorProp[commend].value);
                     }
                 }
+
+                if (tag.attr('style').indexOf('justify-content') != -1 || tag.attr('style').indexOf('align-items') != -1 || tag.attr('style').indexOf('flex-direction') != -1) {
+                    tag.css("display", "flex");
+                }
+
             });
 
             // style align image and text command
@@ -1277,8 +1315,24 @@
                 
             });
 
-        };
+            cmbTemplateCategory.change(function () {                
+                if ($(this).val() != "") {
+                    DivTemplate.find('[issystemtemplate="Y"]').not('.blankTemp').addClass('displayNone');
+                    DivTemplate.find('[issystemtemplate="Y"][category="' + $(this).val() + '"]').removeClass('displayNone');
+                } else {
+                    DivTemplate.find('[issystemtemplate="Y"]').removeClass('displayNone');
+                }
+                if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
+                    DivTemplate.find('.vis-noTemplateIcon').show();
+                } else {
+                    DivTemplate.find('.vis-noTemplateIcon').hide();
+                }
+            });
 
+            
+            $('#p #div').hide()
+            $('#di')
+        };
         /**
          * Genrate Gradient Degree
          * @param {any} id
@@ -1313,6 +1367,7 @@
             $this.find('.mainTemplate').css("zoom",1);
             CardCreatedby = $this.attr("createdBy");
             isSystemTemplate = $this.attr("isSystemTemplate");
+            cmbViwBlockTemplateCategory.val(($this.attr("category") == '0' ? '' : $this.attr("category")));
             AD_HeaderLayout_ID = $this.find('.mainTemplate').attr('templateid');
             lastSelectedID = AD_HeaderLayout_ID;
             templateName = $this.find('.mainTemplate').attr('name');
@@ -1609,11 +1664,11 @@
                 } else if (c != 0) {                  
                     if (c > 0) {
                         if (colposition > ci) {
-                            $(this).css('grid-area', rowPosition + '/' + (c_start + c) + '/' + (rowPosition + 1) + '/' + (c_end + c));
+                            $(this).css('grid-area', r_start + '/' + (c_start + c) + '/' + (r_end) + '/' + (c_end + c));
                         }
                     } else {
                         if (colposition > ci) {
-                            $(this).css('grid-area', rowPosition + '/' + (c_start -1) + '/' + (rowPosition + 1) + '/' + (c_end -1));
+                            $(this).css('grid-area', r_start + '/' + (c_start - 1) + '/' + (r_end) + '/' + (c_end -1));
                         }
                     }
                 } else if (r != 0) { 
@@ -1887,11 +1942,12 @@
             if (commend == 'gradient') {
                 var color1 = DivStyleSec1.find('.' + commend + '1').val();
                 var color2 = DivStyleSec1.find('.' + commend + '2').val();
-                var prcnt = DivStyleSec1.find('.vis-percentage-slidr').val();
-                var deg = DivStyleSec1.find('.vis-circular-slider-dot').attr('deg');
-                styleValue = 'linear-gradient(' + deg + 'deg,' + color1 + ' ' + prcnt + '%,  ' + color2 + ')';
-                DivStyleSec1.find('.vis-gradient-comp').css('background', styleValue);
-                DivStyleSec1.find('[data-command="gradientInput"]').val('(' + deg + 'deg,' + color1 + ' ' + prcnt + '%,  ' + color2 + ')');
+                var prcnt = DivStyleSec1.find('.percent1').val();
+                var prcnt2 = DivStyleSec1.find('.percent2').val();
+                var deg = DivStyleSec1.find('.grdDirection option:selected').val();
+                styleValue = 'linear-gradient(' + deg + ',' + color1 + ' ' + prcnt + '%,  ' + color2 + ' ' + prcnt2 + '%)';
+                //DivStyleSec1.find('.vis-gradient-comp').css('background', styleValue);
+                DivStyleSec1.find('[data-command="gradientInput"]').val('(' + deg + ',' + color1 + ' ' + prcnt + '%,  ' + color2 + ' ' + prcnt2 + '%)');
             }
 
             if (commend == 'gradientInput') {
@@ -1929,7 +1985,6 @@
                 tag.css(editorProp[commend].proprty, $.trim(styleValue));
             }
 
-
             templatechanges();
         }
 
@@ -1943,8 +1998,14 @@
 
             DivStyleSec1.find('#master001_' + WindowNo + ' input').val('');
             DivStyleSec1.find('#master001_' + WindowNo + ' select').val('');
-            DivStyleSec1.find('.gradient1').val('#833ab4');
-            DivStyleSec1.find('.gradient2').val('#fcb045');
+            DivStyleSec1.find('.gradient1').val('#000');
+            DivStyleSec1.find('.gradient2').val('#000');
+            DivStyleSec1.find('.percent1').val('0');
+            DivStyleSec1.find('.percent2').val('100');
+            DivStyleSec1.find('.grdDirection').val('to bottom');
+            chkAllBorderRadius.prop('checked', true);
+            DivStyleSec1.find('.allBorderRadius').removeClass('displayNone');
+            DivStyleSec1.find('.singleBorderRadius').addClass('displayNone');
             DivStyleSec1.find("[data-command1]").parent().removeClass('vis-hr-elm-inn-active');
             var styles = htm.attr('style');
             if (htm.find('sql').length > 0) {
@@ -1957,9 +2018,17 @@
             styles && styles.split(";").forEach(function (e) {
                 var style = e.split(":");
                 for (const a in editorProp) {
+                    if ($.trim(style[0]) == 'border-left' || $.trim(style[0]) == 'border-right' || $.trim(style[0]) == 'border-top' || $.trim(style[0]) == 'border-bottom') {
+                        style[0] = style[0] + '-width';
+                    }
+
                     if ($.trim(style[0]) == $.trim(editorProp[a].proprty)) {
                         var v = $.trim(style[1]);
                         if (editorProp[a].value == '') {
+                            if (a == 'width' || a == 'height') {
+                                v = v.replaceAll('!important', '');
+                            }
+
                             if (a == 'fontFamily') {
                                 v = v.replaceAll('"','');
                             }
@@ -1999,10 +2068,43 @@
                             } else if (a == 'color') {
                                 DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
                                 DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
+                            } else if (a != 'borderRadius' && a.indexOf('Radius') != -1) {
+                                chkAllBorderRadius.prop('checked', false);
+                                DivStyleSec1.find('.allBorderRadius').addClass('displayNone');
+                                DivStyleSec1.find('.singleBorderRadius').removeClass('displayNone');
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
                             }
-                            else if (a == 'flexDirection' && (v == 'column' || v == 'column-reverse')) {
-                                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').addClass('vis-disable-event');
+
+                            else if (a.indexOf('border') != -1 && a.indexOf('radius')==-1) {
+                                var rgb = v.split('rgb');
+                                if (rgb.length > 1) {
+                                    v = v.replace('rgb' + rgb[1], rgb2hex('rgb' + rgb[1]));
+                                }
+                                v = v.split(' ');
+                                var bdrDiv = DivStyleSec1.find("[data-command='" + a + "']").closest('.vis-prop-pan-cont');
+                                if (v.length == 1) {
+                                    DivStyleSec1.find("[data-command='" + a + "']").val(v[0]);
+                                } else if (v.length == 2) {
+                                    DivStyleSec1.find("[data-command='" + a + "']").val(v[0]);
+                                    bdrDiv.find("select").val(v[1]);
+                                } else if (v.length == 3) {
+                                    DivStyleSec1.find("[data-command='" + a + "']").val(v[0]);
+                                    bdrDiv.find("select").val(v[1]);
+                                    bdrDiv.find("[type='color']").val(v[2]);
+                                    bdrDiv.find(".vis-back-color03").css('background-color', v[2]);
+                                }
+
+                                if (style[0].indexOf('-width') != -1) {
+                                    chkAllBorder.prop('checked', false);
+                                    DivStyleSec1.find('.allBorder').addClass('displayNone');
+                                    DivStyleSec1.find('.singleBorder').removeClass('displayNone');
+                                } else {
+                                    chkAllBorder.prop('checked', true);
+                                    DivStyleSec1.find('.allBorder').removeClass('displayNone');
+                                    DivStyleSec1.find('.singleBorder').addClass('displayNone');
+                                }
                             }
+                           
                             break;
                         } else {
                             if (editorProp[a].value == v) {
@@ -2013,6 +2115,10 @@
                     }
                 }
             });
+
+            if (DivStyleSec1.find("[data-command='flexDirection'] option:selected").val() == 'column' || DivStyleSec1.find("[data-command='flexDirection'] option:selected").val() == 'column-reverse') {
+                DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').addClass('vis-disable-event');
+            }            
         }
         /**
          * Convert color from RGB To
@@ -2044,6 +2150,7 @@
         function getTemplateDesign() {
             IsBusy(true);
             var url = VIS.Application.contextUrl + "CardView/getSystemTemplateDesign";
+            DivTemplate.find('.mainTemplate[templateid="0"]').parent().click();
             DivTemplate.find('.vis-cardSingleViewTemplate:not(:first)').remove();
             var obj = {
             }
@@ -2057,7 +2164,11 @@
                     var result = JSON.parse(data);
                     DivTemplate.find('.vis-cardTemplateContainer').append(result);
                     IsBusy(false);
-
+                    if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
+                        DivTemplate.find('.vis-noTemplateIcon').show();
+                    } else {
+                        DivTemplate.find('.vis-noTemplateIcon').hide();
+                    }
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
                     IsBusy(false);
@@ -2076,6 +2187,33 @@
             });
         }
 
+        function getTemplateCategory() {
+            cmbTemplateCategory.find('option').remove();
+            cmbViwBlockTemplateCategory.find('option').remove();
+            cmbTemplateCategory.append('<option value="">All</option>');
+            cmbViwBlockTemplateCategory.append('<option value="">--Select Category--</option>');
+            $.ajax({
+                type: "POST",
+                url: VIS.Application.contextUrl + "CardView/GetTemplateCategory",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: {},
+                success: function (data) {
+                    var result = JSON.parse(data);
+                    if (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            cmbTemplateCategory.append('<option value="' + result[i].TemplateCategoryID + '">' + result[i].Name + '</option>');
+                            cmbViwBlockTemplateCategory.append('<option value="' + result[i].TemplateCategoryID + '">' + result[i].Name + '</option>');
+                        }
+                    }
+                    IsBusy(false);
+
+                }, error: function (errorThrown) {
+                    alert(errorThrown.statusText);
+                    IsBusy(false);
+                }
+            });
+        }
         /**
          * Save Template
          * @param {any} e
@@ -2086,6 +2224,11 @@
                 VIS.ADialog.error("FillMandatory", true, "Template Name");
                 return false;
             }
+
+            //if (cmbViwBlockTemplateCategory.find('option:selected').val() == "" || cmbViwBlockTemplateCategory.find('option:selected').val() == null) {
+            //    VIS.ADialog.error("FillMandatory", true, "Template Category");
+            //    return false;
+            //}
 
             var isExist = false;
             if (AD_HeaderLayout_ID == 0) {
@@ -2115,6 +2258,10 @@
                 var sectionSeq= ($(this).closest('.vis-wizard-section').index() + 1) *10;
                 gridObj['section' + secNo]["sectionSeq"] = sectionSeq;
                 gridObj['section' + secNo]["sectionName"] = $(this).closest('.vis-wizard-section').attr("name");
+                var columnSQL = null;
+                if ($(this).find('sql').length > 0) {
+                    columnSQL = $(this).attr('query') || null;
+                }
                 if ($(this).find('.fieldGroup:not(:hidden)').length > 0) {
                     $(this).find('.fieldGroup:not(:hidden)').each(function (index) {                        
                         var contentValue = "";
@@ -2154,10 +2301,7 @@
                             valueStyle = $(this).find('.fieldValue').attr('style') || '';
                         }
 
-                        var columnSQL = null;
-                        if ($(this).find('sql').length > 0) {
-                            columnSQL = $(this).attr('query') || null;
-                        }
+                       
                         var hideFieldIcon = true;
                         if ($(this).find('.fa-star').length == 0) {
                             hideFieldIcon = true;
@@ -2207,7 +2351,7 @@
                         fieldStyle: '',
                         hideFieldIcon: false,
                         hideFieldText: false,
-                        columnSQL: "",
+                        columnSQL: columnSQL,
                         contentFieldValue: null,
                         contentFieldLable: null
                     }
@@ -2236,6 +2380,7 @@
                 CardViewID: 0,
                 templateID: AD_HeaderLayout_ID || 0,
                 templateName: txtTemplateName.val(),
+                templateCategory: cmbViwBlockTemplateCategory.find('option:selected').val() ||0,
                 style: DivViewBlock.find('.vis-viewBlock').attr('style'),
                 cardSection: cardSection,
                 cardTempField: fieldObj,
@@ -2439,7 +2584,7 @@
             var cur_canvas = JSON.stringify(Chtml);
             if (cur_canvas != history[cur_history_index] || force == 1) {
                 history.push(cur_canvas);
-                if (history.length > 6) {
+                if (history.length > 11) {
                     history.shift();
                 }
                 cur_history_index = history.length - 1;
@@ -2566,6 +2711,11 @@
             return true;
         };
 
+        this.disposeComponent = function () {
+            self = null;
+            root.remove();
+            root = null;
+        };
 
         loadUI();
     }
