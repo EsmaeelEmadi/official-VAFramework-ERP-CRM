@@ -2938,10 +2938,12 @@ border-top-left-radius:4px !important;
     padding: 5px !important;
 }
 
-
-
-
-    .vis-split-cell {
+.vis-two-sec-header .canvas {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(100% - 25px);
+}
+/*.vis-split-cell {
         position: absolute;
         right: 0px;
         color: #000000;
@@ -2951,8 +2953,7 @@ border-top-left-radius:4px !important;
         cursor: pointer;
         font-size: 0.8rem;
         display: none;
-    }
-
+    }*/
 .vis-disable-event {
     opacity: 0.6 !important;
     pointer-events: none !important;
@@ -3480,6 +3481,7 @@ position: absolute;
 height: 300px;
 top: calc(50% - 150px);
 left: calc(50% - 150px);
+display:none;
 }
     .vis-noTemplateIcon img {
         width: 100%;
@@ -3490,10 +3492,21 @@ left: calc(50% - 150px);
     .grd-number {
         -moz-appearance: textfield;
     }
-/* modify Ends */
-/*Media query*/
-@media screen and (max-width: 1500px) and (min-width: 1360px) {
-    .vis-grid-select-one-input {
+.vis-crossIcon {
+    position: absolute;
+    top: -22px;
+    right: 5px;
+    font-size: 0.75rem;
+    cursor:pointer;
+}
+    .vis-crossIcon:hover {
+        color: rgba(var(--v-c-primary), 1);
+    }
+
+    /* modify Ends */
+    /*Media query*/
+    @media screen and (max-width: 1500px) and (min-width: 1360px) {
+        .vis-grid-select-one-input {
         width: 5rem !important;
     }
 

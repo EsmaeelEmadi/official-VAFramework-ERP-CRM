@@ -536,6 +536,7 @@
             });
 
             btnRefreshTemplate.click(function () {
+                cmbTemplateCategory.val('');
                 getTemplateDesign();
             });
 
@@ -1517,6 +1518,8 @@
                 }
 
             });
+
+
         }
 
         /**
@@ -2003,9 +2006,6 @@
             DivStyleSec1.find('.percent1').val('0');
             DivStyleSec1.find('.percent2').val('100');
             DivStyleSec1.find('.grdDirection').val('to bottom');
-            chkAllBorderRadius.prop('checked', true);
-            DivStyleSec1.find('.allBorderRadius').removeClass('displayNone');
-            DivStyleSec1.find('.singleBorderRadius').addClass('displayNone');
             DivStyleSec1.find("[data-command1]").parent().removeClass('vis-hr-elm-inn-active');
             var styles = htm.attr('style');
             if (htm.find('sql').length > 0) {
@@ -2046,7 +2046,7 @@
                                 DivStyleSec1.find('.singlePadding').addClass('displayNone');
                                 DivStyleSec1.find("[data-command='" + a + "']").val(v);
                             } else if (a == 'margin' && $.trim(v).split(' ').length > 1) {
-                                chkAllMargin.prop('checked', true);
+                                chkAllMargin.prop('checked', false);
                                 DivStyleSec1.find('.allMargin').addClass('displayNone');
                                 DivStyleSec1.find('.singleMargin').removeClass('displayNone');
                                 DivStyleSec1.find("[data-command='marginLeft']").val(htm.css('margin-left'));
@@ -2058,6 +2058,19 @@
                                 DivStyleSec1.find('.allMargin').removeClass('displayNone');
                                 DivStyleSec1.find('.singleMargin').addClass('displayNone');
                                 DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            } else if (a == 'borderRadius' && $.trim(v).split(' ').length > 1) {
+                                chkAllBorderRadius.prop('checked', false);
+                                DivStyleSec1.find('.allBorderRadius').addClass('displayNone');
+                                DivStyleSec1.find('.singleBorderRadius').removeClass('displayNone');
+                                DivStyleSec1.find("[data-command='borderTopLeftRadius']").val(htm.css('border-top-left-radius'));
+                                DivStyleSec1.find("[data-command='borderTopRightRadius']").val(htm.css('border-top-right-radius'));
+                                DivStyleSec1.find("[data-command='borderBottomRightRadius']").val(htm.css('border-bottom-right-radius'));
+                                DivStyleSec1.find("[data-command='borderBottomLeftRadius']").val(htm.css('border-bottom-left-radius'));
+                            } else if (a == 'borderRadius') {
+                                chkAllBorderRadius.prop('checked', true);
+                                DivStyleSec1.find('.allBorderRadius').removeClass('displayNone');
+                                DivStyleSec1.find('.singleBorderRadius').addClass('displayNone');
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
                             } else {
                                 DivStyleSec1.find("[data-command='" + a + "']").val(v);
                             }
@@ -2068,14 +2081,7 @@
                             } else if (a == 'color') {
                                 DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
                                 DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
-                            } else if (a != 'borderRadius' && a.indexOf('Radius') != -1) {
-                                chkAllBorderRadius.prop('checked', false);
-                                DivStyleSec1.find('.allBorderRadius').addClass('displayNone');
-                                DivStyleSec1.find('.singleBorderRadius').removeClass('displayNone');
-                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
-                            }
-
-                            else if (a.indexOf('border') != -1 && a.indexOf('radius')==-1) {
+                            }else if (a.indexOf('border') != -1 && a.indexOf('radius')==-1) {
                                 var rgb = v.split('rgb');
                                 if (rgb.length > 1) {
                                     v = v.replace('rgb' + rgb[1], rgb2hex('rgb' + rgb[1]));

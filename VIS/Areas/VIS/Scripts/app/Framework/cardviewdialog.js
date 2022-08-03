@@ -138,9 +138,32 @@
 
         function init() {
             root = $('<div style="height:100%"><div class="vis-apanel-busy vis-cardviewmainbusy" style="display:block"></div></div>');
-            isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");           
-            CardViewUI();
-            
+            isBusyRoot = $("<div class='vis-apanel-busy vis-cardviewmainbusy'></div> ");    
+
+
+            var url = VIS.Application.contextUrl + "CardView/getTemplateDesign";
+            var obj = {
+                ad_Window_ID: mTab.getAD_Window_ID(),
+                ad_Tab_ID: mTab.getAD_Tab_ID()
+            }
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(obj),
+                success: function (data) {
+                    var result = JSON.parse(data);
+                    CardViewUI(result);                    
+
+                }, error: function (errorThrown) {
+                    alert(errorThrown.statusText);
+                }, complete: function () {
+                   
+                }
+            });
+
         }
 
         function IsBusy(isBusy) {
@@ -166,7 +189,7 @@
                 DivCradStep2.show();
                 DivTemplate.find('.mainTemplate[templateid="' + AD_HeaderLayout_ID + '"]').parent().click();
                 DivStyleSec1.hide();
-                DivCradStep2.find('.vis-two-sec-two').hide();                
+                DivCradStep2.find('.vis-two-sec-two').hide();
                 scaleTemplate();
                 if (!isNewRecord) {
                     btnLayoutSetting.click();
@@ -176,6 +199,7 @@
             btnSaveClose.click(function (e) {
                 closeDialog = true;
                 cardViewColArray = [];
+                VIS.context.setContext("CardDialogLaststepSelected_" + WindowNo,1);
                 SaveChanges(e);
             });
 
@@ -320,6 +344,7 @@
                 isOnlySave = false;
                 closeDialog = true;
                 cardViewColArray = [];
+                VIS.context.setContext("CardDialogLaststepSelected_" + WindowNo, 2);
                 saveTemplate(e);
             });
 
@@ -765,6 +790,7 @@
 
             btnClearFilter.click(function () {
                 txtFilterField.val('');
+                txtFilterField.focus();
                 DivCardField.find('.fieldLbl:not(:first)').show();
             });
 
@@ -804,7 +830,7 @@
             DivCardField.find('[draggable="true"]:not(:first)').sort(Ascending_sort).appendTo(DivCardField);
             DivViewBlock.find('.grdDiv').unbind('mouseover');
             DivViewBlock.find('.grdDiv').mouseover(function (e) {
-                if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                if (mdown && !$(this).hasClass('vis-split-cell')) {
                     selectTo($(this));
                 }
             });
@@ -835,7 +861,7 @@
                     AD_CardView_ID = cardViewInfo[idx].CardViewID;
                     cardViewUserID = cardViewInfo[idx].CreatedBy;
                     chkDefault.prop("checked", cardViewInfo[idx].DefaultID ? true : false);
-                    chkPublic.prop("checked", cardViewInfo[idx].UserID > 0 ? false : true);
+                    chkPublic.prop("checked", cardViewInfo[idx].UserID == 0 ? false : true);
                     AD_HeaderLayout_ID = cardViewInfo[idx].AD_HeaderLayout_ID;
                     //templateID = AD_HeaderLayout_ID;
                     if (cardViewInfo && cardViewInfo[idx].OrderByClause && cardViewInfo[idx].OrderByClause.length) {
@@ -860,10 +886,13 @@
 
         // #endregion
 
-        function CardViewUI() {
-            root.load(VIS.Application.contextUrl + 'CardViewWizard/Index/?windowno=' + WindowNo, function (event) {
-                /*step 1*/
+        function CardViewUI(temResult) {
+            root.load(VIS.Application.contextUrl + 'CardViewWizard/Index/?windowno=' + WindowNo, function (event) {                
+            /*step 1*/
+                root.append(isBusyRoot);
+                IsBusy(true);
                 DivCradStep1 = root.find('#DivCardStep1_' + WindowNo);
+                DivCradStep1.hide();
                 btnCardCustomization = root.find('#btnCardCustomization_' + WindowNo);
                 btnSaveClose = root.find('#btnSaveCloseStep1_' + WindowNo);
                 btnApply = root.find('#btnApplyStep1_' + WindowNo);
@@ -952,53 +981,73 @@
                 /*END Step 2*/
 
                 ArrayTotalTabFields();
-                getTemplateDesign();
-                GetCards();
-                getTemplateCategory();
-                FillFields(true, false);
-                FillGroupFields();
-                FillCVConditionCmbColumn();
-                events();
-                events2();
-                updateGradientColor();
+                DivTemplate.find('.vis-cardTemplateContainer').append($(temResult));
+                scaleTemplate();
+                setTimeout(function () {                    
+                    scaleTemplate();
+                    if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
+                        DivTemplate.find('.vis-noTemplateIcon').show();
+                    } else {
+                        DivTemplate.find('.vis-noTemplateIcon').hide();
+                    }
+                    DivTemplate.find('.vis-cardSingleViewTemplate').click(function () {
+                        DivTemplate.find('.vis-cardSingleViewTemplate').removeClass('vis-active-template');
+                        $(this).addClass('vis-active-template');
+                    });
+                    DivCradStep1.show();
+
+                    GetCards();
+                    getTemplateCategory();
+                    FillFields(true, false);
+                    FillGroupFields();
+                    FillCVConditionCmbColumn();
+                    events();
+                    events2();
+                    updateGradientColor();
+
+                    totalTabFileds.sort(function (a, b) {
+                        var n1 = a.getHeader().toUpperCase();
+                        if (n1 == null || n1.length == 0) {
+                            n1 = VIS.Msg.getElement(VIS.context, a.getColumnName());
+                        }
+                        var n2 = b.getHeader().toUpperCase();
+                        if (n2 == null || n2.length == 0) {
+                            n2 = VIS.Msg.getElement(VIS.context, b.getColumnName());
+                        }
+                        if (n1 > n2) return 1;
+                        if (n1 < n2) return -1;
+                        return 0;
+                    });
+                    enableDisable(false);
+                    cmbOrderClause.find('option').remove();
+                    cmbOrderClause.append('<option value="-1"></option>)');
+
+                    for (var j = 0; j < totalTabFileds.length; j++) {
+                        var header = totalTabFileds[j].getHeader();
+                        if (header == null || header.length == 0) {
+                            header = VIS.Msg.getElement(VIS.context, totalTabFileds[j].getColumnName());
+                            if (header == null || header.Length == 0)
+                                continue;
+                        }
+
+                        cmbOrderClause.append('<option value="' + totalTabFileds[j].getColumnName() + '">' + header + '</option>')
+                    }
+
+                    if (cardViewInfo && cardViewInfo.length == 0) {
+                        isSameUser = true;
+                        btnNewCard.click();
+                        btnDelete.addClass('vis-disable-event');
+                        btnCancle.addClass('vis-disable-event');
+                        btnCopy.addClass('vis-disable-event');
+                    } else if (VIS.context.getContext("CardDialogLaststepSelected_" + WindowNo) == 2) {
+                        btnCardCustomization.click();
+                    }                   
+                    IsBusy(false);
+
+                }, 2000);
+
+                //getTemplateDesign();
                
-                totalTabFileds.sort(function (a, b) {
-                    var n1 = a.getHeader().toUpperCase();
-                    if (n1 == null || n1.length == 0) {
-                        n1 = VIS.Msg.getElement(VIS.context, a.getColumnName());
-                    }
-                    var n2 = b.getHeader().toUpperCase();
-                    if (n2 == null || n2.length == 0) {
-                        n2 = VIS.Msg.getElement(VIS.context, b.getColumnName());
-                    }
-                    if (n1 > n2) return 1;
-                    if (n1 < n2) return -1;
-                    return 0;
-                });
-                enableDisable(false);
-                cmbOrderClause.find('option').remove();
-                cmbOrderClause.append('<option value="-1"></option>)');
-
-                for (var j = 0; j < totalTabFileds.length; j++) {
-                    var header = totalTabFileds[j].getHeader();
-                    if (header == null || header.length == 0) {
-                        header = VIS.Msg.getElement(VIS.context, totalTabFileds[j].getColumnName());
-                        if (header == null || header.Length == 0)
-                            continue;
-                    }
-
-                    cmbOrderClause.append('<option value="' + totalTabFileds[j].getColumnName() + '">' + header + '</option>')
-                }
-
-                if (cardViewInfo && cardViewInfo.length == 0) {
-                    isSameUser = true;
-                    btnNewCard.click();
-                    btnDelete.addClass('vis-disable-event');
-                    btnCancle.addClass('vis-disable-event');
-                    btnCopy.addClass('vis-disable-event');
-                }
-                
-                root.append(isBusyRoot);
             });
 
 
@@ -1109,7 +1158,7 @@
                         //txtTemplateName.val(cardViewInfo[idx].CardViewName);
                         AD_HeaderLayout_ID = cardViewInfo[idx].AD_HeaderLayout_ID;
                         ControlMgmt(idx);
-                        chkPublic.attr("checked", cardViewInfo[idx].UserID > 0 ? false : true);
+                        chkPublic.attr("checked", cardViewInfo[idx].UserID > 0 ? true : false);
                         chkDefault.attr("checked", cardViewInfo[idx].DefaultID ? true : false);
 
                         if (idx && cardViewInfo[idx].OrderByClause && cardViewInfo[idx].OrderByClause.length > 0) {
@@ -1894,11 +1943,12 @@
                 btnOnlySave.addClass('vis-disable-event');
                 btnChangeTemplate.addClass('vis-disable-event');
             }
-            if (VIS.MRole.isAdministrator) {
-                chkPublic.show();
-            } else {
-                chkPublic.hide();
-            }
+
+            //if (VIS.MRole.isAdministrator) {
+            //    chkPublic.show();
+            //} else {
+            //    chkPublic.hide();
+            //}
             
         }
 
@@ -1978,10 +2028,10 @@
             if (isCopy) {
                 isNewRecord = true;
                 isCopy = false;
-                if (!VIS.MRole.isAdministrator) {
-                    chkPublic.prop("checked", false);
-                    chkDefault.prop("checked", false);
-                }
+                //if (!VIS.MRole.isAdministrator) {
+                //    chkPublic.prop("checked", false);
+                //    chkDefault.prop("checked", false);
+                //}
             }
            
 
@@ -2054,7 +2104,7 @@
                 CardViewID: cardID,
                 IsDefault: chkDefault.is(":checked"),
                 AD_HeaderLayout_ID: AD_HeaderLayout_ID,
-                isPublic: chkPublic.is(":checked"),
+                isPublic: chkPublic.is(":checked") == true ? false : true,
                 groupSequence: grpSeq
             });
 
@@ -2101,13 +2151,13 @@
                             cardsList.find('.crd-active .vis-lft-sgl-title').text(cardViewName);
                         }
                         getTemplateDesign();
-                        FillFields(true, false);
                         isEdit = true;
                         isNewRecord = false;
                         if (!isOnlySave) {
                             DivCradStep1.show();
                             DivCradStep2.hide();
-                        }
+                            FillFields(true, false);
+                        } 
                     }
                     IsBusy(false);
                     btnCopy.removeClass('vis-disable-event');
@@ -2428,7 +2478,8 @@
                         var areagrid = $(this).css('grid-area').split('/');
                         var idx = col * ($.trim(areagrid[0]) - 1) + ($.trim(areagrid[1]) - 1);
                         if ($.trim(areagrid[0]) != ($.trim(areagrid[2]) - 1) || $.trim(areagrid[1]) != ($.trim(areagrid[3]) - 1)) {-
-                            $(this).append('<span class="vis-split-cell"></span>');
+                            //$(this).append('<span class="vis-split-cell"></span>');
+                            $(this).addClass('vis-split-cell');
                         }
                         arr[idx] = $(this)[0].outerHTML;
                     });
@@ -2438,7 +2489,7 @@
                 DivViewBlock.find('.vis-viewBlock').attr("style", $this.find('.mainTemplate').attr('style') || '');
                 DivViewBlock.find('.vis-viewBlock').html($this.find('.mainTemplate').html());
                 DivViewBlock.find('.grdDiv').mouseover(function (e) {
-                    if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                    if (mdown && (!$(this).hasClass('vis-split-cell'))) {
                         selectTo($(this));
                     }
                 });
@@ -2881,7 +2932,7 @@
 
                 } else if (cmd == 'Separate') {
                     applyunMerge(blok);
-                    blok.find('.vis-split-cell:first').remove();
+                    blok.removeClass('vis-split-cell');
                     $(this).parent().hide();
                     templatechanges();
                 } else if (cmd == 'Merge') {
@@ -3012,7 +3063,7 @@
 
                     }
 
-                    if ($(e.target).find('.vis-split-cell').length == 0) {
+                    if (!$(e.target).hasClass('vis-split-cell')) {
                         divTopNavigator.find('[command="Separate"]').parent().hide();
                         if ($(e.target).hasClass('grdDiv')) {
                             mdown = true;
@@ -3570,7 +3621,7 @@
                 c_end = Number($.trim(gArea[3]));
 
                 var colposition = (index % totalCol) + 1;
-                if ($(this).find('.vis-split-cell').length == 0) {                   
+                if (!$(this).hasClass('vis-split-cell')) {                   
                     $(this).css('grid-area', rowPosition + '/' + colposition + '/' + (rowPosition + 1) + '/' + (colposition + 1));
                 } else if (c != 0) {
                     if (c > 0) {
@@ -3625,7 +3676,7 @@
                 grSec.find('.grdDiv').unbind('mouseover');
                 grSec.find('.grdDiv').mouseover(function (e) {
                     e.preventDefault();
-                    if (mdown && ($(this).find('.vis-split-cell').length == 0)) {
+                    if (mdown && !$(this).hasClass('vis-split-cell')) {
                         selectTo($(this));
                     }
 
@@ -3758,7 +3809,7 @@
 
             var unMearge = $('<span class="vis-split-cell"></span>');
             activeSection.find('.vis-active-block:not(:first)').hide().removeClass('vis-active-block');
-            activeSection.find('.vis-active-block:first').css('grid-area', rowStart + '/' + colStart + '/' + rowEnd + '/' + colEnd).append(unMearge);
+            activeSection.find('.vis-active-block:first').css('grid-area', rowStart + '/' + colStart + '/' + rowEnd + '/' + colEnd).addClass('vis-split-cell');
 
             unMearge.click(function () {
                 applyunMerge($(this).parent());
@@ -3892,14 +3943,18 @@
                 data: JSON.stringify(obj),
                 success: function (data) {
                     var result = JSON.parse(data);
-                    DivTemplate.find('.vis-cardTemplateContainer').append($(result)); 
+                    DivTemplate.find('.vis-cardTemplateContainer').append($(result));     
                     scaleTemplate();
-                    IsBusy(false);
-                    if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
-                        DivTemplate.find('.vis-noTemplateIcon').show();
-                    } else {
-                        DivTemplate.find('.vis-noTemplateIcon').hide();
-                    }
+                     IsBusy(false);
+                    setTimeout(function () {
+                        scaleTemplate();
+                        IsBusy(false);
+                        if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
+                            DivTemplate.find('.vis-noTemplateIcon').show();
+                        } else {
+                            DivTemplate.find('.vis-noTemplateIcon').hide();
+                        }
+                    }, 2000);
 
                 }, error: function (errorThrown) {
                     alert(errorThrown.statusText);
@@ -4150,8 +4205,10 @@
             DivStyleSec1.find('#master001_' + WindowNo + ' input').val('');
             DivStyleSec1.find('#master001_' + WindowNo + ' select').val('');
             DivStyleSec1.find('.vis-back-color03').css('background-color','teal');
-            DivStyleSec1.find('.gradient1').val('#833ab4');
-            DivStyleSec1.find('.gradient2').val('#fcb045');
+            DivStyleSec1.find('.gradient2').val('#000');
+            DivStyleSec1.find('.percent1').val('0');
+            DivStyleSec1.find('.percent2').val('100');
+            DivStyleSec1.find('.grdDirection').val('to bottom');
             chkAllBorderRadius.prop('checked', true);
             DivStyleSec1.find('.allBorderRadius').removeClass('displayNone');
             DivStyleSec1.find('.singleBorderRadius').addClass('displayNone');
@@ -4199,7 +4256,7 @@
                                 DivStyleSec1.find('.singlePadding').addClass('displayNone');
                                 DivStyleSec1.find("[data-command='" + a + "']").val(v);
                             } else if (a == 'margin' && $.trim(v).split(' ').length > 1) {
-                                chkAllMargin.prop('checked', true);
+                                chkAllMargin.prop('checked', false);
                                 DivStyleSec1.find('.allMargin').addClass('displayNone');
                                 DivStyleSec1.find('.singleMargin').removeClass('displayNone');
                                 DivStyleSec1.find("[data-command='marginLeft']").val(htm.css('margin-left'));
@@ -4211,7 +4268,20 @@
                                 DivStyleSec1.find('.allMargin').removeClass('displayNone');
                                 DivStyleSec1.find('.singleMargin').addClass('displayNone');
                                 DivStyleSec1.find("[data-command='" + a + "']").val(v);
-                            } else {
+                            } else if (a == 'borderRadius' && $.trim(v).split(' ').length > 1) {
+                                chkAllBorderRadius.prop('checked', false);
+                                DivStyleSec1.find('.allBorderRadius').addClass('displayNone');
+                                DivStyleSec1.find('.singleBorderRadius').removeClass('displayNone');
+                                DivStyleSec1.find("[data-command='borderTopLeftRadius']").val(htm.css('border-top-left-radius'));
+                                DivStyleSec1.find("[data-command='borderTopRightRadius']").val(htm.css('border-top-right-radius'));
+                                DivStyleSec1.find("[data-command='borderBottomRightRadius']").val(htm.css('border-bottom-right-radius'));
+                                DivStyleSec1.find("[data-command='borderBottomLeftRadius']").val(htm.css('border-bottom-left-radius'));
+                            } else if (a == 'borderRadius') {
+                                chkAllBorderRadius.prop('checked', true);
+                                DivStyleSec1.find('.allBorderRadius').removeClass('displayNone');
+                                DivStyleSec1.find('.singleBorderRadius').addClass('displayNone');
+                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
+                            }else {
                                 DivStyleSec1.find("[data-command='" + a + "']").val(v);
                             }
 
@@ -4221,13 +4291,7 @@
                             } else if (a == 'color') {
                                 DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', v);
                                 DivStyleSec1.find("[data-command='" + a + "'][type='color']").val(rgb2hex(v));
-                            } else if (a != 'borderRadius' && a.indexOf('Radius') != -1) {
-                                chkAllBorderRadius.prop('checked', false);
-                                DivStyleSec1.find('.allBorderRadius').addClass('displayNone');
-                                DivStyleSec1.find('.singleBorderRadius').removeClass('displayNone');
-                                DivStyleSec1.find("[data-command='" + a + "']").val(v);
-                            }
-
+                            } 
                             else if (a.indexOf('border') != -1 && a.indexOf('radius') == -1) {
                                 var rgb = v.split('rgb');
                                 if (rgb.length > 1) {

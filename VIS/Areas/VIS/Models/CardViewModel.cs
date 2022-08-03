@@ -24,7 +24,7 @@ namespace VIS.Models
                             FROM AD_CardView CV
                             INNER JOIN AD_User AU ON CV.createdBy=AU.AD_User_ID
                             LEFT OUTER JOIN AD_DefaultCardView DCV
-                            ON CV.AD_CardView_ID=DCV.AD_CardView_ID
+                            ON (CV.AD_CardView_ID=DCV.AD_CardView_ID AND  DCV.ad_user_id = " + ctx.GetAD_User_ID() + @")
                             WHERE CV.IsActive='Y' AND  CV.AD_Window_id=" + ad_Window_ID + " AND CV.AD_Tab_id=" + ad_Tab_ID + " AND (CV.AD_User_ID IS NULL OR CV.AD_User_ID  =" + ctx.GetAD_User_ID() + @" 
                             ) ORDER BY CV.Name ASC";
 
@@ -225,10 +225,20 @@ namespace VIS.Models
             {
                 objCardView = new MCardView(ctx, cardViewID, null);
                 isupdate = true;
+
+                int headerID = Util.GetValueOfInt(DB.ExecuteScalar("SELECT ad_headerlayout_id FROM ad_cardview WHERE ad_cardview_id=" + cardViewID, null, null));
+                if (headerID != AD_HeaderLayout_ID)
+                {
+                    string sql = "DELETE FROM AD_GridLayoutItems WHERE AD_GridLayout_ID IN (SELECT AD_GridLayout_ID FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + headerID + "))";
+                    DB.ExecuteQuery(sql, null, null);
+                    DB.ExecuteQuery("DELETE FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + headerID, null, null);
+                    DB.ExecuteQuery("DELETE FROM AD_HeaderLayout WHERE AD_HeaderLayout_ID=" + headerID, null, null);
+                }
+
             }
             objCardView.SetAD_Window_ID(ad_Window_ID);
             objCardView.SetAD_Tab_ID(ad_Tab_ID);
-            if (MUser.Get(ctx).IsAdministrator() && isPublic)
+            if (isPublic)
             {
                 objCardView.SetAD_User_ID(0);
             }
@@ -324,6 +334,12 @@ namespace VIS.Models
 
         public void DeleteCardView(int ad_CardView_ID, Ctx ctx)
         {
+            int headerID = Util.GetValueOfInt(DB.ExecuteScalar("SELECT ad_headerlayout_id FROM ad_cardview WHERE ad_cardview_id=" + ad_CardView_ID, null, null));
+            string sql = "DELETE FROM AD_GridLayoutItems WHERE AD_GridLayout_ID IN (SELECT AD_GridLayout_ID FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + headerID + "))";
+            DB.ExecuteQuery(sql, null, null);
+            DB.ExecuteQuery("DELETE FROM AD_GridLayout WHERE AD_HeaderLayout_ID=" + headerID, null, null);
+            DB.ExecuteQuery("DELETE FROM AD_HeaderLayout WHERE AD_HeaderLayout_ID=" + headerID, null, null);
+
             string sqlQuery = "DELETE FROM AD_CARDVIEW WHERE AD_CARDVIEW_ID=" + ad_CardView_ID + " AND AD_Client_ID=" + ctx.GetAD_Client_ID();
             int result = DB.ExecuteQuery(sqlQuery);
             if (result < 1)
