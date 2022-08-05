@@ -595,7 +595,7 @@
                     $slider.css({ WebkitTransform: 'rotate(' + deg + 'deg)' });
                     $slider.css({ '-moz-transform': 'rotate(' + deg + 'deg)' });
                     $slider.attr("deg", deg);
-                    applyCommend("gradient", deg);
+                    applycommand("gradient", deg);
                 }
             });
 
@@ -742,10 +742,17 @@
                     divTopNavigator.find('[command="fieldName"]').text('').hide();
                     if ($(e.target).hasClass('imgField')) {
                         btnEditIcon.show();
-                        btnEditIcon.css({
-                            "left": e.target.offsetLeft + e.target.width - 12,
-                            "top": e.target.offsetTop,
-                        });
+                        if (e.target.tagName == 'I') {
+                            btnEditIcon.css({
+                                "left": $(e.target).closest('.grdDiv')[0].offsetLeft + 22,
+                                "top": $(e.target).closest('.grdDiv')[0].offsetTop+6
+                            });
+                        } else {
+                            btnEditIcon.css({
+                                "left": e.target.offsetLeft + (e.target.width || 0) - 12,
+                                "top": e.target.offsetTop,
+                            });
+                        }
                     } else {
                         btnEditIcon.hide();
                     }
@@ -843,16 +850,16 @@
             // style input change command
             DivStyleSec1.find('[data-command]').on('change', function (e) {
                 $(this).removeClass('vis-editor-validate');
-                var commend = $(this).data('command');
+                var command = $(this).data('command');
                 var styleValue = $(this).val();
                 var isNegativeNumber = false;
-                if (commend.indexOf('margin')!=-1 && styleValue.indexOf('-') != -1) {
+                if (command.indexOf('margin')!=-1 && styleValue.indexOf('-') != -1) {
                     isNegativeNumber = true;
                 }
 
                 var mtext = styleValue.replace(/\d+/g, "").replace('.', '');
                 var mvalue = styleValue.replace(styleValue.replace(/\d+/g, ""), "");
-                if (editorProp[commend] && editorProp[commend].measurment && styleValue != "" && $(this).attr('type') != 'color') {
+                if (editorProp[command] && editorProp[command].measurment && styleValue != "" && $(this).attr('type') != 'color') {
                     if (measurment.indexOf(mtext) < 0) {
                         if (isNaN(Number(mvalue))) {
                             $(this).addClass('vis-editor-validate');
@@ -870,59 +877,59 @@
                 }
                
 
-                if (commend == 'backgroundColor') {
+                if (command == 'backgroundColor') {
                     // var clr= rgb2hex(styleValue);
                     DivStyleSec1.find('.vis-zero-BTopLeftBLeft:first').css('background-color', styleValue);
                     DivStyleSec1.find('[data-command="backgroundColor"]').val(styleValue);
-                } else if (commend == 'color') {
+                } else if (command == 'color') {
                     DivStyleSec1.find('.vis-zero-BTopLeftBLeft:last').css('background-color', styleValue);
                     DivStyleSec1.find('[data-command="color"]').val(styleValue);
-                } else if (commend == 'borderColor' || commend == 'borderLeftColor' || commend == 'borderRightColor' || commend == 'borderTopColor' || commend == 'borderBottomColor') {
-                    var bdrDiv = DivStyleSec1.find("[data-command='" + commend + "']").closest('.vis-prop-pan-cont');
+                } else if (command == 'borderColor' || command == 'borderLeftColor' || command == 'borderRightColor' || command == 'borderTopColor' || command == 'borderBottomColor') {
+                    var bdrDiv = DivStyleSec1.find("[data-command='" + command + "']").closest('.vis-prop-pan-cont');
                     bdrDiv.find(".vis-back-color03").css('background-color', styleValue);
                 }
 
-                applyCommend(commend, $(this).val());
+                applycommand(command, $(this).val());
             });
 
             // Style clickable command
             DivStyleSec1.find('[data-command1]').on('click', function (e) {
 
-                var commend = $(this).data('command1');
+                var command = $(this).data('command1');
                 var tag = DivViewBlock.find('.vis-active-block');
                 var isStyleExist = false;
-                if (editorProp[commend].measurment) {
-                    isStyleExist = checkStyle(editorProp[commend].proprty, editorProp[commend].value, tag)
+                if (editorProp[command].measurment) {
+                    isStyleExist = checkStyle(editorProp[command].proprty, editorProp[command].value, tag)
                 } else {
-                    isStyleExist = checkStyle(editorProp[commend].proprty, false, tag)
+                    isStyleExist = checkStyle(editorProp[command].proprty, false, tag)
                 }
 
 
                 var activ = $(this).closest('.vis-horz-align-d').find('.vis-hr-elm-inn-active');
                 activ.removeClass('vis-hr-elm-inn-active');
-                if ((editorProp[commend].proprty == "justify-content" || editorProp[commend].proprty == "align-items") && checkStyle("display", "flex", tag)) {
+                if ((editorProp[command].proprty == "justify-content" || editorProp[command].proprty == "align-items") && checkStyle("display", "flex", tag)) {
                     //applyCommend("displayFlex", "");
                     tag[0].style.removeProperty("display");
-                    applyCommend(commend, "");
-                    if (activ.find('[data-command1]').attr('data-command1') != commend) {
+                    applycommand(command, "");
+                    if (activ.find('[data-command1]').attr('data-command1') != command) {
                         $(this).parent().addClass('vis-hr-elm-inn-active');
-                        applyCommend(commend, editorProp[commend].value);
+                        applycommand(command, editorProp[command].value);
                     }
-                } else if (editorProp[commend].proprty == 'text-align' || editorProp[commend].proprty == 'text-transform') {
-                    applyCommend(commend, "");
-                    if (activ.find('[data-command1]').attr('data-command1') != commend) {
+                } else if (editorProp[command].proprty == 'text-align' || editorProp[command].proprty == 'text-transform') {
+                    applycommand(command, "");
+                    if (activ.find('[data-command1]').attr('data-command1') != command) {
                         $(this).parent().addClass('vis-hr-elm-inn-active');
-                        applyCommend(commend, editorProp[commend].value);
+                        applycommand(command, editorProp[command].value);
                     }
                 }
                 else {                    
                     if (isStyleExist) {   
                         $(this).parent().removeClass('vis-hr-elm-inn-active');
-                        applyCommend(commend, "");
+                        applycommand(command, "");
                         
                     } else {
                         $(this).parent().addClass('vis-hr-elm-inn-active');
-                        applyCommend(commend, editorProp[commend].value);
+                        applycommand(command, editorProp[command].value);
                     }
                 }
 
@@ -936,19 +943,19 @@
             DivStyleSec1.find('[data-command2]').on('click', function (e) {
                 divTopNavigator.hide();
                 var tag = activeSection.find('.vis-active-block').closest('.fieldGroup');
-                var commend = $(this).data('command2');
+                var command = $(this).data('command2');
                 var styleProp = tag.find('.fieldValue').attr('style');
                 var classPro = tag.find('.fieldValue').attr('class');
                 tag.find('.fieldValue br').remove();
-                if (commend == 'SwapImgTxt') {
+                if (command == 'SwapImgTxt') {
                     tag.find('.imgField').before(tag.find('.fieldValue'));
-                } else if (commend == 'SwapTxtImg') {
+                } else if (command == 'SwapTxtImg') {
                     tag.find('.fieldValue').before(tag.find('.imgField'));
-                } else if (commend == 'SwapTxtImgBr') {
+                } else if (command == 'SwapTxtImgBr') {
                     tag.find('.fieldValue').before(tag.find('.imgField'));
                     tag.find('.fieldValue').prepend('<br>');
                 }
-                else if (commend == 'SwapImgTxtBr') {
+                else if (command == 'SwapImgTxtBr') {
                     tag.find('.imgField').before(tag.find('.fieldValue'));
                     tag.find('.fieldValue').append('<br>');
                 }
@@ -1081,7 +1088,6 @@
                 }
                
             });
-
 
             btnVaddrow.click(function () {                
                 var gridArea = DivViewBlock.find('.vis-active-block').css('grid-area').split('/');
@@ -1330,9 +1336,17 @@
                 }
             });
 
-            
-            $('#p #div').hide()
-            $('#di')
+            DivViewBlock.find('.vis-viewBlock').on('DOMSubtreeModified', function () {
+                var iH = DivViewBlock.height();
+                var cH = DivViewBlock.find('.canvas').height();
+                if (iH && cH && cH > iH) {
+                    DivViewBlock.find('.canvas').addClass('canvasOverFlow');
+                } else {
+                    DivViewBlock.find('.canvas').removeClass('canvasOverFlow');
+                }
+
+            });
+           
         };
         /**
          * Genrate Gradient Degree
@@ -1900,10 +1914,10 @@
 
         /**
          * Apply css style on viewblock
-         * @param {any} commend
+         * @param {any} command
          * @param {any} styleValue
          */
-        function applyCommend(commend, styleValue) {
+        function applyCommand(command, styleValue) {
             DivViewBlock.css({
                 'width': DivCradStep2.find('.vis-cardViewTemplateHead')[0].offsetWidth,
                 'overflow': 'auto'
@@ -1916,12 +1930,12 @@
             //}
             var tag = DivViewBlock.find('.vis-active-block');
 
-            if (editorProp[commend].proprty == "flex-direction") {
+            if (editorProp[command].proprty == "flex-direction") {
                 tag[0].style.removeProperty("display");
                 tag.find('.fieldGroup').removeAttr('style');
             }
 
-            if (commend == 'maxTextmultiline') {
+            if (command == 'maxTextmultiline') {
                 if (styleValue == "" || styleValue == null) {
                     tag[0].style.removeProperty('overflow');
                     tag[0].style.removeProperty('display');
@@ -1935,16 +1949,16 @@
                 }
             }
 
-            if (commend != 'gradient' && (styleValue == "" || styleValue == null)) {
-                tag[0].style.removeProperty(editorProp[commend].proprty);
+            if (command != 'gradient' && (styleValue == "" || styleValue == null)) {
+                tag[0].style.removeProperty(editorProp[command].proprty);
                 return;
             }
 
 
 
-            if (commend == 'gradient') {
-                var color1 = DivStyleSec1.find('.' + commend + '1').val();
-                var color2 = DivStyleSec1.find('.' + commend + '2').val();
+            if (command == 'gradient') {
+                var color1 = DivStyleSec1.find('.' + command + '1').val();
+                var color2 = DivStyleSec1.find('.' + command + '2').val();
                 var prcnt = DivStyleSec1.find('.percent1').val();
                 var prcnt2 = DivStyleSec1.find('.percent2').val();
                 var deg = DivStyleSec1.find('.grdDirection option:selected').val();
@@ -1953,11 +1967,11 @@
                 DivStyleSec1.find('[data-command="gradientInput"]').val('(' + deg + ',' + color1 + ' ' + prcnt + '%,  ' + color2 + ' ' + prcnt2 + '%)');
             }
 
-            if (commend == 'gradientInput') {
+            if (command == 'gradientInput') {
                 styleValue = 'linear-gradient' + styleValue;
             }
 
-            if (commend == 'boxShadow') {
+            if (command == 'boxShadow') {
                 var x = DivStyleSec1.find('.boxX').val();
                 var y = DivStyleSec1.find('.boxY').val();
                 var b = DivStyleSec1.find('.boxB').val();
@@ -1965,9 +1979,9 @@
                 styleValue = x + ' ' + y + ' ' + b + ' ' + c;
             }
 
-            if (editorProp[commend].proprty == 'justify-content' || editorProp[commend].proprty == "align-items" || editorProp[commend].proprty == "flex-direction") {
+            if (editorProp[command].proprty == 'justify-content' || editorProp[command].proprty == "align-items" || editorProp[command].proprty == "flex-direction") {
                 tag.css("display", "flex");
-                if (editorProp[commend].proprty == "flex-direction") {
+                if (editorProp[command].proprty == "flex-direction") {
                     tag.find('.fieldGroup').css({
                         "display": "flex",
                         "flex-direction": $.trim(styleValue)
@@ -1981,11 +1995,11 @@
                 DivStyleSec1.find('[data-command1="flexJustifyStart"]').closest('.vis-horz-align-d').removeClass('vis-disable-event');
             }
 
-            if (commend == 'width' || commend == 'height') {
-                var sty = tag.attr('style') + ';' + editorProp[commend].proprty + ':' + $.trim(styleValue) + ' !important';
+            if (command == 'width' || command == 'height') {
+                var sty = tag.attr('style') + ';' + editorProp[command].proprty + ':' + $.trim(styleValue) + ' !important';
                 tag.attr('style', sty);
             } else {
-                tag.css(editorProp[commend].proprty, $.trim(styleValue));
+                tag.css(editorProp[command].proprty, $.trim(styleValue));
             }
 
             templatechanges();
@@ -2155,7 +2169,7 @@
         /** Get System Template */
         function getTemplateDesign() {
             IsBusy(true);
-            var url = VIS.Application.contextUrl + "CardView/getSystemTemplateDesign";
+            var url = VIS.Application.contextUrl + "CardView/GetSystemTemplateDesign";
             DivTemplate.find('.mainTemplate[templateid="0"]').parent().click();
             DivTemplate.find('.vis-cardSingleViewTemplate:not(:first)').remove();
             var obj = {
@@ -2168,7 +2182,9 @@
                 data: JSON.stringify(obj),
                 success: function (data) {
                     var result = JSON.parse(data);
-                    DivTemplate.find('.vis-cardTemplateContainer').append(result);
+                    for (var i = 0; i < result.length; i++) {
+                        DivTemplate.find('.vis-cardTemplateContainer').append($(result[i].template));
+                    }  
                     IsBusy(false);
                     if (DivTemplate.find('.vis-cardSingleViewTemplate:not(:hidden)').length == 1) {
                         DivTemplate.find('.vis-noTemplateIcon').show();
@@ -2271,7 +2287,7 @@
                 if ($(this).find('.fieldGroup:not(:hidden)').length > 0) {
                     $(this).find('.fieldGroup:not(:hidden)').each(function (index) {                        
                         var contentValue = "";
-                        var contentLable = $(this).find('.fieldLbl').text();
+                        var contentLabel = $(this).find('.fieldLbl').text();
                         var valueStyle = "";
                         if ($(this).find('.imgField').length > 0 && $(this).find('.fieldValue').length > 0) {
                             if ($(this).find('.imgField').attr('src')) {
@@ -2332,7 +2348,7 @@
                             hideFieldText: $(this).find('.fieldLbl').attr('showfieldtext') == 'true' ? true : false,
                             columnSQL: columnSQL,
                             contentFieldValue: contentValue,
-                            contentFieldLable: contentLable
+                            contentFieldLabel: contentLabel
                         }
 
                         //var f = {}
@@ -2393,7 +2409,7 @@
                 isSystemTemplate: 'Y',
                 refTempID: 0
             }            
-            var url = VIS.Application.contextUrl + "CardView/saveCardTemplate";
+            var url = VIS.Application.contextUrl + "CardView/SaveCardTemplate";
             $.ajax({
                 type: "POST",
                 async: false,

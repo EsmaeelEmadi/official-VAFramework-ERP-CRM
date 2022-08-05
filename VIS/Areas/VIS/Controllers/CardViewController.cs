@@ -174,11 +174,11 @@ namespace VIS.Controllers
         /// <param name="ad_Window_ID"></param>
         /// <param name="ad_Tab_ID"></param>
         /// <returns></returns>
-        public JsonResult getTemplateDesign(int ad_Window_ID, int ad_Tab_ID)
+        public JsonResult GetTemplateDesign(int ad_Window_ID, int ad_Tab_ID)
         {
             Ctx ctx = Session["ctx"] as Ctx;
             CardViewModel objCardViewModel = new CardViewModel();
-            return Json(JsonConvert.SerializeObject(objCardViewModel.getTemplateDesign(ctx, ad_Window_ID, ad_Tab_ID)));
+            return Json(JsonConvert.SerializeObject(objCardViewModel.GetTemplateDesign(ctx, ad_Window_ID, ad_Tab_ID)));
         }
 
 
@@ -188,11 +188,11 @@ namespace VIS.Controllers
         /// <param name="ad_Window_ID"></param>
         /// <param name="ad_Tab_ID"></param>
         /// <returns></returns>
-        public JsonResult getSystemTemplateDesign()
+        public JsonResult GetSystemTemplateDesign()
         {
             Ctx ctx = Session["ctx"] as Ctx;
             CardViewModel objCardViewModel = new CardViewModel();
-            return Json(JsonConvert.SerializeObject(objCardViewModel.getSystemTemplateDesign(ctx)));
+            return Json(JsonConvert.SerializeObject(objCardViewModel.GetSystemTemplateDesign(ctx)));
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace VIS.Controllers
         /// <param name="cardSection"></param>
         /// <param name="cardTempField"></param>
         /// <returns></returns>
-        public JsonResult saveCardTemplate(int CardViewID, int templateID, string templateName,int templateCategory,string style, List<CardSection> cardSection,List<CardTempField> cardTempField,string isSystemTemplate,int refTempID)
+        public JsonResult SaveCardTemplate(int CardViewID, int templateID, string templateName,int templateCategory,string style, List<CardSection> cardSection,List<CardTempField> cardTempField,string isSystemTemplate,int refTempID)
         {
             Ctx ctx = Session["ctx"] as Ctx;
             CardViewModel objCardViewModel = new CardViewModel();
@@ -213,7 +213,7 @@ namespace VIS.Controllers
             {
                 objCardViewModel.DeleteAllCardViewColumns(CardViewID, ctx);
             }
-            return Json(JsonConvert.SerializeObject(objCardViewModel.saveCardTemplate(ctx, CardViewID, templateID, templateName, templateCategory, style, cardSection, cardTempField, isSystemTemplate, refTempID)));
+            return Json(JsonConvert.SerializeObject(objCardViewModel.SaveCardTemplate(ctx, CardViewID, templateID, templateName, templateCategory, style, cardSection, cardTempField, isSystemTemplate, refTempID)));
         }
 
         /// <summary>

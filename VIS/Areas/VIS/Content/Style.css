@@ -2938,10 +2938,10 @@ border-top-left-radius:4px !important;
     padding: 5px !important;
 }
 
-.vis-two-sec-header .canvas {
+.vis-two-sec-header .canvasOverFlow {
     overflow-x: hidden;
     overflow-y: auto;
-    height: calc(100% - 25px);
+    height: calc(100% - 45px);
 }
 /*.vis-split-cell {
         position: absolute;
@@ -2996,39 +2996,42 @@ border-top-left-radius:4px !important;
 }
 
 .vis-topNavigator {
-    position:absolute;
-  /*  min-width: 100px;*/
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    z-index:999;
+    display: flex;
+    background: #3E8CE4;
+    position: absolute;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
 }
 
 .vis-topNavigatorIcon {
-    background-color: #3E8CE4;
-    height: 21px;
-    font-size: 1rem;
-    font-weight: 300;
+    /* height: 20px; */
+    /* font-size: 1rem; */
+    font-weight: normal;
     color: #fff !important;
-    padding: 0 5px;
+    padding: 1px 5px;
     display: inline-block;
-    line-height: 18px;
-    margin-right: -5px;
+    /* line-height: 18px; */
 }
+
 .vis-meta-dynamicIcon{
     font-size:2rem;
     margin-right:10px;
 }
 
-.vis-topNavigatorIcon i {
+/*.vis-topNavigatorIcon i {
     width: 1em;
     height: 1em;
     text-transform: none;
     text-rendering: optimizeLegibility;
-}
+}*/
 
     .vis-topNavigatorIcon:hover {
         background-color: #387ecd;
     }
+
 .vis-color-textbox {
     min-height: 20px !important;
     height: 20px !important;
@@ -3226,6 +3229,7 @@ field, fieldvalue{
     background-color: #f1f1f1;
     position: relative;
     padding: 5px;
+    margin-bottom: 25px;
 }
 
 .vis-cardTemplateContainer {

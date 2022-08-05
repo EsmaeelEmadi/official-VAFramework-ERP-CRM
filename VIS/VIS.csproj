@@ -509,6 +509,7 @@
     <Content Include="Areas\VIS\Images\home\zoom-ico2.png" />
     <Content Include="Areas\VIS\Images\html.png" />
     <Content Include="Areas\VIS\Images\i.png" />
+    <Content Include="Areas\VIS\Images\icon.png" />
     <Content Include="Areas\VIS\Images\icons.png" />
     <Content Include="Areas\VIS\Images\Ignore22.png" />
     <Content Include="Areas\VIS\Images\image.png" />
@@ -1008,6 +1009,8 @@
     <Content Include="Areas\VIS\Views\BiPanel\GetHTMLReport.cshtml" />
     <Content Include="Areas\VIS\Views\CardViewWizard\Index.cshtml" />
     <Content Include="Areas\VIS\Views\CardTemplateMaster\index.cshtml" />
+    <Content Include="Areas\VIS\Views\CardViewWizard\HtmlControls.cshtml" />
+    <Content Include="Areas\VIS\Views\CardViewWizard\CardTemplateMaster.cshtml" />
     <None Include="Areas\VIS\Views\Theme\ThemeCnfgtr.cshtml" />
     <Content Include="Areas\VIS\WebPages\CreateUser.aspx" />
     <Content Include="Areas\VIS\WebPages\CrystalReprotViewer.aspx" />

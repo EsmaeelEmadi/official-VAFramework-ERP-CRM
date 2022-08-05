@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using VAdvantage.DataBase;
 using VAdvantage.Model;
 using VAdvantage.Utility;
@@ -566,7 +567,7 @@ namespace VIS.Models
         /// <param name="ad_Window_ID"></param>
         /// <param name="ad_Tab_ID"></param>
         /// <returns></returns>
-        public string getTemplateDesign(Ctx ctx, int ad_Window_ID, int ad_Tab_ID)
+        public List<dynamic> GetTemplateDesign(Ctx ctx, int ad_Window_ID, int ad_Tab_ID)
         {
             //string design = "";
             string sqlQuery = "SELECT AD_HEADERLAYOUT.*,CASE WHEN to_date(updated)=to_date(CURRENT_DATE) THEN 1 ELSE 0 END AS lastUpdated  FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N' AND (IsSystemTemplate='Y' OR AD_HeaderLayout_ID IN (SELECT AD_HeaderLayout_ID  FROM AD_CardView WHERE AD_CardView.AD_Window_id=" + ad_Window_ID + " AND AD_CardView.AD_Tab_id=" + ad_Tab_ID + " AND (AD_CardView.AD_User_ID IS NULL OR AD_CardView.AD_User_ID  =" + ctx.GetAD_User_ID() + ")))";
@@ -582,7 +583,7 @@ namespace VIS.Models
         /// <param name="ad_Window_ID"></param>
         /// <param name="ad_Tab_ID"></param>
         /// <returns></returns>
-        public string getSystemTemplateDesign(Ctx ctx)
+        public List<dynamic> GetSystemTemplateDesign(Ctx ctx)
         {
             //string design = "";
             string sqlQuery = "SELECT AD_HEADERLAYOUT.*,CASE when to_date(updated)=to_date(CURRENT_DATE) THEN 1 ELSE 0 END AS lastUpdated FROM AD_HEADERLAYOUT WHERE ISACTIVE='Y' AND ISHEADERVIEW='N' AND IsSystemTemplate='Y'";
@@ -591,14 +592,17 @@ namespace VIS.Models
             return returnTemplateDesign(ctx, ds, true);
         }
 
-        public string returnTemplateDesign(Ctx ctx, DataSet ds, bool fromSystemTemplate)
+        public List<dynamic> returnTemplateDesign(Ctx ctx, DataSet ds, bool fromSystemTemplate)
         {
             string sqlQuery = "";
-            string design = "";
+           
+            var DyObjectsList = new List<dynamic>();
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
+                    string design = "";
+                    dynamic DyObj = new ExpandoObject();
                     string lastUpdated = "";
                     if (Util.GetValueOfString(ds.Tables[0].Rows[i]["lastUpdated"]) == "1")
                     {
@@ -610,11 +614,11 @@ namespace VIS.Models
                     }
 
                     if (Util.GetValueOfString(ds.Tables[0].Rows[i]["IsSystemTemplate"]) == "Y")
-                    {
+                    {                       
                         design += "<div category='"+ Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_TemplateCategory_ID"]) + "' lastUpdated='" + lastUpdated + "' isSystemTemplate='Y' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center'>";
                     }
                     else
-                    {
+                    {                       
                         design += "<div category='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["AD_TemplateCategory_ID"]) + "' lastUpdated='" + lastUpdated + "' isSystemTemplate='N' createdBy='" + Util.GetValueOfInt(ds.Tables[0].Rows[i]["createdby"]) + "' class='vis-cardSingleViewTemplate d-flex align-items-center justify-content-center displayNone'>";
                     }
                     if (fromSystemTemplate)
@@ -654,15 +658,15 @@ namespace VIS.Models
                                     design += "<div seqNo='" + Util.GetValueOfInt(dsItem.Tables[0].Rows[k]["SeqNo"]) + "' cardFieldID ='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["AD_GRIDLAYOUTITEMS_ID"]) + "' class='grdDiv' style='" + style + "' fieldValuestyle='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldValueStyle"]) + "' fieldValueLabel='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldicon='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldIcon"]) + "' showfieldtext='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) + "' query='" + SecureEngineBridge.EncryptByClientKey(dsItem.Tables[0].Rows[k]["columnSQL"].ToString(), ctx.GetSecureKey()) + "'>";
                                     //design += "<fields draggable='true' ondragstart='drag(event)'></fields>";
                                     string contentFieldValue = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]));
-                                    string contentFieldLable = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]));
+                                    string contentFieldLabel = Msg.GetMsg(ctx, Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]));
                                     if (contentFieldValue.IndexOf("[") > -1)
                                     {
                                         contentFieldValue = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldValue"]);
                                     }
 
-                                    if (contentFieldLable.IndexOf("[") > -1)
+                                    if (contentFieldLabel.IndexOf("[") > -1)
                                     {
-                                        contentFieldLable = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]);
+                                        contentFieldLabel = Util.GetValueOfString(dsItem.Tables[0].Rows[k]["contentFieldLable"]);
                                     }
                                     string valueStyle = "";
                                     string imgStyle = "";
@@ -731,7 +735,7 @@ namespace VIS.Models
                                         directionStyle = "display:flex;" + style.Substring(index, (index2 - index));
                                     }
 
-                                    if (!string.IsNullOrEmpty(contentFieldLable) && !string.IsNullOrEmpty(contentFieldValue))
+                                    if (!string.IsNullOrEmpty(contentFieldLabel) && !string.IsNullOrEmpty(contentFieldValue))
                                     {
                                         design += "<div class='fieldGroup' draggable='true' style='" + directionStyle + "'>";
                                         string spn = "";
@@ -740,11 +744,11 @@ namespace VIS.Models
                                         if (Util.GetValueOfString(dsItem.Tables[0].Rows[k]["HideFieldText"]) == "Y")
                                         {
 
-                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl displayNone'  title='" + contentFieldLable + "'>" + contentFieldLable + "</span>";
+                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl displayNone'  title='" + contentFieldLabel + "'>" + contentFieldLabel + "</span>";
                                         }
                                         else
                                         {
-                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl'  title='" + contentFieldLable + "' >" + contentFieldLable + "</span>";
+                                            design += "<span style='" + Util.GetValueOfString(dsItem.Tables[0].Rows[k]["FieldLabelStyle"]) + "' showfieldtext='" + isFieldTextHide + "' class='fieldLbl'  title='" + contentFieldLabel + "' >" + contentFieldLabel + "</span>";
                                         }
 
                                         if (contentFieldValue.IndexOf("<img") > -1 || contentFieldValue.IndexOf("<svg") > -1 || contentFieldValue.IndexOf("<i") > -1)
@@ -813,10 +817,14 @@ namespace VIS.Models
                             design += "</div>";
                         }
                     }
-                    design += "</div></div>";
+                    design += "</div>";
+                    design += "<div class='d-flex align-items-center justify-content-center' style='position:absolute;bottom:-25px'><b>" + Util.GetValueOfString(ds.Tables[0].Rows[i]["Name"]) + "</b></div>";
+                    design += "</div>";
+                    DyObj.template = design;                   
+                    DyObjectsList.Add(DyObj);
                 }
             }
-            return design;
+            return DyObjectsList;
         }
 
         /// <summary>
@@ -830,7 +838,7 @@ namespace VIS.Models
         /// <param name="cardSection"></param>
         /// <param name="cardTempField"></param>
         /// <returns></returns>
-        public string saveCardTemplate(Ctx ctx, int CardViewID, int templateID, string templateName,int templateCategory, string style, List<CardSection> cardSection, List<CardTempField> cardTempField, string isSystemTemplate, int refTempID)
+        public string SaveCardTemplate(Ctx ctx, int CardViewID, int templateID, string templateName,int templateCategory, string style, List<CardSection> cardSection, List<CardTempField> cardTempField, string isSystemTemplate, int refTempID)
         {
             Trx trx = null;
             try
@@ -898,7 +906,7 @@ namespace VIS.Models
                                     mli.SetColumnSQL(columnSQL);
                                     if (isSystemTemplate == "Y")
                                     {
-                                        mli.Set_Value("contentFieldLable", cardTempField[j].contentFieldLable);
+                                        mli.Set_Value("contentFieldLable", cardTempField[j].contentFieldLabel);
                                         mli.Set_Value("contentFieldValue", cardTempField[j].contentFieldValue);
                                     }
                                     else
@@ -1076,7 +1084,7 @@ namespace VIS.Models
         public int colStart { get; set; }
         public int colEnd { get; set; }
         public int seq { get; set; }
-        public string contentFieldLable { get; set; }
+        public string contentFieldLabel { get; set; }
         public string contentFieldValue { get; set; }
     }
 
