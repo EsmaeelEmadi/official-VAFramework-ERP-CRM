@@ -308,6 +308,170 @@ namespace VAdvantage.Model
         }
         #endregion
 
+        // Viana Digital
+        // Created By Emad
+        // 2022
+        #region Create Custom Periods Jalali
+        public Boolean CreateCustomPeriodsJalali(string Month_ID)
+        {
+            if (Month_ID == null)
+            {
+                return false;
+            }
+
+            Int32 Mnth_ID = Convert.ToInt32(Month_ID);
+            Int32 count = 1;
+            String[] months = null;
+            try
+            {
+                //months = DateTimeFormatInfo.CurrentInfo.MonthNames;
+
+                months = new string[] {
+                    "Farvardin", "Ordibehesht", "khordad", "Tir", "Mordad", "Shahrivar",
+                    "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"
+                };
+
+                //DateFormatSymbols symbols = new DateFormatSymbols(locale);
+                //months = symbols.getShortMonths();
+            }
+            catch (Exception e)
+            {
+                months = new String[]{
+                "Far", "Ord", "Kho",
+                "Tir", "Mor", "Sha",
+                "Meh", "Aba", "Aza",
+                "Dey", "Bah", "Esf"
+                };
+            }
+            //
+            int year = GetYearJalaliAsInt();
+
+            //CultureInfo info = Thread.CurrentThread.CurrentCulture;
+            //System.Globalization.GregorianCalendar cal = new System.Globalization.GregorianCalendar(System.Globalization.GregorianCalendarTypes.Localized);
+            //
+
+            for (int month = Mnth_ID; month < 13; month++)
+            {
+                PersianCalendar p = new PersianCalendar();
+
+                DateTime start = new DateTime(year, month, 1, p);
+                //DateTime end = start.AddMonths(1);
+                int startMonth = p.GetMonth(start);
+                DateTime dt = start;
+                DateTime end = start;
+
+                for (int i = 0; i < 31; i++)
+                {
+                    dt = dt.AddDays(1);
+
+
+                    if (p.GetMonth(dt) != startMonth)
+                    {
+                        //Console.WriteLine("found");
+                        break;
+                    }
+                    else
+                    {
+                        end = dt;
+                        Console.WriteLine(end);
+                    }
+                }
+
+                //DateTime start = new DateTime(s.Year, s.Month, 1).Date;
+                String name = months[month - 1] + "-" + GetJalaliYY();
+                //
+                //int day = TimeUtil.GetMonthLastDay(new DateTime(year, month, 1, jc)).Day;
+                //DateTime end = new DateTime(year, month, day, jc).Date;
+                //
+
+                // IN HER
+                MPeriod period = new MPeriod(this, count, name, start, end);
+                if (!period.Save(Get_TrxName())) // Creates Period Control
+                {
+                    return false;
+                }
+                count++;
+            }
+            for (int month = 1; month < Mnth_ID; month++)
+            {
+                PersianCalendar p = new PersianCalendar();
+                DateTime start = new DateTime(year + 1, month, 1, p);
+                //DateTime end = start.AddMonths(1).Date;
+                int startMonth = p.GetMonth(start);
+                DateTime dt = start;
+                DateTime end = start;
+
+                for (int i = 0; i < 31; i++)
+                {
+                    dt = dt.AddDays(1);
+
+
+                    if (p.GetMonth(dt) != startMonth)
+                    {
+                        //Console.WriteLine("found");
+                        break;
+                    }
+                    else
+                    {
+                        end = dt;
+                        Console.WriteLine(end);
+                    }
+                }
+                string yearname = Convert.ToString(Convert.ToInt32(GetJalaliYY()) + 1);
+                String name = months[month - 1] + "-" + yearname;
+                //
+                //int day = TimeUtil.GetMonthLastDay(new DateTime(year + 1, month, 1, jc)).Day;
+                //DateTime end = new DateTime(year + 1, month, day, jc).Date;
+
+                //
+                MPeriod period = new MPeriod(this, count, name, start, end);
+                if (!period.Save(Get_TrxName())) // Creates Period Control
+                {
+                    return false;
+                }
+                count++;
+            }
+            return true;
+        }
+        public String GetJalaliYY()
+        {
+            int yy = GetYearJalaliAsInt();
+            String year = yy.ToString();
+            if (year.Length == 4)
+                return year.Substring(2, 2);
+            return GetFiscalYear();
+        }
+        public int GetYearJalaliAsInt()
+        {
+            String year = GetCalendarYearsJalali();
+
+            try
+            {
+                return int.Parse(year);
+            }
+            catch (Exception e)
+            {
+                StringTokenizer st = new StringTokenizer(year, "/-, \t\n\r\f");
+                if (st.HasMoreTokens())
+                {
+                    String year2 = st.NextToken();
+                    try
+                    {
+                        return int.Parse(year2);
+                    }
+                    catch (Exception e2)
+                    {
+                        log.Log(Level.WARNING, year + "->" + year2 + " - " + e2.ToString());
+                    }
+                }
+                else
+                {
+                    log.Log(Level.WARNING, year + " - " + e.ToString());
+                }
+            }
+            return 0;
+        }
+        #endregion
 
 
         /// <summary>

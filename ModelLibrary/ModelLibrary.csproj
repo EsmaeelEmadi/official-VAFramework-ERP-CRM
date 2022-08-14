@@ -41,29 +41,30 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CrystalDecisions.CrystalReports.Engine">
-      <HintPath>..\ViennaAdvantageWeb\Dll\CrystalDecisions.CrystalReports.Engine.dll</HintPath>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Lokesh Kit\2\ModelLibrary\bin\Debug\CrystalDecisions.CrystalReports.Engine.DLL</HintPath>
     </Reference>
-    <Reference Include="CrystalDecisions.Shared">
-      <HintPath>..\ViennaAdvantageWeb\Dll\CrystalDecisions.Shared.dll</HintPath>
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Lokesh Kit\2\ModelLibrary\bin\Debug\CrystalDecisions.Shared.DLL</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\ViennaAdvantageWeb\Dll\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.ClassLibrary">
-      <HintPath>..\ViennaAdvantageWeb\Dll\IKVM.OpenJDK.ClassLibrary.dll</HintPath>
+      <HintPath>..\..\..\Lokesh Kit\2\ViennaAdvantageWeb\bin\IKVM.OpenJDK.ClassLibrary.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Runtime">
-      <HintPath>..\ViennaAdvantageWeb\Dll\IKVM.Runtime.dll</HintPath>
+      <HintPath>..\..\..\Lokesh Kit\2\ViennaAdvantageWeb\bin\IKVM.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Interop.Excel">
-      <HintPath>..\ViennaAdvantageWeb\Dll\Interop.Excel.dll</HintPath>
+      <HintPath>..\..\..\Lokesh Kit\2\ViennaAdvantageWeb\bin\Interop.Excel.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Mail">
-      <HintPath>..\ViennaAdvantageWeb\Dll\Mail.dll</HintPath>
+      <HintPath>..\..\..\dlls\New folder\Mail.DLL</HintPath>
     </Reference>
-    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
@@ -71,7 +72,7 @@
       <HintPath>..\ViennaAdvantageWeb\Dll\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
-      <HintPath>..\ViennaAdvantageWeb\Dll\MySql.Data.dll</HintPath>
+      <HintPath>..\..\..\dlls\New folder\MySql.Data.DLL</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -105,7 +106,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Spatial, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Dlls\Html5 dll\System.Spatial.dll</HintPath>
+      <HintPath>..\..\..\Lokesh Kit\2\ViennaAdvantageWeb\bin\System.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -1648,6 +1649,7 @@
     </Compile>
     <Compile Include="ProcessAD\CacheReset.cs" />
     <Compile Include="ProcessAD\ChangeLogProcess.cs" />
+    <Compile Include="ProcessAD\YearCreatePeriodsJalali.cs" />
     <Compile Include="ProcessAD\ColumnEncryption.cs" />
     <Compile Include="ProcessAD\ColumnSync.cs" />
     <Compile Include="ProcessAD\CopyImportFormat.cs" />
